@@ -1,6 +1,6 @@
-# Configuración de Firebase Console — cliente v0.9.1
+# Configuración de Firebase Console — cliente v0.9.3
 
-La versión 0.9.1 prepara Misión Admisión para recibir Web Push y operar los envíos exclusivamente desde **Firebase Console**. No utiliza Cloudflare, Firestore, Cloud Functions, servidor propio ni base remota de alumnos.
+La versión 0.9.3 prepara Misión Admisión para recibir Web Push y operar los envíos exclusivamente desde **Firebase Console**. No utiliza Cloudflare, Firestore, Cloud Functions, servidor propio ni base remota de alumnos.
 
 ## Arquitectura elegida
 
@@ -25,7 +25,7 @@ GitHub Pages
 
 1. Abre Firebase Console.
 2. Crea un proyecto llamado **Misión Admisión**.
-3. Analytics es opcional y puede permanecer desactivado.
+3. Mantén Google Analytics habilitado si usarás campañas y segmentos desde Firebase Console.
 4. No actives Firestore, Authentication, Storage ni Firebase Hosting.
 5. Agrega una aplicación **Web**.
 6. Conserva GitHub Pages como alojamiento.
@@ -42,6 +42,7 @@ const firebaseConfig = {
   storageBucket: '...firebasestorage.app',
   messagingSenderId: '...',
   appId: '...',
+  measurementId: 'G-XXXXXXXXXX',
 };
 ```
 
@@ -77,6 +78,7 @@ globalThis.MISSION_ADMISSION_FIREBASE = Object.freeze({
   registrationTimeoutMs: 15000,
   defaultNotificationLink: '#/reto',
   debugLogging: false,
+  analyticsEnabled: true,
   vapidKey: 'CLAVE_VAPID_PUBLICA',
   config: Object.freeze({
     apiKey: '...',
@@ -85,13 +87,26 @@ globalThis.MISSION_ADMISSION_FIREBASE = Object.freeze({
     storageBucket: '...',
     messagingSenderId: '...',
     appId: '...',
+    measurementId: 'G-XXXXXXXXXX',
   }),
 });
 ```
 
 No cambies `registrationMode`.
 
-## 5. Publicar
+
+## 5. Analytics para Firebase Console
+
+Cuando `analyticsEnabled` es `true`, la aplicación carga `firebase-analytics.js` en la página principal y ejecuta Analytics de forma tolerante a fallos. No se carga Analytics dentro del service worker.
+
+- Si Analytics inicia correctamente, el diagnóstico muestra **Activo**.
+- Si un bloqueador lo impide, el diagnóstico muestra **Bloqueado o no disponible**.
+- Un fallo de Analytics nunca debe impedir activar o recibir notificaciones FCM.
+- No se envían respuestas, racha, escudos ni progreso educativo como eventos personalizados.
+
+El `measurementId` es parte de la configuración pública de la aplicación Web.
+
+## 6. Publicar
 
 ```bash
 git add .
@@ -101,7 +116,7 @@ git push
 
 Espera a que GitHub Actions termine y abre el sitio publicado mediante HTTPS.
 
-## 6. Registrar un navegador
+## 7. Registrar un navegador
 
 1. Espera a que aparezca **Modo offline preparado**.
 2. Pulsa **Activar notificaciones**.
@@ -111,7 +126,7 @@ Espera a que GitHub Actions termine y abre el sitio publicado mediante HTTPS.
 
 En iPhone o iPad primero instala la PWA desde Safari mediante **Compartir → Agregar a pantalla de inicio**.
 
-## 7. Copiar el FID para una prueba dirigida
+## 8. Copiar el FID para una prueba dirigida
 
 Cuando el registro esté activo, pulsa **Copiar ID de prueba**. Ese valor identifica únicamente esa instalación del navegador.
 
@@ -122,7 +137,7 @@ Cuando el registro esté activo, pulsa **Copiar ID de prueba**. Ese valor identi
 
 El código ya no expone snapshots para un backend, porque esta arquitectura no utiliza servidor propio.
 
-## 8. Enviar desde Firebase Console
+## 9. Enviar desde Firebase Console
 
 En Firebase Console:
 
@@ -139,7 +154,7 @@ Para campañas normales puedes seleccionar segmentos predefinidos y enviar inmed
 
 Firebase Console no sustituye una tarea recurrente de servidor: para el MVP se enviará manualmente cada día o se crearán mensajes individuales programados.
 
-## 9. Datos personalizados recomendados
+## 10. Datos personalizados recomendados
 
 Al crear una campaña, agrega opcionalmente:
 
@@ -150,7 +165,7 @@ tag  = recordatorio-diario
 
 Los enlaces externos o fuera del directorio de la PWA serán reemplazados por `#/reto`.
 
-## 10. Clic en las notificaciones
+## 11. Clic en las notificaciones
 
 El controlador `notificationclick` se registra antes de importar Firebase, como exige la guía oficial para evitar que FCM reemplace el comportamiento personalizado.
 
@@ -161,7 +176,7 @@ Al tocar una notificación:
 3. si no existe una ventana, se abre la PWA;
 4. una URL externa se sustituye por `#/reto`.
 
-## 11. Lo que no utiliza esta solución
+## 12. Lo que no utiliza esta solución
 
 - Cloudflare;
 - Firestore;

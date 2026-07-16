@@ -37,6 +37,8 @@ void main() {
     expect(report.progress.currentStreak, 4);
     expect(progress['pending_answer_count'], 0);
     expect(privacy['contains_question_answers'], isFalse);
+    expect(report.notifications.analyticsState, FirebaseAnalyticsState.active);
+    expect(report.toPlainText(), contains('Estado de Analytics: active'));
     expect(report.toPlainText(), contains('Misión Admisión'));
     expect(report.toPrettyJson(), isNot(contains('respuesta_correcta')));
   });
@@ -115,6 +117,8 @@ class _NotificationService implements NotificationService {
       permission: NotificationPermissionState.defaultState,
       enabled: false,
       registrationAvailable: false,
+      analyticsConfigured: true,
+      analyticsState: FirebaseAnalyticsState.active,
     );
   }
 

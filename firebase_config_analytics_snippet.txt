@@ -1,0 +1,9 @@
+En web/firebase_config.js agrega, junto a debugLogging:
+
+  analyticsEnabled: true,
+
+Y dentro de config agrega:
+
+  measurementId: 'G-TE68CKZ4LL',
+
+No reemplaces los demás valores que ya configuraste.

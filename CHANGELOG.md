@@ -1,5 +1,14 @@
 # Historial de cambios
 
+## 0.9.3 — 2026-07-16
+
+- Inicialización opcional y tolerante a fallos de Google Analytics para campañas de Firebase Console.
+- Analytics no bloquea el registro FCM si el SDK está bloqueado o no es compatible.
+- Diagnóstico de estado de Analytics sin incluir identificadores privados.
+- Validación de `measurementId` y configuración separada mediante `analyticsEnabled`.
+- Aviso de privacidad actualizado: el progreso y las respuestas permanecen locales.
+- Incluye los hotfix de análisis y pruebas con Firebase activado.
+
 ## 0.9.1 — 2026-07-16
 
 - Arquitectura cerrada para envíos desde Firebase Console, sin backend propio.

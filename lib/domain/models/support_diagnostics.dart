@@ -60,6 +60,9 @@ class SupportDiagnostics {
           'secure_context': notifications.secureContext,
           'installed_as_pwa': notifications.installedAsPwa,
           'requires_pwa_installation': notifications.requiresPwaInstallation,
+          'analytics_configured': notifications.analyticsConfigured,
+          'analytics_state': notifications.analyticsState.name,
+          'analytics_error_message': notifications.analyticsErrorMessage,
           'error_code': notifications.errorCode,
           'error_message': notifications.errorMessage,
         },
@@ -126,6 +129,8 @@ class SupportDiagnostics {
       'Registro FCM: ${notifications.registrationKind.name}',
       'Registro actualizado: ${notifications.registrationUpdatedAt?.toIso8601String() ?? 'no disponible'}',
       'PWA requerida para notificar: ${notifications.requiresPwaInstallation ? 'sí' : 'no'}',
+      'Google Analytics configurado: ${notifications.analyticsConfigured ? 'sí' : 'no'}',
+      'Estado de Analytics: ${notifications.analyticsState.name}',
       'Contenido: ${content.contentVersion ?? 'local inicial'}',
       'Preguntas: ${content.versionFor(ContentFileKind.questions) ?? 'asset'}',
       'Retos: ${content.versionFor(ContentFileKind.challenges) ?? 'asset'}',
@@ -139,6 +144,7 @@ class SupportDiagnostics {
       'Reto pendiente: ${pendingAttempt == null ? 'no' : 'sí, ${pendingAttempt!.dateKey}'}',
       '',
       'Este reporte no contiene nombre, correo, respuestas ni el registro privado de notificaciones.',
+      'La aplicación puede usar Google Analytics para métricas generales y campañas de Firebase.',
     ];
     return lines.join('\n');
   }

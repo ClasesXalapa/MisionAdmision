@@ -1,4 +1,4 @@
-# Arquitectura del cliente de notificaciones — v0.9.1
+# Arquitectura del cliente de notificaciones y Analytics — v0.9.3
 
 ## Componentes
 
@@ -13,6 +13,7 @@ app_service_worker.js
 └── caché offline de la PWA
 
 notifications_bridge.js
+├── inicialización opcional de Analytics
 ├── consentimiento
 ├── registro FID
 ├── recepción en primer plano
@@ -44,3 +45,11 @@ mision_admision.fcm_registered_at.v1
 ```
 
 Desactivar elimina estas claves y ejecuta `unregister()`.
+
+## Google Analytics
+
+- Se carga únicamente en la página principal mediante el módulo CDN de Firebase.
+- Usa el mismo `FirebaseApp` que FCM.
+- No se carga dentro del service worker.
+- Su fallo se registra en diagnóstico, pero no bloquea FCM.
+- No se registran eventos personalizados con respuestas o progreso educativo.

@@ -1,4 +1,4 @@
-# Misión Admisión — MVP web v0.9.1
+# Misión Admisión — MVP web v0.9.3
 
 PWA educativa en Flutter Web para aspirantes al EXANI-II. Vive en GitHub Pages, funciona sin cuentas, conserva el progreso local y distribuye contenido mediante JSON validados.
 
@@ -94,5 +94,6 @@ python3 -m http.server 8000 --directory build/web
 - [Respaldo del progreso](docs/progress_backup.md)
 - [Accesibilidad](docs/accessibility.md)
 - [Ayuda y diagnóstico](docs/support_diagnostics.md)
-- [Contexto técnico v14](docs/contexto_v14_web_mvp_v0.9.1.md)
+- [Contexto técnico v15](docs/contexto_v15_web_mvp_v0.9.3.md)
+- [Privacidad y Analytics](docs/privacy.md)
 - [Arquitectura del cliente de notificaciones](docs/notification_client_architecture.md)

@@ -10,6 +10,14 @@ enum NotificationRegistrationKind {
   firebaseInstallationId,
 }
 
+enum FirebaseAnalyticsState {
+  notConfigured,
+  loading,
+  active,
+  unsupported,
+  unavailable,
+}
+
 class NotificationStatus {
   const NotificationStatus({
     required this.configured,
@@ -22,6 +30,9 @@ class NotificationStatus {
     this.secureContext = true,
     this.installedAsPwa = false,
     this.requiresPwaInstallation = false,
+    this.analyticsConfigured = false,
+    this.analyticsState = FirebaseAnalyticsState.notConfigured,
+    this.analyticsErrorMessage,
     this.errorCode,
     this.errorMessage,
   });
@@ -37,6 +48,9 @@ class NotificationStatus {
         secureContext = false,
         installedAsPwa = false,
         requiresPwaInstallation = false,
+        analyticsConfigured = false,
+        analyticsState = FirebaseAnalyticsState.notConfigured,
+        analyticsErrorMessage = null,
         errorCode = null,
         errorMessage = null;
 
@@ -50,6 +64,9 @@ class NotificationStatus {
   final bool secureContext;
   final bool installedAsPwa;
   final bool requiresPwaInstallation;
+  final bool analyticsConfigured;
+  final FirebaseAnalyticsState analyticsState;
+  final String? analyticsErrorMessage;
   final String? errorCode;
   final String? errorMessage;
 

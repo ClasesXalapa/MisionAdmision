@@ -29,6 +29,7 @@ También está disponible en la ruta:
 - versiones activas de preguntas, retos, recursos y rangos;
 - fecha y resultado de la última sincronización;
 - estado general de notificaciones;
+- estado técnico de Google Analytics;
 - resumen de racha, escudos y existencia de un reto pendiente.
 
 ## Información excluida
@@ -41,6 +42,7 @@ El reporte no contiene:
 - respuestas seleccionadas;
 - respuestas correctas del banco;
 - token o identificador privado de notificaciones;
+- identificadores personales de Google Analytics;
 - contenido completo del respaldo.
 
 ## Acciones

@@ -14,7 +14,12 @@ function createStorage() {
   };
 }
 
-function createContext({configured = false, ios = false} = {}) {
+function createContext({
+  configured = false,
+  ios = false,
+  analyticsSupported = true,
+  analyticsThrows = false,
+} = {}) {
   const registrationCallbacks = [];
   const unregistrationCallbacks = [];
   const foregroundCallbacks = [];
@@ -22,6 +27,7 @@ function createContext({configured = false, ios = false} = {}) {
   const serviceWorkerListeners = new Map();
   let registerCount = 0;
   let unregisterCount = 0;
+  let analyticsCount = 0;
 
   const registration = {
     async showNotification(title, options) {
@@ -64,6 +70,16 @@ function createContext({configured = false, ios = false} = {}) {
     getApps() { return []; },
     initializeApp() { return app; },
   };
+  const analyticsModule = {
+    async isSupported() {
+      if (analyticsThrows) throw new Error('analytics blocked');
+      return analyticsSupported;
+    },
+    getAnalytics() {
+      analyticsCount += 1;
+      return {app};
+    },
+  };
 
   const notification = {
     permission: 'default',
@@ -103,7 +119,7 @@ function createContext({configured = false, ios = false} = {}) {
     isSecureContext: true,
     matchMedia() { return {matches: false}; },
     addEventListener() {},
-    __MISSION_ADMISSION_FIREBASE_MODULES__: {appModule, messagingModule},
+    __MISSION_ADMISSION_FIREBASE_MODULES__: {appModule, messagingModule, analyticsModule},
   };
   context.window = context;
   context.globalThis = context;
@@ -119,6 +135,7 @@ function createContext({configured = false, ios = false} = {}) {
     registrationTimeoutMs: 1000,
     defaultNotificationLink: '#/reto',
     debugLogging: false,
+    analyticsEnabled: configured,
     vapidKey: configured ? 'B'.repeat(80) : '',
     config: Object.freeze({
       apiKey: configured ? 'api-key' : '',
@@ -127,6 +144,7 @@ function createContext({configured = false, ios = false} = {}) {
       storageBucket: configured ? 'example.firebasestorage.app' : '',
       messagingSenderId: configured ? '123456' : '',
       appId: configured ? '1:123456:web:abc' : '',
+      measurementId: configured ? 'G-TEST123456' : '',
     }),
   });
   vm.runInContext(fs.readFileSync('web/notifications_bridge.js', 'utf8'), context);
@@ -139,6 +157,7 @@ function createContext({configured = false, ios = false} = {}) {
     serviceWorkerListeners,
     get registerCount() { return registerCount; },
     get unregisterCount() { return unregisterCount; },
+    get analyticsCount() { return analyticsCount; },
   };
 }
 
@@ -150,6 +169,8 @@ async function testDisabledConfiguration() {
   assert.equal(state.enabled, false);
   assert.equal(state.permission, 'default');
   assert.equal(state.registrationKind, 'none');
+  assert.equal(state.analyticsConfigured, false);
+  assert.equal(state.analyticsState, 'not-configured');
 }
 
 async function testRegistrationLifecycle() {
@@ -158,6 +179,9 @@ async function testRegistrationLifecycle() {
   assert.equal(initial.configured, true);
   assert.equal(initial.supported, true);
   assert.equal(initial.enabled, false);
+  assert.equal(initial.analyticsConfigured, true);
+  assert.equal(initial.analyticsState, 'active');
+  assert.equal(fixture.analyticsCount, 1);
 
   const enabled = await fixture.context.missionAdmissionNotifications.enable();
   assert.equal(enabled.permission, 'granted');
@@ -193,6 +217,19 @@ async function testRegistrationLifecycle() {
   assert.equal(fixture.unregisterCount, 1);
 }
 
+async function testAnalyticsFailureDoesNotBreakMessaging() {
+  const fixture = createContext({configured: true, analyticsThrows: true});
+  const initial = await fixture.context.missionAdmissionNotifications.getState();
+  assert.equal(initial.configured, true);
+  assert.equal(initial.analyticsConfigured, true);
+  assert.equal(initial.analyticsState, 'unavailable');
+  assert.match(initial.analyticsErrorMessage, /blocked/);
+
+  const enabled = await fixture.context.missionAdmissionNotifications.enable();
+  assert.equal(enabled.enabled, true);
+  assert.equal(enabled.registrationAvailable, true);
+}
+
 async function testIosRequiresInstalledPwa() {
   const fixture = createContext({configured: true, ios: true});
   const state = await fixture.context.missionAdmissionNotifications.getState();
@@ -206,8 +243,11 @@ async function testIosRequiresInstalledPwa() {
 async function main() {
   await testDisabledConfiguration();
   await testRegistrationLifecycle();
+  await testAnalyticsFailureDoesNotBreakMessaging();
   await testIosRequiresInstalledPwa();
-  console.log('Puente FCM validado: configuración, FID de prueba, renovación, baja e iPhone.');
+  console.log(
+    'Puente Firebase validado: Analytics opcional, FID, renovación, baja e iPhone.',
+  );
 }
 
 main().catch((error) => {

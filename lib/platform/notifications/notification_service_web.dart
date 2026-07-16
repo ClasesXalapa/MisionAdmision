@@ -63,6 +63,9 @@ class WebNotificationService implements NotificationService {
       secureContext: value.secureContext.toDart,
       installedAsPwa: value.installedAsPwa.toDart,
       requiresPwaInstallation: value.requiresPwaInstallation.toDart,
+      analyticsConfigured: value.analyticsConfigured.toDart,
+      analyticsState: _analyticsState(value.analyticsState.toDart),
+      analyticsErrorMessage: _optionalText(value.analyticsErrorMessage),
       errorCode: _optionalText(value.errorCode),
       errorMessage: _optionalText(value.errorMessage),
     );
@@ -81,6 +84,16 @@ class WebNotificationService implements NotificationService {
     return switch (value) {
       'fid' => NotificationRegistrationKind.firebaseInstallationId,
       _ => NotificationRegistrationKind.none,
+    };
+  }
+
+  FirebaseAnalyticsState _analyticsState(String value) {
+    return switch (value) {
+      'loading' => FirebaseAnalyticsState.loading,
+      'active' => FirebaseAnalyticsState.active,
+      'unsupported' => FirebaseAnalyticsState.unsupported,
+      'unavailable' => FirebaseAnalyticsState.unavailable,
+      _ => FirebaseAnalyticsState.notConfigured,
     };
   }
 
@@ -126,6 +139,9 @@ extension type _NotificationState._(JSObject _) implements JSObject {
   external JSBoolean get secureContext;
   external JSBoolean get installedAsPwa;
   external JSBoolean get requiresPwaInstallation;
+  external JSBoolean get analyticsConfigured;
+  external JSString get analyticsState;
+  external JSString? get analyticsErrorMessage;
   external JSString? get errorCode;
   external JSString? get errorMessage;
 }

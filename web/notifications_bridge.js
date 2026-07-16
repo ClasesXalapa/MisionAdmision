@@ -8,7 +8,12 @@
 
   let firebaseApp = null;
   let messaging = null;
+  let analytics = null;
   let modulesPromise = null;
+  let analyticsModulePromise = null;
+  let analyticsInitializationPromise = null;
+  let analyticsState = 'not-configured';
+  let analyticsErrorMessage = '';
   let registrationPromise = null;
   let foregroundUnsubscribe = null;
   let registrationObserversReady = false;
@@ -50,6 +55,20 @@
       typeof value.vapidKey === 'string' && value.vapidKey.length > 20 &&
       ['apiKey', 'projectId', 'messagingSenderId', 'appId']
         .every((key) => typeof config[key] === 'string' && config[key].trim().length > 0);
+  }
+
+  function isAnalyticsConfigured() {
+    const value = settings();
+    const measurementId = value.config?.measurementId;
+    return value.enabled === true &&
+      value.analyticsEnabled === true &&
+      typeof measurementId === 'string' && /^G-[A-Z0-9]+$/i.test(measurementId.trim());
+  }
+
+  function rememberAnalyticsUnavailable(error) {
+    analyticsState = 'unavailable';
+    analyticsErrorMessage = error instanceof Error ? error.message : String(error);
+    debug('analytics-unavailable', analyticsErrorMessage);
   }
 
   function permissionValue() {
@@ -167,6 +186,67 @@
     return modulesPromise;
   }
 
+  async function loadAnalyticsModule() {
+    if (analyticsModulePromise) return analyticsModulePromise;
+    const injected = globalThis.__MISSION_ADMISSION_FIREBASE_MODULES__;
+    if (injected?.analyticsModule) {
+      analyticsModulePromise = Promise.resolve(injected.analyticsModule);
+      return analyticsModulePromise;
+    }
+    const version = settings().sdkVersion || '12.16.0';
+    analyticsModulePromise = import(
+      `https://www.gstatic.com/firebasejs/${version}/firebase-analytics.js`
+    );
+    return analyticsModulePromise;
+  }
+
+  async function initializeFirebaseApp() {
+    const {appModule} = await loadModules();
+    if (!firebaseApp) {
+      firebaseApp = appModule.getApps().length > 0
+        ? appModule.getApps()[0]
+        : appModule.initializeApp(settings().config);
+    }
+    return firebaseApp;
+  }
+
+  async function initializeAnalyticsBestEffort() {
+    if (!isAnalyticsConfigured()) {
+      analyticsState = 'not-configured';
+      analyticsErrorMessage = '';
+      return;
+    }
+    if (analyticsState === 'active' || analyticsInitializationPromise) {
+      return analyticsInitializationPromise;
+    }
+
+    analyticsState = 'loading';
+    analyticsErrorMessage = '';
+    analyticsInitializationPromise = (async () => {
+      try {
+        const app = await initializeFirebaseApp();
+        const analyticsModule = await loadAnalyticsModule();
+        if (typeof analyticsModule.isSupported !== 'function' ||
+            typeof analyticsModule.getAnalytics !== 'function') {
+          throw bridgeError(
+            'analytics-sdk-incompatible',
+            'La versión de Firebase no incluye el módulo Analytics esperado.',
+          );
+        }
+        const supported = await analyticsModule.isSupported();
+        if (!supported) {
+          analyticsState = 'unsupported';
+          return;
+        }
+        analytics = analyticsModule.getAnalytics(app);
+        analyticsState = analytics ? 'active' : 'unavailable';
+      } catch (error) {
+        rememberAnalyticsUnavailable(error);
+      }
+    })();
+    return analyticsInitializationPromise;
+  }
+
   function assertModernMessagingApi(messagingModule) {
     const requiredFunctions = [
       'getMessaging',
@@ -200,18 +280,14 @@
       );
     }
 
-    const {appModule, messagingModule} = await loadModules();
+    const {messagingModule} = await loadModules();
     assertModernMessagingApi(messagingModule);
     const supported = await messagingModule.isSupported();
     if (!supported) {
       throw bridgeError('unsupported', 'Este navegador no admite Firebase Web Push.');
     }
 
-    if (!firebaseApp) {
-      firebaseApp = appModule.getApps().length > 0
-        ? appModule.getApps()[0]
-        : appModule.initializeApp(settings().config);
-    }
+    await initializeFirebaseApp();
     if (!messaging) messaging = messagingModule.getMessaging(firebaseApp);
     ensureRegistrationObservers(messagingModule, messaging);
     return {messagingModule, messaging};
@@ -344,12 +420,16 @@
       secureContext: isSecureContextAvailable(),
       installedAsPwa: isStandalone(),
       requiresPwaInstallation: requiresPwaInstallation(),
+      analyticsConfigured: isAnalyticsConfigured(),
+      analyticsState,
+      analyticsErrorMessage,
       errorCode: lastErrorCode,
       errorMessage: lastErrorMessage,
     };
   }
 
   async function getState() {
+    await initializeAnalyticsBestEffort();
     const configured = isConfigured();
     const supported = await sdkSupportWhenConfigured();
     const permission = permissionValue();

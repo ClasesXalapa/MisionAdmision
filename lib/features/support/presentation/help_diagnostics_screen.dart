@@ -390,6 +390,10 @@ class _ContentNotificationsCard extends StatelessWidget {
         ('Permiso', _permissionLabel(report.notifications.permission)),
         ('Notificaciones activadas', report.notifications.enabled ? 'Sí' : 'No'),
         (
+          'Google Analytics',
+          _analyticsStateLabel(report.notifications.analyticsState),
+        ),
+        (
           'Tipo de registro',
           _registrationKindLabel(report.notifications.registrationKind),
         ),
@@ -670,7 +674,7 @@ class _PrivacyCard extends StatelessWidget {
             SizedBox(width: 12),
             Expanded(
               child: Text(
-                'El diagnóstico no contiene tu nombre, correo, respuestas seleccionadas ni el identificador privado usado por las notificaciones. Revisa el texto antes de compartirlo.',
+                'El diagnóstico no contiene tu nombre, correo, respuestas seleccionadas ni el identificador privado usado por las notificaciones. Misión Admisión puede usar Google Analytics para métricas generales de uso y campañas de Firebase; el progreso educativo permanece local. Revisa el texto antes de compartirlo.',
               ),
             ),
           ],
@@ -752,6 +756,14 @@ String _permissionLabel(NotificationPermissionState value) => switch (value) {
       NotificationPermissionState.unsupported => 'No compatible',
     };
 
+
+String _analyticsStateLabel(FirebaseAnalyticsState value) => switch (value) {
+      FirebaseAnalyticsState.active => 'Activo',
+      FirebaseAnalyticsState.loading => 'Inicializando',
+      FirebaseAnalyticsState.unsupported => 'No compatible',
+      FirebaseAnalyticsState.unavailable => 'Bloqueado o no disponible',
+      FirebaseAnalyticsState.notConfigured => 'No configurado',
+    };
 
 String _registrationKindLabel(NotificationRegistrationKind value) =>
     switch (value) {

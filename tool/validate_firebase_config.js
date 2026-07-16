@@ -45,4 +45,13 @@ for (const key of required) {
 if (typeof settings.vapidKey !== 'string' || settings.vapidKey.length < 20) {
   throw new Error('La clave VAPID pública no es válida.');
 }
-console.log(`Firebase FID configurado para ${settings.config.projectId}.`);
+if (settings.analyticsEnabled === true) {
+  const measurementId = settings.config?.measurementId;
+  if (typeof measurementId !== 'string' || !/^G-[A-Z0-9]+$/i.test(measurementId.trim())) {
+    throw new Error('Analytics habilitado requiere config.measurementId con formato G-XXXXXXXXXX.');
+  }
+}
+const analyticsLabel = settings.analyticsEnabled === true
+  ? ` y Analytics ${settings.config.measurementId}`
+  : '';
+console.log(`Firebase FID configurado para ${settings.config.projectId}${analyticsLabel}.`);
