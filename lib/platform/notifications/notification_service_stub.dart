@@ -19,5 +19,9 @@ class UnsupportedNotificationService implements NotificationService {
       const NotificationStatus.unsupported();
 
   @override
+  Future<NotificationStatus> refreshRegistration() async =>
+      const NotificationStatus.unsupported();
+
+  @override
   Future<bool> showLocalTest() async => false;
 }

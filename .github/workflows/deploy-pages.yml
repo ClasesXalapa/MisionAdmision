@@ -37,12 +37,18 @@ jobs:
           python3 tool/validate_content.py
           python3 tool/validate_project.py
           python3 -m unittest discover -s tool/tests -v
+          python3 tool/generate_content_from_csv.py admin/csv_samples --check-only
+          cp admin/google_sheets/Code.gs /tmp/mision_admision_Code.gs.js
+          node --check /tmp/mision_admision_Code.gs.js
           node --check web/firebase_config.js
           node tool/validate_firebase_config.js
           node tool/test_notifications_bridge.js
+          node tool/test_fcm_service_worker.js
           node --check web/notifications_bridge.js
           node --check web/backup_bridge.js
           node tool/test_backup_bridge.js
+          node --check web/diagnostics_bridge.js
+          node tool/test_diagnostics_bridge.js
           node --check web/pwa_bridge.js
           node --check web/app_service_worker.js
           flutter test
@@ -71,6 +77,7 @@ jobs:
           node --check build/web/firebase_config.js
           node --check build/web/notifications_bridge.js
           node --check build/web/backup_bridge.js
+          node --check build/web/diagnostics_bridge.js
           node --check build/web/pwa_bridge.js
           node --check build/web/app_service_worker.js
 

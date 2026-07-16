@@ -16,7 +16,7 @@ void main() {
     expect(service.readCount, 1);
   });
 
-  test('enables and disables reminders', () async {
+  test('enables, refreshes and disables reminders', () async {
     final service = _FakeNotificationService();
     final controller = NotificationController(service: service);
     addTearDown(controller.dispose);
@@ -24,7 +24,13 @@ void main() {
 
     await controller.enable();
     expect(controller.status.enabled, isTrue);
+    expect(controller.status.registrationKind,
+        NotificationRegistrationKind.firebaseInstallationId);
     expect(service.enableCount, 1);
+
+    await controller.refreshRegistration();
+    expect(controller.status.registrationAvailable, isTrue);
+    expect(service.refreshCount, 1);
 
     await controller.disable();
     expect(controller.status.enabled, isFalse);
@@ -49,10 +55,12 @@ class _FakeNotificationService implements NotificationService {
     permission: NotificationPermissionState.defaultState,
     enabled: false,
     registrationAvailable: false,
+    secureContext: true,
   );
 
   int readCount = 0;
   int enableCount = 0;
+  int refreshCount = 0;
   int disableCount = 0;
   int testCount = 0;
 
@@ -65,13 +73,23 @@ class _FakeNotificationService implements NotificationService {
   @override
   Future<NotificationStatus> enable() async {
     enableCount += 1;
-    status = const NotificationStatus(
+    status = NotificationStatus(
       configured: true,
       supported: true,
       permission: NotificationPermissionState.granted,
       enabled: true,
       registrationAvailable: true,
+      registrationKind: NotificationRegistrationKind.firebaseInstallationId,
+      registrationUpdatedAt: DateTime.utc(2026, 7, 16),
+      secureContext: true,
+      installedAsPwa: true,
     );
+    return status;
+  }
+
+  @override
+  Future<NotificationStatus> refreshRegistration() async {
+    refreshCount += 1;
     return status;
   }
 
@@ -84,6 +102,7 @@ class _FakeNotificationService implements NotificationService {
       permission: NotificationPermissionState.granted,
       enabled: false,
       registrationAvailable: false,
+      secureContext: true,
     );
     return status;
   }

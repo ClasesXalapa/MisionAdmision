@@ -51,6 +51,7 @@ def main() -> int:
         "firebase_config.js",
         "notifications_bridge.js",
         "backup_bridge.js",
+        "diagnostics_bridge.js",
         "pwa_bridge.js",
     }
     for name in sorted(required_web_files):
@@ -63,7 +64,24 @@ def main() -> int:
         "docs/progress_backup.md",
         "docs/accessibility.md",
         "docs/beta_checklist.md",
+        "docs/content_admin.md",
+        "docs/contexto_v11_web_mvp_v0.8.md",
+        "docs/support_diagnostics.md",
+        "docs/contexto_v12_web_mvp_v0.8.1.md",
+        "docs/contexto_v13_web_mvp_v0.9.0.md",
+        "docs/notification_client_architecture.md",
+        "docs/validation_report_v0.9.0.md",
         "schemas/progress_backup.schema.json",
+        "admin/Plantilla_Contenido_Mision_Admision_v0.8.0.xlsx",
+        "admin/csv_samples/preguntas.csv",
+        "admin/csv_samples/retos.csv",
+        "admin/csv_samples/cards.csv",
+        "admin/csv_samples/rangos.csv",
+        "admin/csv_samples/config.csv",
+        "admin/google_sheets/Code.gs",
+        "tool/generate_content_from_csv.py",
+        "tool/test_diagnostics_bridge.js",
+        "tool/test_fcm_service_worker.js",
     }
     for relative in sorted(required_docs):
         if not (ROOT / relative).is_file():

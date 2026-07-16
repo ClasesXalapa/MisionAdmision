@@ -25,6 +25,11 @@ class HomeScreen extends ConsumerWidget {
         title: const Text('Misión Admisión'),
         actions: [
           IconButton(
+            tooltip: 'Ayuda y diagnóstico',
+            onPressed: () => context.go('/help'),
+            icon: const Icon(Icons.help_outline),
+          ),
+          IconButton(
             tooltip: 'Datos y respaldo',
             onPressed: () => context.go('/data'),
             icon: const Icon(Icons.manage_accounts_outlined),
@@ -98,6 +103,8 @@ class HomeScreen extends ConsumerWidget {
                   _FreeExamCard(onPressed: () => context.go('/exam')),
                   const SizedBox(height: 16),
                   _DataManagementCard(onPressed: () => context.go('/data')),
+                  const SizedBox(height: 16),
+                  _SupportCard(onPressed: () => context.go('/help')),
                   const SizedBox(height: 16),
                   const PwaStatusCard(),
                   const SizedBox(height: 16),
@@ -354,6 +361,25 @@ class _FreeExamCard extends StatelessWidget {
   }
 }
 
+
+class _SupportCard extends StatelessWidget {
+  const _SupportCard({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return _ActionCard(
+      icon: Icons.help_outline,
+      title: 'Ayuda y diagnóstico',
+      description:
+          'Revisa la versión, conexión, modo offline y crea un reporte técnico para solicitar soporte.',
+      buttonLabel: 'Abrir diagnóstico',
+      buttonIcon: Icons.arrow_forward,
+      onPressed: onPressed,
+    );
+  }
+}
 
 class _DataManagementCard extends StatelessWidget {
   const _DataManagementCard({required this.onPressed});

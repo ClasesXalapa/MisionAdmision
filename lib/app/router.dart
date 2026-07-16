@@ -6,6 +6,7 @@ import 'package:mision_admision/features/daily_challenge/presentation/daily_chal
 import 'package:mision_admision/features/exam/presentation/exam_screen.dart';
 import 'package:mision_admision/features/home/presentation/home_screen.dart';
 import 'package:mision_admision/features/resources/presentation/resources_screen.dart';
+import 'package:mision_admision/features/support/presentation/help_diagnostics_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
@@ -54,6 +55,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/data',
         builder: (context, state) => const DataManagementScreen(),
+      ),
+      GoRoute(
+        path: '/help',
+        builder: (context, state) => const HelpDiagnosticsScreen(),
       ),
     ],
   );

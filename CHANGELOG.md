@@ -1,5 +1,46 @@
 # Historial de cambios
 
+## 0.9.0 — 2026-07-16
+
+- Cliente Web Push auditado contra Firebase JavaScript SDK 12.16.0.
+- Registro moderno mediante Firebase Installation ID.
+- Deduplificación de solicitudes concurrentes de registro.
+- Renovación explícita del registro desde la interfaz.
+- Detección de PWA obligatoria en iPhone y iPad.
+- Validación de contexto HTTPS y compatibilidad real del SDK.
+- Enlaces de notificación limitados al mismo origen y ruta de GitHub Pages.
+- Manejo de mensajes de datos y clic seguro en el service worker.
+- Aviso de renovación ante `pushsubscriptionchange`.
+- Diagnóstico ampliado sin revelar el FID.
+- Pruebas Node del ciclo FID y del service worker FCM.
+
+## 0.8.1 — 2026-07-16
+
+- Nueva pantalla de ayuda y diagnóstico.
+- Versión, navegador, sistema y tamaño de pantalla visibles.
+- Estado de conexión, HTTPS, PWA, service worker y modo offline.
+- Estimación de uso y cuota de almacenamiento del navegador.
+- Versiones activas de preguntas, retos, recursos y rangos.
+- Estado general de notificaciones sin exponer el registro privado.
+- Resumen local de racha, escudos y reto pendiente sin incluir respuestas.
+- Copia del reporte técnico al portapapeles.
+- Descarga del diagnóstico como JSON versionado.
+- Plantilla integrada para reportar errores.
+- Puente JavaScript de diagnóstico y pruebas automatizadas.
+
+## 0.8.0 — 2026-07-16
+
+- Plantilla editable con el contenido demostrativo completo.
+- Administración de preguntas, retos, cards, rangos y versiones mediante Excel o Google Sheets.
+- Cinco CSV UTF-8 de ejemplo compatibles con el generador.
+- Generador Python sin dependencias externas.
+- Validación conjunta antes de reemplazar cualquier JSON.
+- Publicación mediante archivos temporales y restauración ante fallos de escritura.
+- Detección de encabezados incorrectos, valores activos inválidos y referencias rotas.
+- Modo `--check-only` para validar sin modificar contenido.
+- Apps Script opcional con validación y exportación a una estructura `content/` en Drive.
+- Pruebas automatizadas del generador y verificación en GitHub Actions.
+
 ## 0.7.2 — 2026-07-16
 
 - Corregida la prueba de la pantalla inicial para desplazarse por el `ListView` antes de buscar acciones fuera del viewport de pruebas.

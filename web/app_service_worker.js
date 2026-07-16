@@ -144,52 +144,92 @@ async function cacheFirst(request, cacheName) {
 // Firebase Cloud Messaging comparte este mismo service worker para no competir
 // con la caché offline de la PWA.
 let missionAdmissionMessaging = null;
+let missionAdmissionNotificationSettings = null;
+
+function safeNotificationDestination(value) {
+  const fallback = missionAdmissionNotificationSettings?.defaultNotificationLink || '#/reto';
+  try {
+    const scope = new URL(self.registration.scope);
+    const candidate = new URL(value || fallback, scope);
+    if (candidate.origin !== scope.origin || !candidate.pathname.startsWith(scope.pathname)) {
+      return new URL(fallback, scope).toString();
+    }
+    return candidate.toString();
+  } catch (_) {
+    return new URL(fallback, self.registration.scope).toString();
+  }
+}
+
+function missionAdmissionNotificationOptions(payload) {
+  const data = payload?.data || {};
+  return {
+    body: payload?.notification?.body || data.body || 'Completa el reto de hoy.',
+    icon: scopedUrl('icons/Icon-192.png'),
+    badge: scopedUrl('icons/Icon-192.png'),
+    tag: data.tag || 'mision-admision-reminder',
+    renotify: false,
+    data: {
+      missionAdmission: true,
+      link: safeNotificationDestination(
+        payload?.fcmOptions?.link || data.link,
+      ),
+    },
+  };
+}
+
 try {
   importScripts(new URL('firebase_config.js', self.location.href).toString());
-  const notificationSettings = self.MISSION_ADMISSION_FIREBASE;
-  if (notificationSettings?.enabled === true) {
-    const sdkVersion = notificationSettings.sdkVersion || '12.16.0';
+  missionAdmissionNotificationSettings = self.MISSION_ADMISSION_FIREBASE;
+  if (missionAdmissionNotificationSettings?.enabled === true) {
+    const sdkVersion = missionAdmissionNotificationSettings.sdkVersion || '12.16.0';
     importScripts(
       `https://www.gstatic.com/firebasejs/${sdkVersion}/firebase-app-compat.js`,
       `https://www.gstatic.com/firebasejs/${sdkVersion}/firebase-messaging-compat.js`,
     );
-    firebase.initializeApp(notificationSettings.config);
+    firebase.initializeApp(missionAdmissionNotificationSettings.config);
     missionAdmissionMessaging = firebase.messaging();
     missionAdmissionMessaging.onBackgroundMessage(async (payload) => {
-      // Los mensajes con payload notification ya son mostrados por FCM.
-      // Solo creamos una notificación para mensajes exclusivamente de datos.
+      // Los mensajes que ya incluyen payload notification son mostrados
+      // automáticamente por FCM. Para mensajes exclusivamente de datos,
+      // este worker crea una notificación con enlace limitado al sitio.
       if (payload.notification) return;
       const title = payload.data?.title || 'Misión Admisión';
-      const body = payload.data?.body || 'Completa el reto de hoy.';
-      const link = payload.data?.link || './';
-      await self.registration.showNotification(title, {
-        body,
-        icon: scopedUrl('icons/Icon-192.png'),
-        badge: scopedUrl('icons/Icon-192.png'),
-        tag: payload.data?.tag || 'mision-admision-reminder',
-        renotify: false,
-        data: {missionAdmission: true, link},
-      });
+      await self.registration.showNotification(
+        title,
+        missionAdmissionNotificationOptions(payload),
+      );
     });
   }
 } catch (error) {
   console.warn('FCM no fue inicializado:', error);
 }
 
-self.addEventListener('notificationclick', (event) => {
-  if (event.notification.data?.missionAdmission !== true) return;
-  event.notification.close();
-  const destination = new URL(
-    event.notification.data?.link || './',
-    self.registration.scope,
-  ).toString();
+self.addEventListener('pushsubscriptionchange', (event) => {
   event.waitUntil((async () => {
     const windows = await self.clients.matchAll({
       type: 'window',
       includeUncontrolled: true,
     });
     for (const client of windows) {
-      if (new URL(client.url).origin === new URL(destination).origin) {
+      client.postMessage({type: 'FCM_REGISTRATION_REFRESH_REQUIRED'});
+    }
+  })());
+});
+
+self.addEventListener('notificationclick', (event) => {
+  if (event.notification.data?.missionAdmission !== true) return;
+  event.notification.close();
+  const destination = safeNotificationDestination(event.notification.data?.link);
+  event.waitUntil((async () => {
+    const windows = await self.clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true,
+    });
+    for (const client of windows) {
+      const clientUrl = new URL(client.url);
+      const destinationUrl = new URL(destination);
+      if (clientUrl.origin === destinationUrl.origin &&
+          clientUrl.pathname.startsWith(new URL(self.registration.scope).pathname)) {
         await client.focus();
         if ('navigate' in client) await client.navigate(destination);
         return;

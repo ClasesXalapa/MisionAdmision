@@ -1,0 +1,7 @@
+﻿id,titulo,descripcion,tipo,url,imagen_url,etiquetas,prioridad,fecha_publicacion,activa
+card_video_algebra_001,Álgebra básica para EXANI-II,Repasa ecuaciones lineales y operaciones esenciales antes de practicar.,video,https://www.youtube.com/,,matematicas;algebra;basico,1,2026-07-15,SI
+card_pdf_lectura_001,Guía de comprensión lectora,Material descargable con estrategias para identificar ideas principales e inferencias.,pdf,https://drive.google.com/,,comprension-lectora;guia,2,2026-07-14,SI
+card_simulacro_001,Simulacro diagnóstico,Evalúa tu punto de partida y detecta las áreas que necesitan más práctica.,simulacro,https://docs.google.com/forms/,,simulacro;diagnostico,3,2026-07-13,SI
+card_form_redaccion_001,Práctica de redacción indirecta,"Formulario breve para practicar concordancia, conectores y ortografía.",formulario,https://docs.google.com/forms/,,redaccion-indirecta;practica,4,2026-07-12,SI
+card_post_plan_001,Plan de estudio de cuatro semanas,"Organiza tus sesiones de estudio y combina teoría, práctica y simulacros.",publicacion,https://www.facebook.com/,,organizacion;plan-de-estudio,5,2026-07-11,SI
+card_anuncio_001,Contenido nuevo cada semana,Consulta esta sección con frecuencia para encontrar nuevos recursos y retos.,anuncio,https://github.com/,,anuncio,6,2026-07-10,SI

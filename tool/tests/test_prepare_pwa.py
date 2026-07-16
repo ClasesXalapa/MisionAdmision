@@ -24,6 +24,7 @@ class PreparePwaTest(unittest.TestCase):
                 "firebase_config.js",
                 "notifications_bridge.js",
                 "backup_bridge.js",
+                "diagnostics_bridge.js",
             ]:
                 (build / name).write_text(name, encoding="utf-8")
             (build / "content").mkdir()

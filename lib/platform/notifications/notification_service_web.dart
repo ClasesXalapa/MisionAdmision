@@ -19,6 +19,8 @@ class WebNotificationService implements NotificationService {
         permission: NotificationPermissionState.unsupported,
         enabled: false,
         registrationAvailable: false,
+        secureContext: false,
+        errorCode: 'bridge-unavailable',
         errorMessage: error.toString(),
       );
     }
@@ -27,6 +29,11 @@ class WebNotificationService implements NotificationService {
   @override
   Future<NotificationStatus> enable() async {
     return _mapStatus(await _enableNotifications().toDart);
+  }
+
+  @override
+  Future<NotificationStatus> refreshRegistration() async {
+    return _mapStatus(await _refreshNotificationRegistration().toDart);
   }
 
   @override
@@ -45,6 +52,12 @@ class WebNotificationService implements NotificationService {
       permission: _permission(value.permission.toDart),
       enabled: value.enabled.toDart,
       registrationAvailable: value.registrationAvailable.toDart,
+      registrationKind: _registrationKind(value.registrationKind.toDart),
+      registrationUpdatedAt: _optionalDate(value.registrationUpdatedAt),
+      secureContext: value.secureContext.toDart,
+      installedAsPwa: value.installedAsPwa.toDart,
+      requiresPwaInstallation: value.requiresPwaInstallation.toDart,
+      errorCode: _optionalText(value.errorCode),
       errorMessage: _optionalText(value.errorMessage),
     );
   }
@@ -56,6 +69,18 @@ class WebNotificationService implements NotificationService {
       'default' => NotificationPermissionState.defaultState,
       _ => NotificationPermissionState.unsupported,
     };
+  }
+
+  NotificationRegistrationKind _registrationKind(String value) {
+    return switch (value) {
+      'fid' => NotificationRegistrationKind.firebaseInstallationId,
+      _ => NotificationRegistrationKind.none,
+    };
+  }
+
+  DateTime? _optionalDate(JSString? value) {
+    final text = _optionalText(value);
+    return text == null ? null : DateTime.tryParse(text);
   }
 
   String? _optionalText(JSString? value) {
@@ -71,6 +96,9 @@ external JSPromise<_NotificationState> _getNotificationState();
 @JS('missionAdmissionNotifications.enable')
 external JSPromise<_NotificationState> _enableNotifications();
 
+@JS('missionAdmissionNotifications.refreshRegistration')
+external JSPromise<_NotificationState> _refreshNotificationRegistration();
+
 @JS('missionAdmissionNotifications.disable')
 external JSPromise<_NotificationState> _disableNotifications();
 
@@ -84,5 +112,11 @@ extension type _NotificationState._(JSObject _) implements JSObject {
   external JSString get permission;
   external JSBoolean get enabled;
   external JSBoolean get registrationAvailable;
+  external JSString get registrationKind;
+  external JSString get registrationUpdatedAt;
+  external JSBoolean get secureContext;
+  external JSBoolean get installedAsPwa;
+  external JSBoolean get requiresPwaInstallation;
+  external JSString? get errorCode;
   external JSString? get errorMessage;
 }

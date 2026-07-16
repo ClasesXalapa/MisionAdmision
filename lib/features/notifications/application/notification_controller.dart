@@ -32,6 +32,16 @@ class NotificationController extends ChangeNotifier {
     }
   }
 
+  Future<void> refreshRegistration() async {
+    if (_busy) return;
+    _setBusy(true);
+    try {
+      _status = await _service.refreshRegistration();
+    } finally {
+      _setBusy(false);
+    }
+  }
+
   Future<void> disable() async {
     if (_busy) return;
     _setBusy(true);

@@ -1,6 +1,6 @@
-# Misión Admisión — Séptimo bloque funcional
+# Misión Admisión — MVP web v0.9.0
 
-PWA en Flutter Web para aspirantes al EXANI-II. La versión 0.7.2 conserva las funciones de 0.7.0, corrige los diagnósticos del analizador y hace determinista la prueba de la pantalla inicial en Flutter Test.
+PWA educativa en Flutter Web para aspirantes al EXANI-II. Vive en GitHub Pages, funciona sin cuentas, conserva el progreso local y distribuye contenido mediante JSON validados.
 
 ## Funciones incluidas
 
@@ -9,40 +9,66 @@ PWA en Flutter Web para aspirantes al EXANI-II. La versión 0.7.2 conserva las f
 - Guardado y reanudación del intento durante el mismo día.
 - Racha, récord, escudos y rangos.
 - Biblioteca de recursos con filtros y seguimiento local.
-- Sincronización remota validada desde `content/index.json`.
+- Sincronización remota segura desde `content/index.json`.
 - Última copia válida de contenido como respaldo.
 - Instalación como PWA y caché offline versionada.
 - Actualización controlada de la aplicación.
-- Integración opcional con Firebase Cloud Messaging.
-- Exportación e importación del progreso mediante JSON.
-- Reinicio selectivo de los datos del alumno.
-- Tema de alto contraste y mejoras semánticas.
+- Integración opcional con Firebase Cloud Messaging, todavía desactivada.
+- Exportación e importación del progreso.
+- Administrador de contenido mediante Excel, Google Sheets o CSV.
+- Pantalla de ayuda con diagnóstico copiable y descargable.
+- Generación y validación segura de los JSON públicos.
 - Publicación automática en GitHub Pages.
 
 ## Requisitos
 
 - Flutter 3.44 o compatible.
 - Dart 3.10 o posterior.
-- Chrome o Edge para desarrollo web.
-- HTTPS o `localhost` para service workers y notificaciones.
-- Proyecto Firebase únicamente cuando se quiera activar FCM.
+- Python 3.11 o posterior para validadores y generadores.
+- Node.js para comprobar los puentes Web.
+- HTTPS o `localhost` para PWA y Web Push.
 
 ## Ejecutar localmente
 
 ```bash
 flutter pub get
 python3 tool/validate_content.py
+python3 tool/validate_project.py
+python3 tool/generate_content_from_csv.py admin/csv_samples --check-only
+python3 -m unittest discover -s tool/tests -v
 node tool/validate_firebase_config.js
 node tool/test_notifications_bridge.js
 node tool/test_backup_bridge.js
-python3 -m unittest discover -s tool/tests -v
+node tool/test_diagnostics_bridge.js
 flutter test
 flutter run -d chrome
 ```
 
-La configuración de Firebase está desactivada por defecto. El proyecto puede compilarse y publicarse antes de crear el proyecto FCM.
+La configuración de Firebase permanece desactivada por defecto. Toda la aplicación excepto las notificaciones remotas funciona sin Firebase.
 
-## Construir la PWA de producción
+## Administrar contenido
+
+La plantilla editable está en:
+
+```text
+admin/Plantilla_Contenido_Mision_Admision_v0.8.0.xlsx
+```
+
+Para validar una carpeta de CSV sin reemplazar contenido:
+
+```bash
+python3 tool/generate_content_from_csv.py ruta/a/csv --check-only
+```
+
+Para generar y publicar los JSON en `content/`:
+
+```bash
+python3 tool/generate_content_from_csv.py ruta/a/csv
+```
+
+Consulta [docs/content_admin.md](docs/content_admin.md).
+
+## Construir la PWA
 
 ```bash
 flutter build web --release
@@ -52,76 +78,21 @@ python3 tool/prepare_pwa.py build/web
 python3 -m http.server 8000 --directory build/web
 ```
 
-Después abre `http://localhost:8000`. No uses `file://` porque los service workers y Web Push requieren un origen seguro.
-
 ## Publicar en GitHub Pages
 
-1. Sube el proyecto a la rama `main`.
+1. Sube el proyecto a `main`.
 2. En **Settings → Pages**, selecciona **GitHub Actions**.
-3. El workflow valida, prueba, construye y publica.
+3. El workflow valida código, contenido, generador y pruebas.
 4. La ruta base se calcula automáticamente.
-5. `tool/prepare_pwa.py` genera el service worker final después del build.
+5. La PWA y los JSON se publican en GitHub Pages.
 
-## Respaldo del progreso
+## Documentación
 
-La sección **Datos y respaldo** permite:
-
-- descargar un archivo `mision-admision-progreso-AAAA-MM-DD.json`;
-- revisar un respaldo antes de restaurarlo;
-- recuperar racha, escudos, reto pendiente y cards marcadas;
-- borrar únicamente el progreso local.
-
-El respaldo no incluye Firebase, permisos, caché ni información personal. Consulta [docs/progress_backup.md](docs/progress_backup.md).
-
-## Notificaciones
-
-La integración usa:
-
-```text
-web/firebase_config.js
-web/notifications_bridge.js
-web/app_service_worker.js
-```
-
-No se agrega una cuenta de servicio ni credenciales privadas a GitHub Pages. Consulta [docs/firebase_notifications_setup.md](docs/firebase_notifications_setup.md).
-
-## Contenido
-
-```text
-content/
-├── index.json
-├── preguntas/banco_global.json
-├── retos/retos_actuales.json
-├── cards/cards_actuales.json
-└── config/rangos.json
-```
-
-Para publicar contenido nuevo:
-
-1. Modifica el JSON correspondiente.
-2. Cambia su versión interna.
-3. Actualiza la versión en `content/index.json`.
-4. Incrementa `content_version`.
-5. Ejecuta `python3 tool/validate_content.py`.
-6. Sube los cambios a GitHub.
-
-> Las URLs de demostración deben sustituirse antes del lanzamiento.
-
-## Persistencia local
-
-```text
-mision_admision.daily_attempt.v1
-mision_admision.learner_progress.v1
-mision_admision.resource_tracking.v1
-mision_admision.content_cache.metadata.v1
-mision_admision.content_cache.<tipo>.v1.<version>
-mision_admision.notifications_enabled.v1
-mision_admision.fcm_installation_id.v1
-```
-
-## Documentos de preparación
-
+- [Administración de contenido](docs/content_admin.md)
+- [Contratos JSON](docs/json_contracts.md)
+- [Configuración opcional de Firebase](docs/firebase_notifications_setup.md)
 - [Respaldo del progreso](docs/progress_backup.md)
 - [Accesibilidad](docs/accessibility.md)
-- [Lista para beta](docs/beta_checklist.md)
-- [Contexto técnico v10](docs/contexto_v10_web_mvp_v0.7.md)
+- [Ayuda y diagnóstico](docs/support_diagnostics.md)
+- [Contexto técnico v13](docs/contexto_v13_web_mvp_v0.9.0.md)
+- [Arquitectura del cliente de notificaciones](docs/notification_client_architecture.md)

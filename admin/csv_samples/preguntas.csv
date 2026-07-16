@@ -1,0 +1,21 @@
+﻿id,enunciado,imagen_url,opcion_a,opcion_b,opcion_c,opcion_d,respuesta_correcta,categoria,etiquetas,dificultad,activa
+MAT-ARI-001,¿Cuál es el resultado de 18 + 27?,,35,45,55,65,B,matematicas,aritmetica;suma,basico,SI
+MAT-ARI-002,¿Cuál es el resultado de 72 ÷ 8?,,7,8,9,10,C,matematicas,aritmetica;division,basico,SI
+MAT-ALG-001,"Si 3x + 5 = 20, ¿cuál es el valor de x?",,3,5,7,15,B,matematicas,algebra;ecuaciones,basico,SI
+MAT-ALG-002,Simplifica: 2(a + 3) + a.,,2a + 3,3a + 3,3a + 6,2a + 6,C,matematicas,algebra;expresiones,intermedio,SI
+MAT-POR-001,Un artículo cuesta $800 y tiene 25% de descuento. ¿Cuál es su precio final?,,$200,$575,$600,$625,C,matematicas,porcentajes;problemas,basico,SI
+MAT-PRO-001,Una receta para 4 personas usa 300 g de harina. ¿Cuánta harina se necesita para 10 personas?,,600 g,700 g,750 g,900 g,C,matematicas,proporciones;regla-de-tres,intermedio,SI
+MAT-GEO-001,¿Cuál es el área de un rectángulo de 8 cm de largo y 5 cm de ancho?,,13 cm²,26 cm²,40 cm²,80 cm²,C,matematicas,geometria;area,basico,SI
+MAT-GEO-002,Un triángulo tiene base de 10 cm y altura de 6 cm. ¿Cuál es su área?,,16 cm²,30 cm²,60 cm²,120 cm²,B,matematicas,geometria;triangulos,basico,SI
+MAT-EST-001,"¿Cuál es la media de 4, 6, 8 y 10?",,6,7,8,9,B,matematicas,estadistica;media,basico,SI
+MAT-SEQ-001,"Completa la sucesión: 2, 6, 12, 20, __.",,28,30,32,36,B,matematicas,sucesiones;patrones,intermedio,SI
+LEC-INF-001,Lee: “El parque cerró temprano porque comenzó una tormenta eléctrica”. ¿Cuál fue la causa del cierre?,,La falta de visitantes,Una tormenta eléctrica,El horario de invierno,Una reparación,B,comprension-lectora,causa-efecto;lectura,basico,SI
+LEC-VOC-001,"En la oración “La respuesta fue ambigua”, la palabra “ambigua” significa:",,clara y precisa,difícil de pronunciar,que admite más de una interpretación,completamente falsa,C,comprension-lectora,vocabulario;contexto,intermedio,SI
+LEC-IDE-001,"Lee: “Dormir lo suficiente mejora la atención, la memoria y el estado de ánimo”. ¿Cuál es la idea principal?",,La memoria funciona solo de noche,Dormir bien beneficia varias funciones personales,El estado de ánimo depende de la alimentación,La atención no se puede mejorar,B,comprension-lectora,idea-principal;lectura,basico,SI
+LEC-INF-002,"Lee: “Aunque llevaba paraguas, Elena llegó empapada”. ¿Qué se puede inferir?",,No llovió,El paraguas no fue suficiente,Elena olvidó el paraguas,Elena llegó en automóvil,B,comprension-lectora,inferencia;lectura,intermedio,SI
+RED-CON-001,"Elige el conector adecuado: “Estudió durante varias semanas; ____, obtuvo un buen resultado”.",,sin embargo,por eso,aunque,mientras,B,redaccion-indirecta,conectores;coherencia,basico,SI
+RED-ORT-001,¿Cuál oración está escrita correctamente?,,Aun no se si vendrá.,Aún no sé si vendrá.,Aún no se sí vendrá.,Aun no sé sí vendra.,B,redaccion-indirecta,acentuacion;ortografia,intermedio,SI
+RED-PUN-001,Selecciona la opción con puntuación correcta.,,María compró: pan leche y fruta.,"María compró pan, leche y fruta.","María, compró pan leche, y fruta.","María compró pan leche y, fruta.",B,redaccion-indirecta,puntuacion;enumeracion,basico,SI
+RED-COH-001,¿Qué oración expresa la idea con mayor claridad?,,Debido a que llovía por eso se canceló.,Se canceló porque debido a la lluvia.,La actividad se canceló debido a la lluvia.,La lluvia debido canceló la actividad.,C,redaccion-indirecta,claridad;coherencia,intermedio,SI
+MAT-RAZ-001,"Si todos los cuadernos son útiles y algunos objetos útiles son reciclados, ¿qué afirmación es necesariamente verdadera?",,Todos los reciclados son cuadernos,Todos los cuadernos son reciclados,Todos los cuadernos son útiles,Ningún cuaderno es reciclado,C,matematicas,razonamiento;logica,intermedio,SI
+MAT-PROB-001,En una bolsa hay 3 fichas rojas y 2 azules. ¿Cuál es la probabilidad de sacar una ficha azul?,,2/3,2/5,3/5,1/2,B,matematicas,probabilidad;fracciones,intermedio,SI

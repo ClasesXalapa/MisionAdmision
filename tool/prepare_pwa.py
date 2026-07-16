@@ -27,6 +27,7 @@ REQUIRED_FILES = {
     "firebase_config.js",
     "notifications_bridge.js",
     "backup_bridge.js",
+    "diagnostics_bridge.js",
 }
 
 

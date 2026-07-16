@@ -1,0 +1,7 @@
+﻿id,nombre,descripcion,racha_minima,activo
+primer_paso,Primer paso,Comenzaste a construir tu hábito de estudio.,0,SI
+en_marcha,En marcha,Ya tienes varios días de práctica acumulada.,3,SI
+constante,Constante,Una semana demuestra que puedes sostener el hábito.,7,SI
+disciplinado,Disciplinado,Dos semanas de práctica reflejan compromiso real.,14,SI
+aspirante_serio,Aspirante serio,Treinta días te colocan en una preparación sólida.,30,SI
+imparable,Imparable,Tu constancia ya es una ventaja competitiva.,60,SI
