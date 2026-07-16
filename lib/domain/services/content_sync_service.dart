@@ -190,7 +190,7 @@ class ContentSyncService {
       );
 
       return ContentSyncReport(metadata: metadata, files: results);
-    } on Object catch (error) {
+    } on Object {
       return _saveFailure(
         previous: previous,
         now: now,

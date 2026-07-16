@@ -1,5 +1,12 @@
 # Historial de cambios
 
+## 0.7.1 — 2026-07-16
+
+- Eliminada una variable de excepción no utilizada en la sincronización de contenido.
+- Migrado `DropdownButtonFormField.value` a `initialValue` para Flutter 3.44.
+- Corregido el paso `flutter analyze` de GitHub Actions sin silenciar diagnósticos.
+- Sin cambios en los datos locales ni en los contratos JSON.
+
 ## 0.7.0 — 2026-07-15
 
 - Exportación del progreso a un archivo JSON versionado.

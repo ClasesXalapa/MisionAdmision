@@ -1,6 +1,6 @@
 # Misión Admisión — Séptimo bloque funcional
 
-PWA en Flutter Web para aspirantes al EXANI-II. La versión 0.7.0 agrega respaldo, restauración y reinicio del progreso, además de una primera revisión de accesibilidad y preparación para beta.
+PWA en Flutter Web para aspirantes al EXANI-II. La versión 0.7.1 conserva el respaldo y la preparación para beta de 0.7.0, y corrige los diagnósticos del analizador con Flutter 3.44.
 
 ## Funciones incluidas
 

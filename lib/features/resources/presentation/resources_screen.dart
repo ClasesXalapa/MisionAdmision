@@ -198,7 +198,7 @@ class _Filters extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             DropdownButtonFormField<String>(
-              value: state.selectedTag ?? '__all__',
+              initialValue: state.selectedTag ?? '__all__',
               decoration: const InputDecoration(
                 labelText: 'Materia o etiqueta',
                 border: OutlineInputBorder(),
