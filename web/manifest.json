@@ -1,0 +1,62 @@
+{
+  "id": "./",
+  "name": "Misión Admisión",
+  "short_name": "Misión Admisión",
+  "description": "Práctica gratuita, recursos y retos diarios para aspirantes al EXANI-II.",
+  "lang": "es-MX",
+  "start_url": "./#/",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F7F9FC",
+  "theme_color": "#155EEF",
+  "orientation": "portrait-primary",
+  "categories": ["education"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/Icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/Icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/Icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/Icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Reto diario",
+      "short_name": "Reto",
+      "description": "Abrir el reto de hoy",
+      "url": "./#/daily",
+      "icons": [{"src": "icons/Icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "Recursos",
+      "short_name": "Recursos",
+      "description": "Abrir la biblioteca de estudio",
+      "url": "./#/resources",
+      "icons": [{"src": "icons/Icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "Examen libre",
+      "short_name": "Examen",
+      "description": "Iniciar un examen de práctica",
+      "url": "./#/exam",
+      "icons": [{"src": "icons/Icon-192.png", "sizes": "192x192"}]
+    }
+  ]
+}

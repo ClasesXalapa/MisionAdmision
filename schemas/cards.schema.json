@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://misionadmision.example/schemas/cards.schema.json",
+  "title": "Cards de recursos",
+  "type": "object",
+  "required": ["schema_version", "version", "generated_at", "cards"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "version": { "type": "string", "pattern": "^[A-Za-z0-9._-]{1,100}$" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "cards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "titulo",
+          "descripcion",
+          "tipo",
+          "url",
+          "imagen_url",
+          "etiquetas",
+          "prioridad",
+          "fecha_publicacion",
+          "activa"
+        ],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "titulo": { "type": "string", "minLength": 1 },
+          "descripcion": { "type": "string", "minLength": 1 },
+          "tipo": {
+            "enum": [
+              "video",
+              "pdf",
+              "formulario",
+              "simulacro",
+              "publicacion",
+              "anuncio"
+            ]
+          },
+          "url": { "type": "string", "format": "uri", "pattern": "^https://" },
+          "imagen_url": {
+            "anyOf": [
+              { "type": "null" },
+              { "type": "string", "format": "uri", "pattern": "^https://" }
+            ]
+          },
+          "etiquetas": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "prioridad": { "type": "integer", "minimum": 0 },
+          "fecha_publicacion": { "type": "string", "format": "date" },
+          "activa": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,87 @@
+name: Publicar GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Configurar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+          channel: stable
+          cache: true
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Analizar y probar
+        run: |
+          dart format lib test
+          flutter analyze --no-fatal-infos
+          python3 tool/validate_content.py
+          python3 tool/validate_project.py
+          python3 -m unittest discover -s tool/tests -v
+          node --check web/firebase_config.js
+          node tool/validate_firebase_config.js
+          node tool/test_notifications_bridge.js
+          node --check web/notifications_bridge.js
+          node --check web/backup_bridge.js
+          node tool/test_backup_bridge.js
+          node --check web/pwa_bridge.js
+          node --check web/app_service_worker.js
+          flutter test
+
+      - name: Calcular ruta base
+        id: base
+        shell: bash
+        run: |
+          if [[ "${{ github.event.repository.name }}" == "${{ github.repository_owner }}.github.io" ]]; then
+            echo "href=/" >> "$GITHUB_OUTPUT"
+          else
+            echo "href=/${{ github.event.repository.name }}/" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Construir aplicación web
+        run: flutter build web --release --base-href "${{ steps.base.outputs.href }}"
+
+      - name: Publicar contenido JSON
+        run: |
+          mkdir -p build/web/content
+          cp -R content/. build/web/content/
+
+      - name: Preparar PWA offline
+        run: |
+          python3 tool/prepare_pwa.py build/web
+          node --check build/web/firebase_config.js
+          node --check build/web/notifications_bridge.js
+          node --check build/web/backup_bridge.js
+          node --check build/web/pwa_bridge.js
+          node --check build/web/app_service_worker.js
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+
+      - name: Subir artefacto
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: build/web
+
+      - name: Desplegar
+        id: deployment
+        uses: actions/deploy-pages@v4

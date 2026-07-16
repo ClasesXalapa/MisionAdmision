@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "content_version": "2026_07_004",
+  "generated_at": "2026-07-15T18:00:00-06:00",
+  "min_app_version": 1,
+  "files": {
+    "questions": {
+      "url": "content/preguntas/banco_global.json",
+      "version": "questions_001",
+      "required": true
+    },
+    "challenges": {
+      "url": "content/retos/retos_actuales.json",
+      "version": "challenges_001",
+      "required": false
+    },
+    "resources": {
+      "url": "content/cards/cards_actuales.json",
+      "version": "cards_001",
+      "required": false
+    },
+    "ranks": {
+      "url": "content/config/rangos.json",
+      "version": "ranks_001",
+      "required": false
+    }
+  }
+}

@@ -1,0 +1,367 @@
+{
+  "schema_version": 1,
+  "version": "questions_001",
+  "generated_at": "2026-07-14T20:00:00-06:00",
+  "preguntas": [
+    {
+      "id": "MAT-ARI-001",
+      "enunciado": "¿Cuál es el resultado de 18 + 27?",
+      "imagen_url": null,
+      "opciones": [
+        "35",
+        "45",
+        "55",
+        "65"
+      ],
+      "respuesta_correcta": "B",
+      "categoria": "matematicas",
+      "etiquetas": [
+        "aritmetica",
+        "suma"
+      ],
+      "dificultad": "basico"
+    },
+    {
+      "id": "MAT-ARI-002",
+      "enunciado": "¿Cuál es el resultado de 72 ÷ 8?",
+      "imagen_url": null,
+      "opciones": [
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "respuesta_correcta": "C",
+      "categoria": "matematicas",
+      "etiquetas": [
+        "aritmetica",
+        "division"
+      ],
+      "dificultad": "basico"
+    },
+    {
+      "id": "MAT-ALG-001",
+      "enunciado": "Si 3x + 5 = 20, ¿cuál es el valor de x?",
+      "imagen_url": null,
+      "opciones": [
+        "3",
+        "5",
+        "7",
+        "15"
+      ],
+      "respuesta_correcta": "B",
+      "categoria": "matematicas",
+      "etiquetas": [
+        "algebra",
+        "ecuaciones"
+      ],
+      "dificultad": "basico"
+    },
+    {
+      "id": "MAT-ALG-002",
+      "enunciado": "Simplifica: 2(a + 3) + a.",
+      "imagen_url": null,
+      "opciones": [
+        "2a + 3",
+        "3a + 3",
+        "3a + 6",
+        "2a + 6"
+      ],
+      "respuesta_correcta": "C",
+      "categoria": "matematicas",
+      "etiquetas": [
+        "algebra",
+        "expresiones"
+      ],
+      "dificultad": "intermedio"
+    },
+    {
+      "id": "MAT-POR-001",
+      "enunciado": "Un artículo cuesta $800 y tiene 25% de descuento. ¿Cuál es su precio final?",
+      "imagen_url": null,
+      "opciones": [
+        "$200",
+        "$575",
+        "$600",
+        "$625"
+      ],
+      "respuesta_correcta": "C",
+      "categoria": "matematicas",
+      "etiquetas": [
+        "porcentajes",
+        "problemas"
+      ],
+      "dificultad": "basico"
+    },
+    {
+      "id": "MAT-PRO-001",
+      "enunciado": "Una receta para 4 personas usa 300 g de harina. ¿Cuánta harina se necesita para 10 personas?",
+      "imagen_url": null,
+      "opciones": [
+        "600 g",
+        "700 g",
+        "750 g",
+        "900 g"
+      ],
+      "respuesta_correcta": "C",
+      "categoria": "matematicas",
+      "etiquetas": [
+        "proporciones",
+        "regla-de-tres"
+      ],
+      "dificultad": "intermedio"
+    },
+    {
+      "id": "MAT-GEO-001",
+      "enunciado": "¿Cuál es el área de un rectángulo de 8 cm de largo y 5 cm de ancho?",
+      "imagen_url": null,
+      "opciones": [
+        "13 cm²",
+        "26 cm²",
+        "40 cm²",
+        "80 cm²"
+      ],
+      "respuesta_correcta": "C",
+      "categoria": "matematicas",
+      "etiquetas": [
+        "geometria",
+        "area"
+      ],
+      "dificultad": "basico"
+    },
+    {
+      "id": "MAT-GEO-002",
+      "enunciado": "Un triángulo tiene base de 10 cm y altura de 6 cm. ¿Cuál es su área?",
+      "imagen_url": null,
+      "opciones": [
+        "16 cm²",
+        "30 cm²",
+        "60 cm²",
+        "120 cm²"
+      ],
+      "respuesta_correcta": "B",
+      "categoria": "matematicas",
+      "etiquetas": [
+        "geometria",
+        "triangulos"
+      ],
+      "dificultad": "basico"
+    },
+    {
+      "id": "MAT-EST-001",
+      "enunciado": "¿Cuál es la media de 4, 6, 8 y 10?",
+      "imagen_url": null,
+      "opciones": [
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "respuesta_correcta": "B",
+      "categoria": "matematicas",
+      "etiquetas": [
+        "estadistica",
+        "media"
+      ],
+      "dificultad": "basico"
+    },
+    {
+      "id": "MAT-SEQ-001",
+      "enunciado": "Completa la sucesión: 2, 6, 12, 20, __.",
+      "imagen_url": null,
+      "opciones": [
+        "28",
+        "30",
+        "32",
+        "36"
+      ],
+      "respuesta_correcta": "B",
+      "categoria": "matematicas",
+      "etiquetas": [
+        "sucesiones",
+        "patrones"
+      ],
+      "dificultad": "intermedio"
+    },
+    {
+      "id": "LEC-INF-001",
+      "enunciado": "Lee: “El parque cerró temprano porque comenzó una tormenta eléctrica”. ¿Cuál fue la causa del cierre?",
+      "imagen_url": null,
+      "opciones": [
+        "La falta de visitantes",
+        "Una tormenta eléctrica",
+        "El horario de invierno",
+        "Una reparación"
+      ],
+      "respuesta_correcta": "B",
+      "categoria": "comprension-lectora",
+      "etiquetas": [
+        "causa-efecto",
+        "lectura"
+      ],
+      "dificultad": "basico"
+    },
+    {
+      "id": "LEC-VOC-001",
+      "enunciado": "En la oración “La respuesta fue ambigua”, la palabra “ambigua” significa:",
+      "imagen_url": null,
+      "opciones": [
+        "clara y precisa",
+        "difícil de pronunciar",
+        "que admite más de una interpretación",
+        "completamente falsa"
+      ],
+      "respuesta_correcta": "C",
+      "categoria": "comprension-lectora",
+      "etiquetas": [
+        "vocabulario",
+        "contexto"
+      ],
+      "dificultad": "intermedio"
+    },
+    {
+      "id": "LEC-IDE-001",
+      "enunciado": "Lee: “Dormir lo suficiente mejora la atención, la memoria y el estado de ánimo”. ¿Cuál es la idea principal?",
+      "imagen_url": null,
+      "opciones": [
+        "La memoria funciona solo de noche",
+        "Dormir bien beneficia varias funciones personales",
+        "El estado de ánimo depende de la alimentación",
+        "La atención no se puede mejorar"
+      ],
+      "respuesta_correcta": "B",
+      "categoria": "comprension-lectora",
+      "etiquetas": [
+        "idea-principal",
+        "lectura"
+      ],
+      "dificultad": "basico"
+    },
+    {
+      "id": "LEC-INF-002",
+      "enunciado": "Lee: “Aunque llevaba paraguas, Elena llegó empapada”. ¿Qué se puede inferir?",
+      "imagen_url": null,
+      "opciones": [
+        "No llovió",
+        "El paraguas no fue suficiente",
+        "Elena olvidó el paraguas",
+        "Elena llegó en automóvil"
+      ],
+      "respuesta_correcta": "B",
+      "categoria": "comprension-lectora",
+      "etiquetas": [
+        "inferencia",
+        "lectura"
+      ],
+      "dificultad": "intermedio"
+    },
+    {
+      "id": "RED-CON-001",
+      "enunciado": "Elige el conector adecuado: “Estudió durante varias semanas; ____, obtuvo un buen resultado”.",
+      "imagen_url": null,
+      "opciones": [
+        "sin embargo",
+        "por eso",
+        "aunque",
+        "mientras"
+      ],
+      "respuesta_correcta": "B",
+      "categoria": "redaccion-indirecta",
+      "etiquetas": [
+        "conectores",
+        "coherencia"
+      ],
+      "dificultad": "basico"
+    },
+    {
+      "id": "RED-ORT-001",
+      "enunciado": "¿Cuál oración está escrita correctamente?",
+      "imagen_url": null,
+      "opciones": [
+        "Aun no se si vendrá.",
+        "Aún no sé si vendrá.",
+        "Aún no se sí vendrá.",
+        "Aun no sé sí vendra."
+      ],
+      "respuesta_correcta": "B",
+      "categoria": "redaccion-indirecta",
+      "etiquetas": [
+        "acentuacion",
+        "ortografia"
+      ],
+      "dificultad": "intermedio"
+    },
+    {
+      "id": "RED-PUN-001",
+      "enunciado": "Selecciona la opción con puntuación correcta.",
+      "imagen_url": null,
+      "opciones": [
+        "María compró: pan leche y fruta.",
+        "María compró pan, leche y fruta.",
+        "María, compró pan leche, y fruta.",
+        "María compró pan leche y, fruta."
+      ],
+      "respuesta_correcta": "B",
+      "categoria": "redaccion-indirecta",
+      "etiquetas": [
+        "puntuacion",
+        "enumeracion"
+      ],
+      "dificultad": "basico"
+    },
+    {
+      "id": "RED-COH-001",
+      "enunciado": "¿Qué oración expresa la idea con mayor claridad?",
+      "imagen_url": null,
+      "opciones": [
+        "Debido a que llovía por eso se canceló.",
+        "Se canceló porque debido a la lluvia.",
+        "La actividad se canceló debido a la lluvia.",
+        "La lluvia debido canceló la actividad."
+      ],
+      "respuesta_correcta": "C",
+      "categoria": "redaccion-indirecta",
+      "etiquetas": [
+        "claridad",
+        "coherencia"
+      ],
+      "dificultad": "intermedio"
+    },
+    {
+      "id": "MAT-RAZ-001",
+      "enunciado": "Si todos los cuadernos son útiles y algunos objetos útiles son reciclados, ¿qué afirmación es necesariamente verdadera?",
+      "imagen_url": null,
+      "opciones": [
+        "Todos los reciclados son cuadernos",
+        "Todos los cuadernos son reciclados",
+        "Todos los cuadernos son útiles",
+        "Ningún cuaderno es reciclado"
+      ],
+      "respuesta_correcta": "C",
+      "categoria": "matematicas",
+      "etiquetas": [
+        "razonamiento",
+        "logica"
+      ],
+      "dificultad": "intermedio"
+    },
+    {
+      "id": "MAT-PROB-001",
+      "enunciado": "En una bolsa hay 3 fichas rojas y 2 azules. ¿Cuál es la probabilidad de sacar una ficha azul?",
+      "imagen_url": null,
+      "opciones": [
+        "2/3",
+        "2/5",
+        "3/5",
+        "1/2"
+      ],
+      "respuesta_correcta": "B",
+      "categoria": "matematicas",
+      "etiquetas": [
+        "probabilidad",
+        "fracciones"
+      ],
+      "dificultad": "intermedio"
+    }
+  ]
+}

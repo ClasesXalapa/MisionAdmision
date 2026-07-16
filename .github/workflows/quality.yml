@@ -1,0 +1,46 @@
+name: Calidad
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Configurar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+          channel: stable
+          cache: true
+
+      - name: Instalar dependencias
+        run: flutter pub get
+
+      - name: Validar formato
+        run: dart format lib test
+
+      - name: Analizar código
+        run: flutter analyze --no-fatal-infos
+
+      - name: Validar contenido
+        run: python3 tool/validate_content.py
+
+      - name: Validar herramientas PWA
+        run: |
+          python3 -m unittest discover -s tool/tests -v
+          node --check web/firebase_config.js
+          node tool/validate_firebase_config.js
+          node tool/test_notifications_bridge.js
+          node --check web/notifications_bridge.js
+          node --check web/backup_bridge.js
+          node tool/test_backup_bridge.js
+          node --check web/pwa_bridge.js
+          node --check web/app_service_worker.js
+
+      - name: Ejecutar pruebas
+        run: flutter test

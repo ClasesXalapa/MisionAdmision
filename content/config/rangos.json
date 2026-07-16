@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "version": "ranks_001",
+  "generated_at": "2026-07-15T12:00:00-06:00",
+  "rangos": [
+    {
+      "id": "primer_paso",
+      "nombre": "Primer paso",
+      "descripcion": "Comenzaste a construir tu hábito de estudio.",
+      "racha_minima": 0
+    },
+    {
+      "id": "en_marcha",
+      "nombre": "En marcha",
+      "descripcion": "Ya tienes varios días de práctica acumulada.",
+      "racha_minima": 3
+    },
+    {
+      "id": "constante",
+      "nombre": "Constante",
+      "descripcion": "Una semana demuestra que puedes sostener el hábito.",
+      "racha_minima": 7
+    },
+    {
+      "id": "disciplinado",
+      "nombre": "Disciplinado",
+      "descripcion": "Dos semanas de práctica reflejan compromiso real.",
+      "racha_minima": 14
+    },
+    {
+      "id": "aspirante_serio",
+      "nombre": "Aspirante serio",
+      "descripcion": "Treinta días te colocan en una preparación sólida.",
+      "racha_minima": 30
+    },
+    {
+      "id": "imparable",
+      "nombre": "Imparable",
+      "descripcion": "Tu constancia ya es una ventaja competitiva.",
+      "racha_minima": 60
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://misionadmision.example/schemas/challenges.schema.json",
+  "title": "Banco de retos diarios de Misión Admisión",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "version", "generated_at", "retos"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "version": {"type": "string", "pattern": "^[A-Za-z0-9._-]{1,100}$"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "retos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "fecha",
+          "titulo",
+          "preguntas_ids",
+          "recurso_resolucion"
+        ],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "fecha": {"type": "string", "format": "date"},
+          "titulo": {"type": "string", "minLength": 1},
+          "preguntas_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "recurso_resolucion": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["tipo", "titulo", "url"],
+            "properties": {
+              "tipo": {"type": "string", "minLength": 1},
+              "titulo": {"type": "string", "minLength": 1},
+              "url": {"type": "string", "format": "uri", "pattern": "^https://"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

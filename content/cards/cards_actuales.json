@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "version": "cards_001",
+  "generated_at": "2026-07-15T12:00:00-06:00",
+  "cards": [
+    {
+      "id": "card_video_algebra_001",
+      "titulo": "Álgebra básica para EXANI-II",
+      "descripcion": "Repasa ecuaciones lineales y operaciones esenciales antes de practicar.",
+      "tipo": "video",
+      "url": "https://www.youtube.com/",
+      "imagen_url": null,
+      "etiquetas": [
+        "matematicas",
+        "algebra",
+        "basico"
+      ],
+      "prioridad": 1,
+      "fecha_publicacion": "2026-07-15",
+      "activa": true
+    },
+    {
+      "id": "card_pdf_lectura_001",
+      "titulo": "Guía de comprensión lectora",
+      "descripcion": "Material descargable con estrategias para identificar ideas principales e inferencias.",
+      "tipo": "pdf",
+      "url": "https://drive.google.com/",
+      "imagen_url": null,
+      "etiquetas": [
+        "comprension-lectora",
+        "guia"
+      ],
+      "prioridad": 2,
+      "fecha_publicacion": "2026-07-14",
+      "activa": true
+    },
+    {
+      "id": "card_simulacro_001",
+      "titulo": "Simulacro diagnóstico",
+      "descripcion": "Evalúa tu punto de partida y detecta las áreas que necesitan más práctica.",
+      "tipo": "simulacro",
+      "url": "https://docs.google.com/forms/",
+      "imagen_url": null,
+      "etiquetas": [
+        "simulacro",
+        "diagnostico"
+      ],
+      "prioridad": 3,
+      "fecha_publicacion": "2026-07-13",
+      "activa": true
+    },
+    {
+      "id": "card_form_redaccion_001",
+      "titulo": "Práctica de redacción indirecta",
+      "descripcion": "Formulario breve para practicar concordancia, conectores y ortografía.",
+      "tipo": "formulario",
+      "url": "https://docs.google.com/forms/",
+      "imagen_url": null,
+      "etiquetas": [
+        "redaccion-indirecta",
+        "practica"
+      ],
+      "prioridad": 4,
+      "fecha_publicacion": "2026-07-12",
+      "activa": true
+    },
+    {
+      "id": "card_post_plan_001",
+      "titulo": "Plan de estudio de cuatro semanas",
+      "descripcion": "Organiza tus sesiones de estudio y combina teoría, práctica y simulacros.",
+      "tipo": "publicacion",
+      "url": "https://www.facebook.com/",
+      "imagen_url": null,
+      "etiquetas": [
+        "organizacion",
+        "plan-de-estudio"
+      ],
+      "prioridad": 5,
+      "fecha_publicacion": "2026-07-11",
+      "activa": true
+    },
+    {
+      "id": "card_anuncio_001",
+      "titulo": "Contenido nuevo cada semana",
+      "descripcion": "Consulta esta sección con frecuencia para encontrar nuevos recursos y retos.",
+      "tipo": "anuncio",
+      "url": "https://github.com/",
+      "imagen_url": null,
+      "etiquetas": [
+        "anuncio"
+      ],
+      "prioridad": 6,
+      "fecha_publicacion": "2026-07-10",
+      "activa": true
+    }
+  ]
+}

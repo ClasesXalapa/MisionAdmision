@@ -1,0 +1,229 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mision_admision/app/dependencies.dart';
+import 'package:mision_admision/features/notifications/application/notification_controller.dart';
+import 'package:mision_admision/platform/notifications/notification_service.dart';
+
+class NotificationReminderCard extends ConsumerStatefulWidget {
+  const NotificationReminderCard({super.key});
+
+  @override
+  ConsumerState<NotificationReminderCard> createState() =>
+      _NotificationReminderCardState();
+}
+
+class _NotificationReminderCardState
+    extends ConsumerState<NotificationReminderCard> {
+  late final NotificationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = NotificationController(
+      service: ref.read(notificationServiceProvider),
+    )..addListener(_refresh);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _controller.start());
+  }
+
+  @override
+  void dispose() {
+    _controller
+      ..removeListener(_refresh)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _refresh() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _enable() async {
+    try {
+      await _controller.enable();
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No fue posible activar: $error')),
+      );
+    }
+  }
+
+  Future<void> _disable() async {
+    await _controller.disable();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Recordatorios desactivados en este navegador.')),
+    );
+  }
+
+  Future<void> _test() async {
+    final shown = await _controller.showLocalTest();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          shown
+              ? 'Notificación de prueba enviada.'
+              : 'No fue posible mostrar la notificación de prueba.',
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_controller.loading) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(18),
+          child: LinearProgressIndicator(),
+        ),
+      );
+    }
+
+    final status = _controller.status;
+    final presentation = _presentation(status);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: presentation.color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(presentation.icon, color: presentation.color),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        presentation.title,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        presentation.message,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                              height: 1.4,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            if (status.errorMessage != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                status.errorMessage!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
+            if (status.configured && status.supported) ...[
+              const SizedBox(height: 16),
+              if (status.enabled)
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _controller.busy ? null : _test,
+                        icon: const Icon(Icons.notifications_active_outlined),
+                        label: const Text('Probar'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextButton(
+                        onPressed: _controller.busy ? null : _disable,
+                        child: const Text('Desactivar'),
+                      ),
+                    ),
+                  ],
+                )
+              else if (status.permission != NotificationPermissionState.denied)
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: _controller.busy ? null : _enable,
+                    icon: const Icon(Icons.notifications_outlined),
+                    label: const Text('Activar recordatorio diario'),
+                  ),
+                ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  _ReminderPresentation _presentation(NotificationStatus status) {
+    if (!status.configured) {
+      return const _ReminderPresentation(
+        icon: Icons.notifications_none_outlined,
+        color: Colors.blueGrey,
+        title: 'Recordatorio diario',
+        message: 'La integración de notificaciones todavía no está configurada por el administrador.',
+      );
+    }
+    if (!status.supported) {
+      return const _ReminderPresentation(
+        icon: Icons.notifications_off_outlined,
+        color: Colors.orange,
+        title: 'Notificaciones no compatibles',
+        message: 'Este navegador no permite recibir recordatorios web en segundo plano.',
+      );
+    }
+    if (status.permission == NotificationPermissionState.denied) {
+      return const _ReminderPresentation(
+        icon: Icons.notifications_off_outlined,
+        color: Colors.orange,
+        title: 'Notificaciones bloqueadas',
+        message: 'Habilita las notificaciones desde la configuración del navegador para volver a activarlas.',
+      );
+    }
+    if (status.enabled) {
+      return const _ReminderPresentation(
+        icon: Icons.notifications_active_outlined,
+        color: Colors.green,
+        title: 'Recordatorio activado',
+        message: 'Este navegador está listo para recibir el aviso diario de Misión Admisión.',
+      );
+    }
+    return const _ReminderPresentation(
+      icon: Icons.notifications_outlined,
+      color: Colors.blue,
+      title: 'Protege tu racha',
+      message: 'Activa un recordatorio diario. El navegador solicitará tu permiso una sola vez.',
+    );
+  }
+}
+
+class _ReminderPresentation {
+  const _ReminderPresentation({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.message,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String message;
+}

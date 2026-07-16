@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://misionadmision.example/schemas/ranks.schema.json",
+  "title": "Rangos de Misión Admisión",
+  "type": "object",
+  "required": ["schema_version", "version", "generated_at", "rangos"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "version": { "type": "string", "pattern": "^[A-Za-z0-9._-]{1,100}$" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "rangos": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "nombre", "descripcion", "racha_minima"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "nombre": { "type": "string", "minLength": 1 },
+          "descripcion": { "type": "string", "minLength": 1 },
+          "racha_minima": { "type": "integer", "minimum": 0 }
+        }
+      }
+    }
+  }
+}

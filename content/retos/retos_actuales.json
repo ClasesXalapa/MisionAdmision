@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "version": "challenges_001",
+  "generated_at": "2026-07-15T01:30:00-06:00",
+  "retos": [
+    {
+      "id": "reto_2026_07_15",
+      "fecha": "2026-07-15",
+      "titulo": "Reto diario de práctica general",
+      "preguntas_ids": [
+        "MAT-ARI-001",
+        "MAT-ARI-002",
+        "MAT-ALG-001",
+        "MAT-POR-001",
+        "MAT-GEO-001",
+        "MAT-EST-001",
+        "LEC-INF-001",
+        "LEC-VOC-001",
+        "RED-CON-001",
+        "RED-ORT-001"
+      ],
+      "recurso_resolucion": {
+        "tipo": "video",
+        "titulo": "Ver recurso de resolución",
+        "url": "https://www.youtube.com/"
+      }
+    }
+  ]
+}

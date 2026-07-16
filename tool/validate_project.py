@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+"""Comprueba coherencia estructural sin depender del SDK de Flutter."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+import re
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def main() -> int:
+    errors: list[str] = []
+
+    pubspec = (ROOT / "pubspec.yaml").read_text(encoding="utf-8")
+    constants = (ROOT / "lib/core/constants/app_constants.dart").read_text(
+        encoding="utf-8"
+    )
+    pubspec_match = re.search(r"^version:\s*([0-9.]+)\+([0-9]+)\s*$", pubspec, re.M)
+    app_version_match = re.search(r"appVersion\s*=\s*'([^']+)'", constants)
+    build_match = re.search(r"appBuildNumber\s*=\s*(\d+)", constants)
+    if not pubspec_match or not app_version_match or not build_match:
+        errors.append("No fue posible leer la versión de la aplicación.")
+    else:
+        if pubspec_match.group(1) != app_version_match.group(1):
+            errors.append("pubspec.yaml y AppConstants.appVersion no coinciden.")
+        if pubspec_match.group(2) != build_match.group(1):
+            errors.append("pubspec.yaml y AppConstants.appBuildNumber no coinciden.")
+
+    for path in ROOT.rglob("*.json"):
+        try:
+            json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            errors.append(f"JSON inválido en {path.relative_to(ROOT)}: {error}")
+
+    import_pattern = re.compile(r"import 'package:mision_admision/([^']+)';")
+    for path in [*ROOT.joinpath("lib").rglob("*.dart"), *ROOT.joinpath("test").rglob("*.dart")]:
+        text = path.read_text(encoding="utf-8")
+        for match in import_pattern.finditer(text):
+            target = ROOT / "lib" / match.group(1)
+            if not target.is_file():
+                errors.append(
+                    f"Import inexistente en {path.relative_to(ROOT)}: "
+                    f"{target.relative_to(ROOT)}"
+                )
+
+    index_html = (ROOT / "web/index.html").read_text(encoding="utf-8")
+    required_web_files = {
+        "firebase_config.js",
+        "notifications_bridge.js",
+        "backup_bridge.js",
+        "pwa_bridge.js",
+    }
+    for name in sorted(required_web_files):
+        if not (ROOT / "web" / name).is_file():
+            errors.append(f"Falta web/{name}.")
+        if f'src="{name}"' not in index_html:
+            errors.append(f"web/index.html no carga {name}.")
+
+    required_docs = {
+        "docs/progress_backup.md",
+        "docs/accessibility.md",
+        "docs/beta_checklist.md",
+        "schemas/progress_backup.schema.json",
+    }
+    for relative in sorted(required_docs):
+        if not (ROOT / relative).is_file():
+            errors.append(f"Falta {relative}.")
+
+    if errors:
+        print("Proyecto inválido:", file=sys.stderr)
+        for error in errors:
+            print(f"- {error}", file=sys.stderr)
+        return 1
+
+    dart_files = len(list((ROOT / "lib").rglob("*.dart")))
+    test_files = len(list((ROOT / "test").rglob("*.dart")))
+    print(
+        "Proyecto coherente: "
+        f"versión {pubspec_match.group(1)}+{pubspec_match.group(2)}, "
+        f"{dart_files} archivos Dart y {test_files} archivos de prueba."
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://misionadmision.example/schemas/index.schema.json",
+  "title": "Índice remoto de Misión Admisión",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "content_version",
+    "generated_at",
+    "min_app_version",
+    "files"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "content_version": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "min_app_version": {"type": "integer", "minimum": 1},
+    "files": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["questions", "challenges", "resources", "ranks"],
+      "properties": {
+        "questions": {"$ref": "#/$defs/requiredFile"},
+        "challenges": {"$ref": "#/$defs/optionalFile"},
+        "resources": {"$ref": "#/$defs/optionalFile"},
+        "ranks": {"$ref": "#/$defs/optionalFile"}
+      }
+    }
+  },
+  "$defs": {
+    "fileBase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "version", "required"],
+      "properties": {
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "not": {"pattern": "\\.\\."}
+        },
+        "version": {"type": "string", "pattern": "^[A-Za-z0-9._-]{1,100}$"},
+        "required": {"type": "boolean"}
+      }
+    },
+    "requiredFile": {
+      "allOf": [
+        {"$ref": "#/$defs/fileBase"},
+        {"properties": {"required": {"const": true}}}
+      ]
+    },
+    "optionalFile": {
+      "allOf": [
+        {"$ref": "#/$defs/fileBase"},
+        {"properties": {"required": {"const": false}}}
+      ]
+    }
+  }
+}
