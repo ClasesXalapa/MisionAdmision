@@ -57,34 +57,6 @@ class PlatformDiagnostics {
         persistentStorageGranted = null,
         connectionType = null;
 
-  final bool supported;
-  final String browserName;
-  final String browserVersion;
-  final String operatingSystem;
-  final String platform;
-  final String userAgent;
-  final String language;
-  final String timeZone;
-  final int screenWidth;
-  final int screenHeight;
-  final int viewportWidth;
-  final int viewportHeight;
-  final double devicePixelRatio;
-  final bool online;
-  final bool secureContext;
-  final bool cookiesEnabled;
-  final String displayMode;
-  final bool serviceWorkerSupported;
-  final bool serviceWorkerControlled;
-  final String serviceWorkerState;
-  final bool storageEstimateSupported;
-  final int? storageUsageBytes;
-  final int? storageQuotaBytes;
-  final bool persistentStorageSupported;
-  final bool? persistentStorageGranted;
-  final String? connectionType;
-  final String? errorMessage;
-
   factory PlatformDiagnostics.fromJson(Map<String, Object?> json) {
     return PlatformDiagnostics(
       supported: _bool(json['supported']),
@@ -126,6 +98,34 @@ class PlatformDiagnostics {
       errorMessage: _nullableText(json['error_message']),
     );
   }
+
+  final bool supported;
+  final String browserName;
+  final String browserVersion;
+  final String operatingSystem;
+  final String platform;
+  final String userAgent;
+  final String language;
+  final String timeZone;
+  final int screenWidth;
+  final int screenHeight;
+  final int viewportWidth;
+  final int viewportHeight;
+  final double devicePixelRatio;
+  final bool online;
+  final bool secureContext;
+  final bool cookiesEnabled;
+  final String displayMode;
+  final bool serviceWorkerSupported;
+  final bool serviceWorkerControlled;
+  final String serviceWorkerState;
+  final bool storageEstimateSupported;
+  final int? storageUsageBytes;
+  final int? storageQuotaBytes;
+  final bool persistentStorageSupported;
+  final bool? persistentStorageGranted;
+  final String? connectionType;
+  final String? errorMessage;
 
   Map<String, Object?> toJson() => {
         'supported': supported,

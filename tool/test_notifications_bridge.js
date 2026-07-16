@@ -109,25 +109,26 @@ function createContext({configured = false, ios = false} = {}) {
   context.globalThis = context;
   vm.createContext(context);
   vm.runInContext(fs.readFileSync('web/firebase_config.js', 'utf8'), context);
-  if (configured) {
-    context.MISSION_ADMISSION_FIREBASE = Object.freeze({
-      enabled: true,
-      sdkVersion: '12.16.0',
-      registrationMode: 'fid',
-      registrationTimeoutMs: 1000,
-      defaultNotificationLink: '#/reto',
-      debugLogging: false,
-      vapidKey: 'B'.repeat(80),
-      config: Object.freeze({
-        apiKey: 'api-key',
-        authDomain: 'example.firebaseapp.com',
-        projectId: 'example',
-        storageBucket: 'example.firebasestorage.app',
-        messagingSenderId: '123456',
-        appId: '1:123456:web:abc',
-      }),
-    });
-  }
+
+  // Las pruebas no deben depender de la configuración real del repositorio.
+  // Cada fixture fuerza explícitamente Firebase activado o desactivado.
+  context.MISSION_ADMISSION_FIREBASE = Object.freeze({
+    enabled: configured,
+    sdkVersion: '12.16.0',
+    registrationMode: 'fid',
+    registrationTimeoutMs: 1000,
+    defaultNotificationLink: '#/reto',
+    debugLogging: false,
+    vapidKey: configured ? 'B'.repeat(80) : '',
+    config: Object.freeze({
+      apiKey: configured ? 'api-key' : '',
+      authDomain: configured ? 'example.firebaseapp.com' : '',
+      projectId: configured ? 'example' : '',
+      storageBucket: configured ? 'example.firebasestorage.app' : '',
+      messagingSenderId: configured ? '123456' : '',
+      appId: configured ? '1:123456:web:abc' : '',
+    }),
+  });
   vm.runInContext(fs.readFileSync('web/notifications_bridge.js', 'utf8'), context);
 
   return {
