@@ -87,17 +87,29 @@ async function main() {
 
   const click = listeners.get('notificationclick');
   let clickPromise = null;
+  let stopped = false;
   click({
     notification: {
-      data: {missionAdmission: true, link: 'https://evil.example/'},
+      data: {
+        FCM_MSG: {
+          data: {link: 'https://evil.example/'},
+        },
+      },
       close() {},
     },
+    stopImmediatePropagation() { stopped = true; },
     waitUntil(promise) { clickPromise = promise; },
   });
   await clickPromise;
+  assert.equal(stopped, true);
   assert.equal(clients[0].url, 'https://example.test/mision-admision/#/reto');
 
-  console.log('Service worker FCM validado: datos, enlaces seguros y clic.');
+  const notificationClickPosition = source.indexOf("addEventListener('notificationclick'");
+  const firebaseImportPosition = source.indexOf("importScripts(new URL('firebase_config.js'");
+  assert.equal(notificationClickPosition >= 0, true);
+  assert.equal(firebaseImportPosition > notificationClickPosition, true);
+
+  console.log('Service worker FCM validado: datos, enlaces seguros, orden y clic.');
 }
 
 main().catch((error) => {

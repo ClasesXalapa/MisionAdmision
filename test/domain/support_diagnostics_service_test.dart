@@ -123,6 +123,9 @@ class _NotificationService implements NotificationService {
 
   @override
   Future<bool> showLocalTest() async => false;
+
+  @override
+  Future<String?> getTestingInstallationId() async => null;
 }
 
 class _ContentRepository implements ContentCacheRepository {

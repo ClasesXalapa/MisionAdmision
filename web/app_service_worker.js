@@ -177,6 +177,41 @@ function missionAdmissionNotificationOptions(payload) {
   };
 }
 
+// Debe registrarse antes de importar Firebase. De otro modo, FCM puede
+// reemplazar el comportamiento personalizado del clic.
+self.addEventListener('notificationclick', (event) => {
+  const notificationData = event.notification.data || {};
+  const fcmMessage = notificationData.FCM_MSG || null;
+  const belongsToMissionAdmission =
+    notificationData.missionAdmission === true || fcmMessage !== null;
+  if (!belongsToMissionAdmission) return;
+
+  event.stopImmediatePropagation?.();
+  event.notification.close();
+  const destination = safeNotificationDestination(
+    notificationData.link ||
+    fcmMessage?.fcmOptions?.link ||
+    fcmMessage?.data?.link,
+  );
+  event.waitUntil((async () => {
+    const windows = await self.clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true,
+    });
+    for (const client of windows) {
+      const clientUrl = new URL(client.url);
+      const destinationUrl = new URL(destination);
+      if (clientUrl.origin === destinationUrl.origin &&
+          clientUrl.pathname.startsWith(new URL(self.registration.scope).pathname)) {
+        await client.focus();
+        if ('navigate' in client) await client.navigate(destination);
+        return;
+      }
+    }
+    await self.clients.openWindow(destination);
+  })());
+});
+
 try {
   importScripts(new URL('firebase_config.js', self.location.href).toString());
   missionAdmissionNotificationSettings = self.MISSION_ADMISSION_FIREBASE;
@@ -216,25 +251,3 @@ self.addEventListener('pushsubscriptionchange', (event) => {
   })());
 });
 
-self.addEventListener('notificationclick', (event) => {
-  if (event.notification.data?.missionAdmission !== true) return;
-  event.notification.close();
-  const destination = safeNotificationDestination(event.notification.data?.link);
-  event.waitUntil((async () => {
-    const windows = await self.clients.matchAll({
-      type: 'window',
-      includeUncontrolled: true,
-    });
-    for (const client of windows) {
-      const clientUrl = new URL(client.url);
-      const destinationUrl = new URL(destination);
-      if (clientUrl.origin === destinationUrl.origin &&
-          clientUrl.pathname.startsWith(new URL(self.registration.scope).pathname)) {
-        await client.focus();
-        if ('navigate' in client) await client.navigate(destination);
-        return;
-      }
-    }
-    await self.clients.openWindow(destination);
-  })());
-});

@@ -1,5 +1,7 @@
 # Reporte de validación — Misión Admisión v0.9.0
 
+> Reporte histórico. La arquitectura de backend prevista entonces fue descartada en v0.9.1.
+
 ## Alcance
 
 Auditoría y cierre del cliente Firebase Web Push basado en Firebase Installation ID.
@@ -46,7 +48,7 @@ El cliente solo incluye configuración pública de Firebase. El FID:
 - no se incluye en respaldos;
 - no se incluye en diagnósticos;
 - no se muestra en la interfaz;
-- solo podrá enviarse al backend explícito de la entrega 0.9.1.
+- permanecía local en esa versión; v0.9.1 añadió copia manual solo para pruebas desde Firebase Console.
 
 ## Limitaciones de esta validación
 

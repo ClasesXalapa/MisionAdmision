@@ -1,5 +1,15 @@
 # Historial de cambios
 
+## 0.9.1 — 2026-07-16
+
+- Arquitectura cerrada para envíos desde Firebase Console, sin backend propio.
+- Eliminadas referencias funcionales a Cloudflare, D1 y snapshots para servidor.
+- Copia controlada del Firebase Installation ID para pruebas dirigidas.
+- `notificationclick` registrado antes de importar las bibliotecas de Firebase.
+- Clic seguro compatible con notificaciones automáticas FCM y mensajes de datos.
+- Botones y textos simplificados para usuarios finales.
+- Documentación de conexión y operación mediante Firebase Console.
+
 ## 0.9.0 — 2026-07-16
 
 - Cliente Web Push auditado contra Firebase JavaScript SDK 12.16.0.

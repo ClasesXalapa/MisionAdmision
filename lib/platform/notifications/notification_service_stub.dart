@@ -24,4 +24,7 @@ class UnsupportedNotificationService implements NotificationService {
 
   @override
   Future<bool> showLocalTest() async => false;
+
+  @override
+  Future<String?> getTestingInstallationId() async => null;
 }

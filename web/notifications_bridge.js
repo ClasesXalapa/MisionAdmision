@@ -445,7 +445,7 @@
     if (permissionValue() !== 'granted') return false;
     const registration = await serviceWorkerRegistration();
     if (!registration) return false;
-    await registration.showNotification('Recordatorio activado 🔔', {
+    await registration.showNotification('Notificaciones activadas 🔔', {
       body: 'Misión Admisión puede mostrarte el recordatorio diario.',
       icon: new URL('icons/Icon-192.png', document.baseURI).href,
       badge: new URL('icons/Icon-192.png', document.baseURI).href,
@@ -458,15 +458,9 @@
     return true;
   }
 
-  async function getRegistrationSnapshotForBackend() {
-    return {
-      registrationKind: localStorage.getItem(INSTALLATION_ID_KEY)
-        ? REGISTRATION_KIND
-        : 'none',
-      registrationId: localStorage.getItem(INSTALLATION_ID_KEY) || '',
-      registrationUpdatedAt: localStorage.getItem(REGISTERED_AT_KEY) || '',
-      enabled: localStorage.getItem(ENABLED_KEY) === 'true',
-    };
+  async function getTestingInstallationId() {
+    if (localStorage.getItem(ENABLED_KEY) !== 'true') return '';
+    return localStorage.getItem(INSTALLATION_ID_KEY) || '';
   }
 
   globalThis.missionAdmissionNotifications = {
@@ -475,7 +469,7 @@
     disable,
     refreshRegistration,
     showLocalTest,
-    getRegistrationSnapshotForBackend,
+    getTestingInstallationId,
   };
 
   navigator.serviceWorker?.addEventListener('message', (event) => {

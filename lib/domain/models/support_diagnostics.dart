@@ -122,7 +122,7 @@ class SupportDiagnostics {
       'Notificaciones configuradas: ${notifications.configured ? 'sí' : 'no'}',
       'Notificaciones compatibles: ${notifications.supported ? 'sí' : 'no'}',
       'Permiso de notificación: ${notifications.permission.name}',
-      'Recordatorio activado: ${notifications.enabled ? 'sí' : 'no'}',
+      'Notificaciones activadas: ${notifications.enabled ? 'sí' : 'no'}',
       'Registro FCM: ${notifications.registrationKind.name}',
       'Registro actualizado: ${notifications.registrationUpdatedAt?.toIso8601String() ?? 'no disponible'}',
       'PWA requerida para notificar: ${notifications.requiresPwaInstallation ? 'sí' : 'no'}',

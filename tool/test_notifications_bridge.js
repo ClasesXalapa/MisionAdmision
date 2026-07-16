@@ -166,11 +166,14 @@ async function testRegistrationLifecycle() {
   assert.match(enabled.registrationUpdatedAt, /^\d{4}-\d{2}-\d{2}T/);
   assert.equal(fixture.registerCount >= 1, true);
 
-  const snapshot = await fixture.context.missionAdmissionNotifications
-    .getRegistrationSnapshotForBackend();
-  assert.equal(snapshot.registrationId, 'fid-test-123');
-  assert.equal(snapshot.registrationKind, 'fid');
-  assert.equal(snapshot.enabled, true);
+  assert.equal(
+    typeof fixture.context.missionAdmissionNotifications
+      .getRegistrationSnapshotForBackend,
+    'undefined',
+  );
+  const testingId = await fixture.context.missionAdmissionNotifications
+    .getTestingInstallationId();
+  assert.equal(testingId, 'fid-test-123');
 
   const shown = await fixture.context.missionAdmissionNotifications.showLocalTest();
   assert.equal(shown, true);
@@ -203,7 +206,7 @@ async function main() {
   await testDisabledConfiguration();
   await testRegistrationLifecycle();
   await testIosRequiresInstalledPwa();
-  console.log('Puente FCM validado: configuración, FID, renovación, baja e iPhone.');
+  console.log('Puente FCM validado: configuración, FID de prueba, renovación, baja e iPhone.');
 }
 
 main().catch((error) => {

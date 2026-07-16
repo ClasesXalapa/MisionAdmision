@@ -62,6 +62,16 @@ class NotificationController extends ChangeNotifier {
     }
   }
 
+  Future<String?> getTestingInstallationId() async {
+    if (_busy) return null;
+    _setBusy(true);
+    try {
+      return await _service.getTestingInstallationId();
+    } finally {
+      _setBusy(false);
+    }
+  }
+
   void _setBusy(bool value) {
     _busy = value;
     notifyListeners();

@@ -37,6 +37,17 @@ void main() {
     expect(service.disableCount, 1);
   });
 
+  test('copies the testing installation id through the service', () async {
+    final service = _FakeNotificationService();
+    final controller = NotificationController(service: service);
+    addTearDown(controller.dispose);
+    await controller.start();
+    await controller.enable();
+
+    expect(await controller.getTestingInstallationId(), 'fid-test-123');
+    expect(service.testingIdCount, 1);
+  });
+
   test('delegates local notification test', () async {
     final service = _FakeNotificationService();
     final controller = NotificationController(service: service);
@@ -63,6 +74,7 @@ class _FakeNotificationService implements NotificationService {
   int refreshCount = 0;
   int disableCount = 0;
   int testCount = 0;
+  int testingIdCount = 0;
 
   @override
   Future<NotificationStatus> readStatus() async {
@@ -111,5 +123,11 @@ class _FakeNotificationService implements NotificationService {
   Future<bool> showLocalTest() async {
     testCount += 1;
     return true;
+  }
+
+  @override
+  Future<String?> getTestingInstallationId() async {
+    testingIdCount += 1;
+    return status.enabled ? 'fid-test-123' : null;
   }
 }

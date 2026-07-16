@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mision_admision/app/dependencies.dart';
 import 'package:mision_admision/features/notifications/application/notification_controller.dart';
@@ -56,7 +57,7 @@ class _NotificationReminderCardState
       SnackBar(
         content: Text(
           status.registrationAvailable
-              ? 'Registro de notificaciones actualizado.'
+              ? 'Notificaciones reparadas y registro confirmado.'
               : 'No fue posible confirmar el registro.',
         ),
       ),
@@ -68,7 +69,25 @@ class _NotificationReminderCardState
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Recordatorios desactivados en este navegador.'),
+        content: Text('Notificaciones desactivadas en este navegador.'),
+      ),
+    );
+  }
+
+  Future<void> _copyTestingId() async {
+    final installationId = await _controller.getTestingInstallationId();
+    if (!mounted) return;
+    if (installationId == null || installationId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No hay un ID de prueba disponible.')),
+      );
+      return;
+    }
+    await Clipboard.setData(ClipboardData(text: installationId));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('ID de prueba copiado. No lo publiques ni lo compartas.'),
       ),
     );
   }
@@ -176,8 +195,13 @@ class _NotificationReminderCardState
                     OutlinedButton.icon(
                       onPressed:
                           _controller.busy ? null : _refreshRegistration,
-                      icon: const Icon(Icons.refresh_outlined),
-                      label: const Text('Renovar registro'),
+                      icon: const Icon(Icons.build_outlined),
+                      label: const Text('Reparar notificaciones'),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: _controller.busy ? null : _copyTestingId,
+                      icon: const Icon(Icons.copy_outlined),
+                      label: const Text('Copiar ID de prueba'),
                     ),
                     TextButton(
                       onPressed: _controller.busy ? null : _disable,
@@ -191,7 +215,7 @@ class _NotificationReminderCardState
                   child: FilledButton.icon(
                     onPressed: _controller.busy ? null : _enable,
                     icon: const Icon(Icons.notifications_outlined),
-                    label: const Text('Activar recordatorio diario'),
+                    label: const Text('Activar notificaciones'),
                   ),
                 ),
             ],
@@ -218,9 +242,9 @@ class _NotificationReminderCardState
       return const _ReminderPresentation(
         icon: Icons.notifications_none_outlined,
         color: Colors.blueGrey,
-        title: 'Recordatorio diario',
+        title: 'Notificaciones',
         message:
-            'La integración de notificaciones todavía no está configurada por el administrador.',
+            'Firebase Cloud Messaging todavía no está configurado por el administrador.',
       );
     }
     if (!status.secureContext) {
@@ -263,17 +287,17 @@ class _NotificationReminderCardState
       return const _ReminderPresentation(
         icon: Icons.notifications_active_outlined,
         color: Colors.green,
-        title: 'Recordatorio activado',
+        title: 'Notificaciones activadas',
         message:
-            'Este navegador está registrado mediante Firebase Installation ID y listo para recibir el aviso diario.',
+            'Este navegador está listo para recibir los mensajes que Misión Admisión envíe desde Firebase Console.',
       );
     }
     return const _ReminderPresentation(
       icon: Icons.notifications_outlined,
       color: Colors.blue,
-      title: 'Protege tu racha',
+      title: 'Mantente al día',
       message:
-          'Activa un recordatorio diario. El navegador solicitará tu permiso una sola vez.',
+          'Activa las notificaciones para recibir recordatorios y avisos enviados por Misión Admisión.',
     );
   }
 }

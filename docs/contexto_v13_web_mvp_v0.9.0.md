@@ -1,5 +1,7 @@
 # Misión Admisión — Contexto técnico v13
 
+> Documento histórico. La decisión de backend con Cloudflare fue cancelada en v0.9.1. Consulta `contexto_v14_web_mvp_v0.9.1.md`.
+
 ## Versión
 
 ```text
@@ -21,9 +23,6 @@ Cliente Firebase Web Push auditado y preparado para conexión real.
 - Enlaces de notificación restringidos a la PWA.
 - iPhone exige instalación en pantalla de inicio.
 
-## Siguiente entrega
+## Decisión posterior
 
-```text
-v0.9.1
-Backend mínimo de suscripciones con Cloudflare Worker y D1.
-```
+La v0.9.1 eliminó el backend previsto. Los envíos se administran desde Firebase Console.

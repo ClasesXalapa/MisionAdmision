@@ -45,6 +45,12 @@ class WebNotificationService implements NotificationService {
   Future<bool> showLocalTest() async =>
       (await _showLocalNotificationTest().toDart).toDart;
 
+  @override
+  Future<String?> getTestingInstallationId() async {
+    final value = await _getTestingInstallationId().toDart;
+    return _optionalText(value);
+  }
+
   NotificationStatus _mapStatus(_NotificationState value) {
     return NotificationStatus(
       configured: value.configured.toDart,
@@ -104,6 +110,9 @@ external JSPromise<_NotificationState> _disableNotifications();
 
 @JS('missionAdmissionNotifications.showLocalTest')
 external JSPromise<JSBoolean> _showLocalNotificationTest();
+
+@JS('missionAdmissionNotifications.getTestingInstallationId')
+external JSPromise<JSString> _getTestingInstallationId();
 
 @JS()
 extension type _NotificationState._(JSObject _) implements JSObject {

@@ -71,4 +71,8 @@ abstract interface class NotificationService {
   Future<NotificationStatus> disable();
 
   Future<bool> showLocalTest();
+
+  /// Identificador técnico para dirigir un mensaje de prueba desde Firebase
+  /// Console. Nunca debe incluirse en reportes generales de diagnóstico.
+  Future<String?> getTestingInstallationId();
 }

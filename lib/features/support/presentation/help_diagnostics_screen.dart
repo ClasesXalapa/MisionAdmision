@@ -388,7 +388,7 @@ class _ContentNotificationsCard extends StatelessWidget {
         ('Firebase configurado', report.notifications.configured ? 'Sí' : 'No'),
         ('Navegador compatible', report.notifications.supported ? 'Sí' : 'No'),
         ('Permiso', _permissionLabel(report.notifications.permission)),
-        ('Recordatorio activado', report.notifications.enabled ? 'Sí' : 'No'),
+        ('Notificaciones activadas', report.notifications.enabled ? 'Sí' : 'No'),
         (
           'Tipo de registro',
           _registrationKindLabel(report.notifications.registrationKind),
