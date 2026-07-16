@@ -1,5 +1,11 @@
 # Historial de cambios
 
+## 0.7.2 — 2026-07-16
+
+- Corregida la prueba de la pantalla inicial para desplazarse por el `ListView` antes de buscar acciones fuera del viewport de pruebas.
+- Aislada la sincronización remota durante el widget test para evitar solicitudes HTTP reales.
+- Sin cambios en la aplicación, el almacenamiento local ni los contratos JSON.
+
 ## 0.7.1 — 2026-07-16
 
 - Eliminada una variable de excepción no utilizada en la sincronización de contenido.
