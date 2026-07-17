@@ -46,6 +46,22 @@ class WebNotificationService implements NotificationService {
       (await _showLocalNotificationTest().toDart).toDart;
 
   @override
+  Future<bool> syncDailyChallengeState({
+    required String? lastCompletedDateKey,
+    required bool challengeAvailable,
+  }) async {
+    try {
+      final result = await _syncDailyChallengeState(
+        (lastCompletedDateKey ?? '').toJS,
+        challengeAvailable.toJS,
+      ).toDart;
+      return result.toDart;
+    } on Object {
+      return false;
+    }
+  }
+
+  @override
   Future<String?> getTestingInstallationId() async {
     final value = await _getTestingInstallationId().toDart;
     return _optionalText(value);
@@ -66,6 +82,28 @@ class WebNotificationService implements NotificationService {
       analyticsConfigured: value.analyticsConfigured.toDart,
       analyticsState: _analyticsState(value.analyticsState.toDart),
       analyticsErrorMessage: _optionalText(value.analyticsErrorMessage),
+      smartReminderSupported: value.smartReminderSupported.toDart,
+      smartReminderStateInitialized:
+          value.smartReminderStateInitialized.toDart,
+      smartReminderLastCompletedDateKey:
+          _optionalText(value.smartReminderLastCompletedDateKey),
+      smartReminderChallengeAvailable:
+          value.smartReminderChallengeAvailable.toDart,
+      smartReminderStateUpdatedAt:
+          _optionalDate(value.smartReminderStateUpdatedAt),
+      smartReminderLastFirebaseReceivedAt:
+          _optionalDate(value.smartReminderLastFirebaseReceivedAt),
+      smartReminderLastLocalAt:
+          _optionalDate(value.smartReminderLastLocalAt),
+      smartReminderCountDateKey:
+          _optionalText(value.smartReminderCountDateKey),
+      smartReminderCountForDate: _optionalInt(value.smartReminderCountForDate),
+      smartReminderLastDecision:
+          _optionalText(value.smartReminderLastDecision),
+      smartReminderLastDecisionAt:
+          _optionalDate(value.smartReminderLastDecisionAt),
+      smartReminderErrorMessage:
+          _optionalText(value.smartReminderErrorMessage),
       errorCode: _optionalText(value.errorCode),
       errorMessage: _optionalText(value.errorMessage),
     );
@@ -102,6 +140,11 @@ class WebNotificationService implements NotificationService {
     return text == null ? null : DateTime.tryParse(text);
   }
 
+  int _optionalInt(JSString? value) {
+    final text = _optionalText(value);
+    return text == null ? 0 : int.tryParse(text) ?? 0;
+  }
+
   String? _optionalText(JSString? value) {
     if (value == null) return null;
     final text = value.toDart.trim();
@@ -127,6 +170,12 @@ external JSPromise<JSBoolean> _showLocalNotificationTest();
 @JS('missionAdmissionNotifications.getTestingInstallationId')
 external JSPromise<JSString> _getTestingInstallationId();
 
+@JS('missionAdmissionNotifications.syncDailyChallengeState')
+external JSPromise<JSBoolean> _syncDailyChallengeState(
+  JSString lastCompletedDateKey,
+  JSBoolean challengeAvailable,
+);
+
 @JS()
 extension type _NotificationState._(JSObject _) implements JSObject {
   external JSBoolean get configured;
@@ -142,6 +191,18 @@ extension type _NotificationState._(JSObject _) implements JSObject {
   external JSBoolean get analyticsConfigured;
   external JSString get analyticsState;
   external JSString? get analyticsErrorMessage;
+  external JSBoolean get smartReminderSupported;
+  external JSBoolean get smartReminderStateInitialized;
+  external JSString? get smartReminderLastCompletedDateKey;
+  external JSBoolean get smartReminderChallengeAvailable;
+  external JSString? get smartReminderStateUpdatedAt;
+  external JSString? get smartReminderLastFirebaseReceivedAt;
+  external JSString? get smartReminderLastLocalAt;
+  external JSString? get smartReminderCountDateKey;
+  external JSString get smartReminderCountForDate;
+  external JSString? get smartReminderLastDecision;
+  external JSString? get smartReminderLastDecisionAt;
+  external JSString? get smartReminderErrorMessage;
   external JSString? get errorCode;
   external JSString? get errorMessage;
 }

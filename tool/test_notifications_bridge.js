@@ -28,8 +28,16 @@ function createContext({
   let registerCount = 0;
   let unregisterCount = 0;
   let analyticsCount = 0;
+  const dailySyncCalls = [];
+  const dailyDecisions = [];
+  let firebaseWakeCount = 0;
+  const postedWorkerMessages = [];
 
   const registration = {
+    active: {
+      postMessage(message) { postedWorkerMessages.push(message); },
+    },
+    async getNotifications() { return []; },
     async showNotification(title, options) {
       shownNotifications.push({title, options});
     },
@@ -129,6 +137,31 @@ function createContext({
       },
     },
     __MISSION_ADMISSION_FIREBASE_MODULES__: {appModule, messagingModule, analyticsModule},
+    __MISSION_ADMISSION_NOTIFICATION_STATE_STORE__: {
+      async readSnapshot() {
+        return {
+          supported: true,
+          stateInitialized: dailySyncCalls.length > 0,
+          lastCompletedDateKey: dailySyncCalls.at(-1)?.lastCompletedDateKey || '',
+          challengeAvailable: dailySyncCalls.at(-1)?.challengeAvailable === true,
+          stateUpdatedAt: '',
+          lastFirebaseReceivedAt: '',
+          lastLocalReminderAt: '',
+          reminderCountDateKey: '',
+          reminderCountForDate: 0,
+          lastDecision: dailyDecisions.at(-1) || '',
+          lastDecisionAt: '',
+          errorMessage: '',
+        };
+      },
+      async syncDailyProgress(lastCompletedDateKey, challengeAvailable) {
+        dailySyncCalls.push({lastCompletedDateKey, challengeAvailable});
+        return true;
+      },
+      localDateKey() { return '2026-07-16'; },
+      async recordFirebaseWake() { firebaseWakeCount += 1; },
+      async recordDecision(decision) { dailyDecisions.push(decision); },
+    },
   };
   context.window = context;
   context.globalThis = context;
@@ -167,6 +200,10 @@ function createContext({
     get registerCount() { return registerCount; },
     get unregisterCount() { return unregisterCount; },
     get analyticsCount() { return analyticsCount; },
+    dailySyncCalls,
+    dailyDecisions,
+    postedWorkerMessages,
+    get firebaseWakeCount() { return firebaseWakeCount; },
     get pwaEnsureCount() { return pwaEnsureCount; },
   };
 }
@@ -211,6 +248,19 @@ async function testRegistrationLifecycle() {
     .getTestingInstallationId();
   assert.equal(testingId, 'fid-test-123');
 
+  const synced = await fixture.context.missionAdmissionNotifications
+    .syncDailyChallengeState('2026-07-16', true);
+  assert.equal(synced, true);
+  assert.deepEqual(fixture.dailySyncCalls, [{
+    lastCompletedDateKey: '2026-07-16',
+    challengeAvailable: true,
+  }]);
+  assert.equal(fixture.postedWorkerMessages.length, 1);
+  assert.equal(
+    fixture.postedWorkerMessages[0].type,
+    'DAILY_CHALLENGE_COMPLETED',
+  );
+
   const shown = await fixture.context.missionAdmissionNotifications.showLocalTest();
   assert.equal(shown, true);
   assert.equal(fixture.shownNotifications.length, 1);
@@ -218,6 +268,13 @@ async function testRegistrationLifecycle() {
     fixture.shownNotifications[0].options.data.link,
     'https://example.test/mision-admision/#/reto',
   );
+
+  await fixture.foregroundCallbacks[0]({
+    notification: {title: 'Motivación', body: 'Sigue avanzando.'},
+  });
+  assert.equal(fixture.firebaseWakeCount, 1);
+  assert.equal(fixture.dailyDecisions.at(-1), 'app_visible');
+  assert.equal(fixture.shownNotifications.length, 2);
 
   await fixture.context.missionAdmissionNotifications.refreshRegistration();
   assert.equal(fixture.registerCount >= 2, true);

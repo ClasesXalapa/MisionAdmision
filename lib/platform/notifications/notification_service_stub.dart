@@ -26,5 +26,11 @@ class UnsupportedNotificationService implements NotificationService {
   Future<bool> showLocalTest() async => false;
 
   @override
+  Future<bool> syncDailyChallengeState({
+    required String? lastCompletedDateKey,
+    required bool challengeAvailable,
+  }) async => false;
+
+  @override
   Future<String?> getTestingInstallationId() async => null;
 }

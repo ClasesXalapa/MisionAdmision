@@ -23,6 +23,7 @@ class PreparePwaTest(unittest.TestCase):
                 "pwa_bridge.js",
                 "firebase_config.js",
                 "notifications_bridge.js",
+                "notification_state_store.js",
                 "backup_bridge.js",
                 "diagnostics_bridge.js",
             ]:

@@ -63,6 +63,30 @@ class SupportDiagnostics {
           'analytics_configured': notifications.analyticsConfigured,
           'analytics_state': notifications.analyticsState.name,
           'analytics_error_message': notifications.analyticsErrorMessage,
+          'smart_reminder_supported': notifications.smartReminderSupported,
+          'smart_reminder_state_initialized':
+              notifications.smartReminderStateInitialized,
+          'smart_reminder_last_completed_date':
+              notifications.smartReminderLastCompletedDateKey,
+          'smart_reminder_challenge_available':
+              notifications.smartReminderChallengeAvailable,
+          'smart_reminder_state_updated_at':
+              notifications.smartReminderStateUpdatedAt?.toIso8601String(),
+          'smart_reminder_last_firebase_received_at': notifications
+              .smartReminderLastFirebaseReceivedAt
+              ?.toIso8601String(),
+          'smart_reminder_last_local_at':
+              notifications.smartReminderLastLocalAt?.toIso8601String(),
+          'smart_reminder_count_date':
+              notifications.smartReminderCountDateKey,
+          'smart_reminder_count_for_date':
+              notifications.smartReminderCountForDate,
+          'smart_reminder_last_decision':
+              notifications.smartReminderLastDecision,
+          'smart_reminder_last_decision_at':
+              notifications.smartReminderLastDecisionAt?.toIso8601String(),
+          'smart_reminder_error_message':
+              notifications.smartReminderErrorMessage,
           'error_code': notifications.errorCode,
           'error_message': notifications.errorMessage,
         },
@@ -131,6 +155,16 @@ class SupportDiagnostics {
       'PWA requerida para notificar: ${notifications.requiresPwaInstallation ? 'sí' : 'no'}',
       'Google Analytics configurado: ${notifications.analyticsConfigured ? 'sí' : 'no'}',
       'Estado de Analytics: ${notifications.analyticsState.name}',
+      'Recordatorio inteligente compatible: ${notifications.smartReminderSupported ? 'sí' : 'no'}',
+      'Estado compartido inicializado: ${notifications.smartReminderStateInitialized ? 'sí' : 'no'}',
+      'Último reto reflejado: ${notifications.smartReminderLastCompletedDateKey ?? 'ninguno'}',
+      'Reto disponible para recordatorio: ${notifications.smartReminderChallengeAvailable ? 'sí' : 'no'}',
+      'Último despertar Firebase: ${notifications.smartReminderLastFirebaseReceivedAt?.toIso8601String() ?? 'nunca'}',
+      'Último recordatorio local: ${notifications.smartReminderLastLocalAt?.toIso8601String() ?? 'nunca'}',
+      'Recordatorios del día: ${notifications.smartReminderCountForDate}',
+      'Última decisión inteligente: ${notifications.smartReminderLastDecision ?? 'sin datos'}',
+      if (notifications.smartReminderErrorMessage != null)
+        'Error del recordatorio inteligente: ${notifications.smartReminderErrorMessage}',
       'Contenido: ${content.contentVersion ?? 'local inicial'}',
       'Preguntas: ${content.versionFor(ContentFileKind.questions) ?? 'asset'}',
       'Retos: ${content.versionFor(ContentFileKind.challenges) ?? 'asset'}',

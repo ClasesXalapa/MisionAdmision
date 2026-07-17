@@ -68,6 +68,7 @@ self.addEventListener('install', (event) => {
         'main.dart.js',
         'pwa_bridge.js',
         'firebase_config.js',
+        'notification_state_store.js',
         'notifications_bridge.js',
       ],
     });
@@ -94,9 +95,23 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
+async function closeDailyChallengeReminders() {
+  if (typeof self.registration.getNotifications !== 'function') return;
+  const notifications = await self.registration.getNotifications();
+  for (const notification of notifications) {
+    if (notification.data?.kind === 'daily-challenge-reminder') {
+      notification.close();
+    }
+  }
+}
+
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') {
     self.skipWaiting();
+    return;
+  }
+  if (event.data?.type === 'DAILY_CHALLENGE_COMPLETED') {
+    event.waitUntil(closeDailyChallengeReminders());
   }
 });
 
@@ -176,9 +191,12 @@ async function cacheFirst(request, cacheName) {
 }
 
 // Firebase Cloud Messaging comparte este mismo service worker para no competir
-// con la caché offline de la PWA.
+// con la caché offline de la PWA. IndexedDB conserva solo la fecha mínima
+// necesaria para comprobar si el reto diario sigue pendiente.
 let missionAdmissionMessaging = null;
 let missionAdmissionNotificationSettings = null;
+let missionAdmissionDailyStateStore = null;
+let missionAdmissionReminderSequence = 0;
 
 function safeNotificationDestination(value) {
   const fallback = missionAdmissionNotificationSettings?.defaultNotificationLink || '#/reto';
@@ -247,6 +265,15 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 try {
+  importScripts(
+    new URL('notification_state_store.js', self.location.href).toString(),
+  );
+  missionAdmissionDailyStateStore = self.missionAdmissionNotificationStateStore;
+} catch (error) {
+  console.warn('El estado inteligente no fue inicializado:', error);
+}
+
+try {
   importScripts(new URL('firebase_config.js', self.location.href).toString());
   missionAdmissionNotificationSettings = self.MISSION_ADMISSION_FIREBASE;
   if (missionAdmissionNotificationSettings?.enabled === true) {
@@ -258,15 +285,56 @@ try {
     firebase.initializeApp(missionAdmissionNotificationSettings.config);
     missionAdmissionMessaging = firebase.messaging();
     missionAdmissionMessaging.onBackgroundMessage(async (payload) => {
-      // Los mensajes que ya incluyen payload notification son mostrados
-      // automáticamente por FCM. Para mensajes exclusivamente de datos,
-      // este worker crea una notificación con enlace limitado al sitio.
-      if (payload.notification) return;
-      const title = payload.data?.title || 'Misión Admisión';
-      await self.registration.showNotification(
-        title,
-        missionAdmissionNotificationOptions(payload),
-      );
+      // Firebase muestra automáticamente su notificación original. Cada mensaje
+      // funciona además como señal para comprobar el reto local. No hay límite
+      // diario: cada campaña puede generar un nuevo recordatorio si sigue pendiente.
+      const store = missionAdmissionDailyStateStore;
+      if (store) {
+        try {
+          await store.recordFirebaseWake();
+          const progress = await store.readDailyProgress();
+          const evaluation = store.evaluateDailyProgress(progress, new Date());
+          if (!evaluation.shouldShow) {
+            await store.recordDecision(evaluation.decision);
+          } else {
+            await self.registration.showNotification(
+              'Tu reto diario sigue pendiente 🔥',
+              {
+                body: 'Completa las preguntas de hoy y protege tu racha.',
+                icon: scopedUrl('icons/Icon-192.png'),
+                badge: scopedUrl('icons/Icon-192.png'),
+                tag: `mision-admision-daily-${evaluation.todayDateKey}-${Date.now()}-${missionAdmissionReminderSequence += 1}`,
+                renotify: false,
+                data: {
+                  missionAdmission: true,
+                  kind: 'daily-challenge-reminder',
+                  link: safeNotificationDestination('#/daily'),
+                },
+              },
+            );
+            await store.recordDecision('pending', {reminderShown: true});
+          }
+        } catch (error) {
+          try {
+            await store.recordDecision('storage_error', {
+              errorMessage: error instanceof Error ? error.message : String(error),
+            });
+          } catch (_) {
+            // El error de diagnóstico no debe afectar la recepción de Firebase.
+          }
+        }
+      }
+
+      // Los mensajes exclusivamente de datos todavía reciben una notificación
+      // básica. Las campañas de Firebase Console ya incluyen notification y no
+      // entran en esta rama.
+      if (!payload.notification) {
+        const title = payload.data?.title || 'Misión Admisión';
+        await self.registration.showNotification(
+          title,
+          missionAdmissionNotificationOptions(payload),
+        );
+      }
     });
   }
 } catch (error) {

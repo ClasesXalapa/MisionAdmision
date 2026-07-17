@@ -126,6 +126,12 @@ class _FakeNotificationService implements NotificationService {
   }
 
   @override
+  Future<bool> syncDailyChallengeState({
+    required String? lastCompletedDateKey,
+    required bool challengeAvailable,
+  }) async => true;
+
+  @override
   Future<String?> getTestingInstallationId() async {
     testingIdCount += 1;
     return status.enabled ? 'fid-test-123' : null;

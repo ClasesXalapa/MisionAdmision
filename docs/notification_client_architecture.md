@@ -1,55 +1,69 @@
-# Arquitectura del cliente de notificaciones y Analytics — v0.9.3
+# Arquitectura de notificaciones y recordatorios — v0.9.8
 
-## Componentes
+## Flujo principal
 
 ```text
 Firebase Console
         ↓
-Firebase Cloud Messaging
+notificación motivacional visible
         ↓
-app_service_worker.js
-├── recepción en segundo plano
-├── clic seguro
-└── caché offline de la PWA
-
-notifications_bridge.js
-├── inicialización opcional de Analytics
-├── consentimiento
-├── registro FID
-├── recepción en primer plano
-├── reparación del registro
-├── prueba local
-└── copia controlada del FID para pruebas
-
-Flutter
-└── NotificationReminderCard
+Firebase despierta app_service_worker.js
+        ↓
+IndexedDB: fecha del último reto completado
+        ↓
+¿El reto local de hoy sigue pendiente?
+├── sí → recordatorio local adicional
+└── no → ningún aviso adicional
 ```
 
-## Decisiones
+Cada mensaje de Firebase funciona como señal genérica. No se requieren datos personalizados en la campaña.
 
-- Sin backend propio.
-- Sin Cloudflare, Firestore ni Cloud Functions.
-- Los mensajes se crean desde Firebase Console.
-- El FID vive únicamente en el almacenamiento local del navegador.
-- El FID completo no aparece en diagnósticos generales.
-- La copia del FID requiere una acción explícita del usuario y se usa solo para pruebas dirigidas.
-- `notificationclick` se registra antes de cargar las bibliotecas FCM.
-- Todos los destinos se restringen al origen y directorio de la PWA.
+## Frecuencia
 
-## Estados locales
+No existe un límite diario impuesto por la aplicación. Si se envían tres campañas Firebase durante el día y el reto sigue pendiente, pueden generarse tres recordatorios locales adicionales. Al completar el reto, los recordatorios locales visibles se cierran y los siguientes mensajes Firebase dejan de generar avisos adicionales durante esa fecha local.
+
+## Estado compartido
+
+La página Flutter conserva la fuente real del progreso. El navegador refleja únicamente este estado mínimo en IndexedDB:
 
 ```text
-mision_admision.notifications_enabled.v1
-mision_admision.fcm_installation_id.v1
-mision_admision.fcm_registered_at.v1
+Base: mision_admision_notification_state_v1
+Almacén: state
+Registro: daily_progress
+- initialized
+- lastCompletedDateKey
+- challengeAvailable
+- updatedAt
 ```
 
-Desactivar elimina estas claves y ejecuta `unregister()`.
+No se duplican respuestas, calificaciones, escudos, correo ni identidad.
 
-## Google Analytics
+El registro `daily_diagnostics` contiene solamente fechas técnicas, conteos y la última decisión del motor de recordatorios.
 
-- Se carga únicamente en la página principal mediante el módulo CDN de Firebase.
-- Usa el mismo `FirebaseApp` que FCM.
-- No se carga dentro del service worker.
-- Su fallo se registra en diagnóstico, pero no bloquea FCM.
-- No se registran eventos personalizados con respuestas o progreso educativo.
+## Decisiones del motor
+
+```text
+pending
+completed_today
+state_not_initialized
+challenge_unavailable
+app_visible
+storage_error
+unsupported
+```
+
+El comportamiento es conservador: cuando el estado no está disponible o está dañado, no se genera la segunda notificación.
+
+## Primer plano y segundo plano
+
+- PWA cerrada o minimizada: Firebase muestra la notificación original y el service worker puede generar el recordatorio del reto.
+- PWA visible: el puente muestra la notificación Firebase y registra `app_visible`; no crea un segundo aviso local.
+- Reto completado: Flutter actualiza IndexedDB y solicita cerrar todos los recordatorios locales del reto.
+
+## Seguridad
+
+- Un solo service worker administra caché offline y FCM.
+- Los enlaces se restringen al origen y directorio de la PWA.
+- El recordatorio local abre `#/daily`.
+- El FID vive únicamente en almacenamiento local y no aparece en diagnósticos generales.
+- No se requieren Firestore, Cloud Functions, Firebase Auth ni backend propio.

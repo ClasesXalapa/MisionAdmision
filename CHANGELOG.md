@@ -1,5 +1,16 @@
 # Historial de cambios
 
+## 0.9.8 — 2026-07-16
+
+- Cada mensaje de Firebase funciona como señal genérica para comprobar el reto diario local.
+- IndexedDB comparte únicamente la fecha del último reto completado con el service worker.
+- Recordatorio local adicional cuando el reto sigue pendiente.
+- Sin límite diario: varias campañas Firebase pueden generar varios recordatorios.
+- Cierre automático de los recordatorios locales al completar el reto.
+- Comportamiento conservador ante estado ausente, contenido no disponible o errores de almacenamiento.
+- Diagnóstico con última recepción Firebase, última decisión y conteo de avisos locales.
+- Pruebas para múltiples recordatorios, reto completado, estado no inicializado y enlaces seguros.
+
 ## 0.9.7 — 2026-07-16
 
 - Eliminada la competencia entre el service worker generado por Flutter y `app_service_worker.js`.

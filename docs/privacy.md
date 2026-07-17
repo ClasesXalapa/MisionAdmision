@@ -1,4 +1,4 @@
-# Privacidad — Misión Admisión v0.9.3
+# Privacidad — Misión Admisión v0.9.8
 
 Misión Admisión no solicita nombre, correo ni una cuenta de alumno. El progreso educativo permanece en el navegador del usuario.
 
@@ -9,6 +9,8 @@ Se almacenan localmente la racha, escudos, reto pendiente, respuestas del intent
 ## Firebase Cloud Messaging
 
 Cuando el usuario activa notificaciones, Firebase crea un identificador técnico para esa instalación. Se utiliza para entregar notificaciones y puede copiarse manualmente solo durante pruebas técnicas. No se incluye en diagnósticos ni respaldos.
+
+Cada mensaje Firebase puede activar una comprobación local del reto diario. Para ello se refleja en IndexedDB únicamente la fecha del último reto completado y datos técnicos de diagnóstico, como la hora de recepción y el número de recordatorios locales. No se copian respuestas, puntuaciones ni la racha completa.
 
 ## Google Analytics
 

@@ -1,4 +1,4 @@
-# Misión Admisión — MVP web v0.9.7
+# Misión Admisión — MVP web v0.9.8
 
 PWA educativa en Flutter Web para aspirantes al EXANI-II. Vive en GitHub Pages, funciona sin cuentas, conserva el progreso local y distribuye contenido mediante JSON validados.
 
@@ -13,12 +13,13 @@ PWA educativa en Flutter Web para aspirantes al EXANI-II. Vive en GitHub Pages, 
 - Última copia válida de contenido como respaldo.
 - Instalación como PWA y caché offline versionada.
 - Actualización controlada de la aplicación.
-- Cliente Firebase Cloud Messaging preparado para campañas desde Firebase Console, todavía desactivado.
+- Firebase Cloud Messaging desde Firebase Console con recordatorios locales condicionados al reto pendiente.
 - Exportación e importación del progreso.
 - Administrador de contenido mediante Excel, Google Sheets o CSV.
 - Pantalla de ayuda con diagnóstico copiable y descargable.
 - Generación y validación segura de los JSON públicos.
 - Publicación automática en GitHub Pages.
+- Sin límite local de recordatorios: cada campaña Firebase puede reforzar la racha mientras el reto siga pendiente.
 
 ## Requisitos
 
@@ -37,7 +38,9 @@ python3 tool/validate_project.py
 python3 tool/generate_content_from_csv.py admin/csv_samples --check-only
 python3 -m unittest discover -s tool/tests -v
 node tool/validate_firebase_config.js
+node tool/test_notification_state_store.js
 node tool/test_notifications_bridge.js
+node tool/test_fcm_service_worker.js
 node tool/test_pwa_bridge.js
 node tool/test_backup_bridge.js
 node tool/test_diagnostics_bridge.js
@@ -95,6 +98,6 @@ python3 -m http.server 8000 --directory build/web
 - [Respaldo del progreso](docs/progress_backup.md)
 - [Accesibilidad](docs/accessibility.md)
 - [Ayuda y diagnóstico](docs/support_diagnostics.md)
-- [Contexto técnico v15](docs/contexto_v15_web_mvp_v0.9.3.md)
+- [Contexto técnico v16](docs/contexto_v16_web_mvp_v0.9.8.md)
 - [Privacidad y Analytics](docs/privacy.md)
 - [Arquitectura del cliente de notificaciones](docs/notification_client_architecture.md)

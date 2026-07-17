@@ -38,6 +38,8 @@ jobs:
           node --check /tmp/mision_admision_Code.gs.js
           node --check web/firebase_config.js
           node tool/validate_firebase_config.js
+          node --check web/notification_state_store.js
+          node tool/test_notification_state_store.js
           node tool/test_notifications_bridge.js
           node tool/test_fcm_service_worker.js
           node --check web/notifications_bridge.js

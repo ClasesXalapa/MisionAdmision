@@ -62,6 +62,30 @@ void main() {
     expect(restored.totalDailyChallengesCompleted, 14);
   });
 
+  test('refleja el progreso para recordatorios al guardar y cargar', () async {
+    final store = MemoryJsonStore();
+    final mirrored = <LearnerProgress>[];
+    final repository = LocalProgressRepository(
+      store: store,
+      onProgressChanged: (progress) async {
+        mirrored.add(progress);
+      },
+    );
+    const progress = LearnerProgress(
+      currentStreak: 2,
+      bestStreak: 2,
+      lastCompletedDateKey: '2026-07-16',
+      totalDailyChallengesCompleted: 2,
+    );
+
+    await repository.save(progress);
+    await repository.load();
+
+    expect(mirrored, hasLength(2));
+    expect(mirrored.every((value) =>
+        value.lastCompletedDateKey == '2026-07-16'), isTrue);
+  });
+
   test('migra el progreso anterior y usa la última fecha como ancla', () async {
     final store = MemoryJsonStore();
     final repository = LocalProgressRepository(store: store);

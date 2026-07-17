@@ -50,6 +50,7 @@ def main() -> int:
     required_web_files = {
         "firebase_config.js",
         "notifications_bridge.js",
+        "notification_state_store.js",
         "backup_bridge.js",
         "diagnostics_bridge.js",
         "pwa_bridge.js",

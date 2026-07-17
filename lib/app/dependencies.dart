@@ -102,7 +102,15 @@ final dailyAttemptRepositoryProvider = Provider<DailyAttemptRepository>((ref) {
 });
 
 final progressRepositoryProvider = Provider<ProgressRepository>((ref) {
-  return LocalProgressRepository(store: ref.read(jsonKeyValueStoreProvider));
+  return LocalProgressRepository(
+    store: ref.read(jsonKeyValueStoreProvider),
+    onProgressChanged: (progress) async {
+      await ref.read(notificationServiceProvider).syncDailyChallengeState(
+            lastCompletedDateKey: progress.lastCompletedDateKey,
+            challengeAvailable: true,
+          );
+    },
+  );
 });
 
 final resourceTrackingRepositoryProvider =

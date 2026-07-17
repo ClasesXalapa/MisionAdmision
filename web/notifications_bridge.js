@@ -5,6 +5,7 @@
   const ENABLED_KEY = 'mision_admision.notifications_enabled.v1';
   const REGISTERED_AT_KEY = 'mision_admision.fcm_registered_at.v1';
   const REGISTRATION_KIND = 'fid';
+  const SERVICE_WORKER_RELEASE = '20';
 
   let firebaseApp = null;
   let messaging = null;
@@ -22,6 +23,33 @@
 
   function settings() {
     return globalThis.MISSION_ADMISSION_FIREBASE || {enabled: false};
+  }
+
+
+  function dailyStateStore() {
+    return globalThis.__MISSION_ADMISSION_NOTIFICATION_STATE_STORE__ ||
+      globalThis.missionAdmissionNotificationStateStore || null;
+  }
+
+  async function dailyStateSnapshot() {
+    const store = dailyStateStore();
+    if (typeof store?.readSnapshot !== 'function') {
+      return {
+        supported: false,
+        stateInitialized: false,
+        lastCompletedDateKey: '',
+        challengeAvailable: false,
+        stateUpdatedAt: '',
+        lastFirebaseReceivedAt: '',
+        lastLocalReminderAt: '',
+        reminderCountDateKey: '',
+        reminderCountForDate: 0,
+        lastDecision: 'unsupported',
+        lastDecisionAt: '',
+        errorMessage: '',
+      };
+    }
+    return store.readSnapshot();
   }
 
   function debug(...values) {
@@ -171,7 +199,7 @@
 
     // Respaldo defensivo para pruebas o páginas antiguas que todavía no tengan
     // el método ensureServiceWorker.
-    const serviceWorkerUrl = new URL('app_service_worker.js?v=19', document.baseURI);
+    const serviceWorkerUrl = new URL(`app_service_worker.js?v=${SERVICE_WORKER_RELEASE}`, document.baseURI);
     const scopeUrl = new URL('./', document.baseURI);
     const registration = await navigator.serviceWorker.register(serviceWorkerUrl, {
       scope: scopeUrl.pathname,
@@ -386,6 +414,14 @@
     foregroundUnsubscribe = initialized.messagingModule.onMessage(
       initialized.messaging,
       async (payload) => {
+        const store = dailyStateStore();
+        try {
+          await store?.recordFirebaseWake?.();
+          await store?.recordDecision?.('app_visible');
+        } catch (_) {
+          // El diagnóstico inteligente nunca debe bloquear el mensaje de Firebase.
+        }
+
         const registration = await serviceWorkerRegistration();
         if (!registration) return;
         const title = payload.notification?.title ||
@@ -399,7 +435,7 @@
           body,
           icon: new URL('icons/Icon-192.png', document.baseURI).href,
           badge: new URL('icons/Icon-192.png', document.baseURI).href,
-          tag: payload.data?.tag || 'mision-admision-reminder',
+          tag: payload.data?.tag || `mision-admision-firebase-${Date.now()}`,
           renotify: false,
           data: {missionAdmission: true, link},
         });
@@ -421,7 +457,7 @@
     }
   }
 
-  function stateObject({configured, supported, enabled}) {
+  function stateObject({configured, supported, enabled, dailyState}) {
     return {
       configured,
       supported,
@@ -438,6 +474,19 @@
       analyticsConfigured: isAnalyticsConfigured(),
       analyticsState,
       analyticsErrorMessage,
+      smartReminderSupported: dailyState.supported === true,
+      smartReminderStateInitialized: dailyState.stateInitialized === true,
+      smartReminderLastCompletedDateKey: dailyState.lastCompletedDateKey || '',
+      smartReminderChallengeAvailable: dailyState.challengeAvailable === true,
+      smartReminderStateUpdatedAt: dailyState.stateUpdatedAt || '',
+      smartReminderLastFirebaseReceivedAt:
+        dailyState.lastFirebaseReceivedAt || '',
+      smartReminderLastLocalAt: dailyState.lastLocalReminderAt || '',
+      smartReminderCountDateKey: dailyState.reminderCountDateKey || '',
+      smartReminderCountForDate: String(Number(dailyState.reminderCountForDate) || 0),
+      smartReminderLastDecision: dailyState.lastDecision || '',
+      smartReminderLastDecisionAt: dailyState.lastDecisionAt || '',
+      smartReminderErrorMessage: dailyState.errorMessage || '',
       errorCode: lastErrorCode,
       errorMessage: lastErrorMessage,
     };
@@ -448,11 +497,12 @@
     const configured = isConfigured();
     const supported = await sdkSupportWhenConfigured();
     const permission = permissionValue();
+    const dailyState = await dailyStateSnapshot();
 
     if (permission !== 'granted') {
       clearLocalEnabledState();
       if (permission === 'denied') clearLocalRegistration();
-      return stateObject({configured, supported, enabled: false});
+      return stateObject({configured, supported, enabled: false, dailyState});
     }
 
     let enabled = localStorage.getItem(ENABLED_KEY) === 'true';
@@ -466,7 +516,7 @@
         clearLocalEnabledState();
       }
     }
-    return stateObject({configured, supported, enabled});
+    return stateObject({configured, supported, enabled, dailyState});
   }
 
   async function enable() {
@@ -553,6 +603,46 @@
     return true;
   }
 
+  async function closeDailyChallengeReminders() {
+    const registration = await serviceWorkerRegistration();
+    if (!registration) return false;
+
+    registration.active?.postMessage?.({type: 'DAILY_CHALLENGE_COMPLETED'});
+    if (typeof registration.getNotifications === 'function') {
+      const notifications = await registration.getNotifications();
+      for (const notification of notifications) {
+        if (notification.data?.kind === 'daily-challenge-reminder') {
+          notification.close();
+        }
+      }
+    }
+    return true;
+  }
+
+  async function syncDailyChallengeState(
+    lastCompletedDateKey,
+    challengeAvailable,
+  ) {
+    const store = dailyStateStore();
+    if (typeof store?.syncDailyProgress !== 'function') return false;
+    const normalized = typeof lastCompletedDateKey === 'string'
+      ? lastCompletedDateKey.trim()
+      : '';
+    const saved = await store.syncDailyProgress(
+      normalized,
+      challengeAvailable === true,
+    );
+    const today = store.localDateKey?.(new Date()) || '';
+    if (normalized && normalized === today) {
+      try {
+        await closeDailyChallengeReminders();
+      } catch (error) {
+        debug('close-daily-reminders-failed', error);
+      }
+    }
+    return saved === true;
+  }
+
   async function getTestingInstallationId() {
     if (localStorage.getItem(ENABLED_KEY) !== 'true') return '';
     return localStorage.getItem(INSTALLATION_ID_KEY) || '';
@@ -565,6 +655,7 @@
     refreshRegistration,
     showLocalTest,
     getTestingInstallationId,
+    syncDailyChallengeState,
   };
 
   navigator.serviceWorker?.addEventListener('message', (event) => {
