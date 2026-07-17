@@ -19,6 +19,7 @@
 
     // Déjalo en false para producción.
     debugLogging: false,
+    analyticsEnabled: true,
 
     // Clave pública obtenida en Certificados Web Push.
     vapidKey: 'BGpJpxa1GEspwaHTJF2AUc0At_v4EvVpEexMamtsuZwZdbOeHbk1bwqjlA2lyPx2GGnGQggdADdhW5mljfyb1vg',
@@ -30,6 +31,7 @@
       storageBucket: 'mision-admision.firebasestorage.app',
       messagingSenderId: '136898498886',
       appId: '1:136898498886:web:2fd8c63a294c61148b9547',
+      measurementId: 'G-TE68CKZ4LL',
     }),
   });
 })();
