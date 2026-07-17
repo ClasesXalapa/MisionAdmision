@@ -65,7 +65,9 @@ jobs:
           fi
 
       - name: Construir aplicación web
-        run: flutter build web --release --base-href "${{ steps.base.outputs.href }}"
+        run: |
+          flutter build web --release --base-href "${{ steps.base.outputs.href }}" --pwa-strategy=none
+          rm -f build/web/flutter_service_worker.js
 
       - name: Publicar contenido JSON
         run: |
@@ -75,6 +77,8 @@ jobs:
       - name: Preparar PWA offline
         run: |
           python3 tool/prepare_pwa.py build/web
+          test ! -e build/web/flutter_service_worker.js
+          node --check build/web/flutter_bootstrap.js
           node --check build/web/firebase_config.js
           node --check build/web/notifications_bridge.js
           node --check build/web/backup_bridge.js

@@ -171,7 +171,7 @@
 
     // Respaldo defensivo para pruebas o páginas antiguas que todavía no tengan
     // el método ensureServiceWorker.
-    const serviceWorkerUrl = new URL('app_service_worker.js', document.baseURI);
+    const serviceWorkerUrl = new URL('app_service_worker.js?v=19', document.baseURI);
     const scopeUrl = new URL('./', document.baseURI);
     const registration = await navigator.serviceWorker.register(serviceWorkerUrl, {
       scope: scopeUrl.pathname,

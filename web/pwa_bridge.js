@@ -8,6 +8,8 @@
   let errorMessage = '';
   let reloadWhenControlled = false;
 
+  const SERVICE_WORKER_RELEASE = '19';
+
   const standaloneQuery = window.matchMedia('(display-mode: standalone)');
   const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -99,10 +101,11 @@
     let value = await navigator.serviceWorker.register(serviceWorkerUrl, options);
     if (hasWorker(value)) return value;
 
-    // v0.9.5 podía dejar una inscripción vacía mientras unregister() terminaba.
+    // Versiones anteriores podían dejar una inscripción vacía mientras
+    // flutter_bootstrap y el puente propio competían por el mismo alcance.
     // Primero se vuelve a consultar porque el navegador puede completar la tarea
     // en segundo plano y exponer el worker en un objeto de registro nuevo.
-    for (let attempt = 0; attempt < 20; attempt += 1) {
+    for (let attempt = 0; attempt < 30; attempt += 1) {
       await delay(100);
       const current = await registrationForScope(scopeUrl);
       if (hasWorker(current)) return current;
@@ -113,11 +116,19 @@
     // Solo se elimina una inscripción fantasma sin installing/waiting/active.
     // Nunca se desregistra un worker funcional ni se toca el almacenamiento local.
     if (value && !hasWorker(value)) {
-      await value.unregister();
-      await waitForRegistrationRemoval(scopeUrl);
+      const unregistered = await value.unregister();
+      if (!unregistered) {
+        throw new Error('Chrome no permitió eliminar la inscripción PWA incompleta.');
+      }
+      const removed = await waitForRegistrationRemoval(scopeUrl, 10000);
+      if (!removed) {
+        throw new Error('Chrome no terminó de eliminar la inscripción PWA incompleta.');
+      }
     }
 
-    return navigator.serviceWorker.register(serviceWorkerUrl, options);
+    const recoveryUrl = new URL(serviceWorkerUrl.href);
+    recoveryUrl.searchParams.set('recovery', '1');
+    return navigator.serviceWorker.register(recoveryUrl, options);
   }
 
   async function waitForActiveWorker(initialValue, scopeUrl, timeoutMs = 60000) {
@@ -222,7 +233,10 @@
         try {
           workerState = 'registering';
           errorMessage = '';
-          const serviceWorkerUrl = new URL('app_service_worker.js', document.baseURI);
+          const serviceWorkerUrl = new URL(
+            `app_service_worker.js?v=${SERVICE_WORKER_RELEASE}`,
+            document.baseURI,
+          );
           const scopeUrl = new URL('./', document.baseURI);
 
           const response = await fetch(serviceWorkerUrl, {cache: 'no-store'});
@@ -266,7 +280,12 @@
     const value = await registrationPromise;
     if (!waitForActive) return value;
     const scopeUrl = new URL('./', document.baseURI);
-    return waitForActiveWorker(value, scopeUrl, timeoutMs);
+    try {
+      return await waitForActiveWorker(value, scopeUrl, timeoutMs);
+    } catch (error) {
+      registrationPromise = null;
+      throw error;
+    }
   }
 
   window.addEventListener('beforeinstallprompt', (event) => {

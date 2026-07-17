@@ -19,26 +19,60 @@ function scopedUrl(path) {
   return new URL(path, self.registration.scope).toString();
 }
 
-async function cacheFiles(cacheName, paths) {
+async function cacheFiles(cacheName, paths, {required = []} = {}) {
   const cache = await caches.open(cacheName);
+  const requiredSet = new Set(required);
+  const failures = [];
   const batchSize = 12;
+
   for (let index = 0; index < paths.length; index += batchSize) {
     const batch = paths.slice(index, index + batchSize);
-    await Promise.all(batch.map(async (path) => {
+    const results = await Promise.allSettled(batch.map(async (path) => {
       const url = scopedUrl(path);
       const response = await fetch(url, {cache: 'reload'});
       if (!response.ok) {
-        throw new Error(`No se pudo guardar ${path}: HTTP ${response.status}`);
+        throw new Error(`HTTP ${response.status}`);
       }
       await cache.put(url, response);
     }));
+
+    results.forEach((result, offset) => {
+      if (result.status === 'fulfilled') return;
+      const path = batch[offset];
+      failures.push({path, reason: String(result.reason)});
+    });
   }
+
+  const requiredFailures = failures.filter((failure) =>
+    requiredSet.has(failure.path));
+  if (requiredFailures.length > 0) {
+    throw new Error(
+      `No se pudo preparar la PWA: ${requiredFailures.map((failure) =>
+        failure.path).join(', ')}`,
+    );
+  }
+  if (failures.length > 0) {
+    console.warn('Recursos opcionales no almacenados:', failures);
+  }
+  return failures;
 }
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
-    await cacheFiles(APP_CACHE, APP_SHELL);
+    await cacheFiles(APP_CACHE, APP_SHELL, {
+      required: [
+        'index.html',
+        'offline.html',
+        'manifest.json',
+        'flutter_bootstrap.js',
+        'main.dart.js',
+        'pwa_bridge.js',
+        'firebase_config.js',
+        'notifications_bridge.js',
+      ],
+    });
     await cacheFiles(CONTENT_CACHE, CONTENT_ASSETS);
+    await self.skipWaiting();
   })());
 });
 

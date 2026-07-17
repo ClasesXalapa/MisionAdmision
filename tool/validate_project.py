@@ -53,6 +53,7 @@ def main() -> int:
         "backup_bridge.js",
         "diagnostics_bridge.js",
         "pwa_bridge.js",
+        "flutter_bootstrap.js",
     }
     for name in sorted(required_web_files):
         if not (ROOT / "web" / name).is_file():
@@ -62,6 +63,28 @@ def main() -> int:
         )
         if not script_pattern.search(index_html):
             errors.append(f"web/index.html no carga {name}.")
+
+
+    flutter_bootstrap = (ROOT / "web/flutter_bootstrap.js").read_text(encoding="utf-8")
+    for token in ("{{flutter_js}}", "{{flutter_build_config}}", "_flutter.loader.load()"):
+        if token not in flutter_bootstrap:
+            errors.append(f"web/flutter_bootstrap.js no contiene {token}.")
+    if "serviceWorkerSettings" in flutter_bootstrap:
+        errors.append(
+            "web/flutter_bootstrap.js no debe registrar el service worker de Flutter."
+        )
+
+    deploy_workflow = (ROOT / ".github/workflows/deploy-pages.yml").read_text(
+        encoding="utf-8"
+    )
+    if "--pwa-strategy=none" not in deploy_workflow:
+        errors.append(
+            "El workflow de Pages debe desactivar el service worker generado por Flutter."
+        )
+    if "rm -f build/web/flutter_service_worker.js" not in deploy_workflow:
+        errors.append(
+            "El workflow de Pages debe retirar flutter_service_worker.js del artefacto."
+        )
 
     required_docs = {
         "docs/progress_backup.md",

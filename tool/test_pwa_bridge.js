@@ -41,7 +41,7 @@ function activeRegistration(scope, scriptUrl) {
 
 function createContext({onRegister, onGetRegistration}) {
   const scope = 'https://example.test/mision-admision/';
-  const expectedScript = `${scope}app_service_worker.js`;
+  const expectedScript = `${scope}app_service_worker.js?v=19`;
   const serviceWorkerEvents = eventTarget();
   const media = {...eventTarget(), matches: false};
 
@@ -73,10 +73,10 @@ function createContext({onRegister, onGetRegistration}) {
           return onGetRegistration();
         },
         async register(url, options) {
-          assert.equal(String(url), expectedScript);
+          assert.ok(String(url).startsWith(expectedScript));
           assert.equal(options.scope, '/mision-admision/');
           assert.equal(options.updateViaCache, 'none');
-          return onRegister();
+          return onRegister(String(url));
         },
       },
     },
@@ -93,7 +93,7 @@ async function testUpdatesExistingRegistrationWithoutUnregistering() {
   let registerCount = 0;
   let unregisterCount = 0;
   const scope = 'https://example.test/mision-admision/';
-  const expectedScript = `${scope}app_service_worker.js`;
+  const expectedScript = `${scope}app_service_worker.js?v=19`;
   const old = activeRegistration(scope, `${scope}flutter_service_worker.js`);
   old.unregister = async () => {
     unregisterCount += 1;
@@ -127,7 +127,7 @@ async function testRepairsEmptyRegistrationLeftByPreviousVersion() {
   let registerCount = 0;
   let unregisterCount = 0;
   const scope = 'https://example.test/mision-admision/';
-  const expectedScript = `${scope}app_service_worker.js`;
+  const expectedScript = `${scope}app_service_worker.js?v=19`;
   let current;
   const ghost = {
     ...eventTarget(),
@@ -146,9 +146,10 @@ async function testRepairsEmptyRegistrationLeftByPreviousVersion() {
 
   const {context} = createContext({
     onGetRegistration: () => current,
-    onRegister: () => {
+    onRegister: (url) => {
       registerCount += 1;
       if (registerCount === 1) return ghost;
+      assert.ok(url.includes('recovery=1'));
       current = recovered;
       return recovered;
     },

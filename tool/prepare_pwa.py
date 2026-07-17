@@ -13,6 +13,7 @@ from typing import Iterable
 EXCLUDED_NAMES = {
     ".nojekyll",
     "app_service_worker.js",
+    "flutter_service_worker.js",
 }
 EXCLUDED_SUFFIXES = {
     ".map",

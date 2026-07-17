@@ -1,4 +1,4 @@
-# Misión Admisión — MVP web v0.9.4
+# Misión Admisión — MVP web v0.9.7
 
 PWA educativa en Flutter Web para aspirantes al EXANI-II. Vive en GitHub Pages, funciona sin cuentas, conserva el progreso local y distribuye contenido mediante JSON validados.
 
@@ -72,7 +72,7 @@ Consulta [docs/content_admin.md](docs/content_admin.md).
 ## Construir la PWA
 
 ```bash
-flutter build web --release
+flutter build web --release --pwa-strategy=none
 mkdir -p build/web/content
 cp -R content/. build/web/content/
 python3 tool/prepare_pwa.py build/web

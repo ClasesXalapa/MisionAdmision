@@ -1,5 +1,15 @@
 # Historial de cambios
 
+## 0.9.7 — 2026-07-16
+
+- Eliminada la competencia entre el service worker generado por Flutter y `app_service_worker.js`.
+- El build Web usa `--pwa-strategy=none` y retira `flutter_service_worker.js` del artefacto de Pages.
+- Añadido un `flutter_bootstrap.js` propio que inicia Flutter sin registrar un segundo service worker.
+- El service worker propio usa una URL versionada para forzar una actualización limpia del registro.
+- Recuperación reforzada de inscripciones vacías heredadas de las versiones 0.9.5 y 0.9.6.
+- La precarga tolera fallos en recursos opcionales y conserva como obligatorios los archivos esenciales.
+- No se modifica la configuración Firebase, Analytics, el contenido ni el progreso local.
+
 ## 0.9.6 — 2026-07-16
 
 - Corregida la inscripción fantasma sin `active`, `waiting` ni `installing` dejada por la migración v0.9.5.
