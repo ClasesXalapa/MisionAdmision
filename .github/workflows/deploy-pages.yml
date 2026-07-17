@@ -50,6 +50,7 @@ jobs:
           node --check web/diagnostics_bridge.js
           node tool/test_diagnostics_bridge.js
           node --check web/pwa_bridge.js
+          node tool/test_pwa_bridge.js
           node --check web/app_service_worker.js
           flutter test
 

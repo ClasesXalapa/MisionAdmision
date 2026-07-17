@@ -157,19 +157,34 @@
 
   async function serviceWorkerRegistration() {
     if (!('serviceWorker' in navigator)) return null;
-    const scopeUrl = new URL('./', document.baseURI);
-    let registration = await navigator.serviceWorker.getRegistration(scopeUrl.href);
-    if (registration) return registration;
 
-    const timeoutMs = Number(settings().registrationTimeoutMs) || 15000;
-    await withTimeout(
+    // El puente PWA es la única fuente responsable de crear y actualizar el
+    // service worker. Esto elimina la carrera entre window.load y el botón de
+    // notificaciones, especialmente en la primera visita desde un celular.
+    const pwaBridge = globalThis.missionAdmissionPwa;
+    if (typeof pwaBridge?.ensureServiceWorker === 'function') {
+      return pwaBridge.ensureServiceWorker({
+        waitForActive: true,
+        timeoutMs: 60000,
+      });
+    }
+
+    // Respaldo defensivo para pruebas o páginas antiguas que todavía no tengan
+    // el método ensureServiceWorker.
+    const serviceWorkerUrl = new URL('app_service_worker.js', document.baseURI);
+    const scopeUrl = new URL('./', document.baseURI);
+    const registration = await navigator.serviceWorker.register(serviceWorkerUrl, {
+      scope: scopeUrl.pathname,
+      updateViaCache: 'none',
+    });
+    if (registration.active) return registration;
+
+    return withTimeout(
       navigator.serviceWorker.ready,
-      timeoutMs,
+      60000,
       'service-worker-timeout',
-      'El modo PWA no terminó de prepararse a tiempo.',
+      'El modo PWA continúa preparándose. Recarga la página y vuelve a intentarlo.',
     );
-    registration = await navigator.serviceWorker.getRegistration(scopeUrl.href);
-    return registration;
   }
 
   async function loadModules() {

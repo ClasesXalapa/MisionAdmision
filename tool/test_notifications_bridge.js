@@ -88,6 +88,7 @@ function createContext({
       return 'granted';
     },
   };
+  let pwaEnsureCount = 0;
   const context = {
     console,
     URL,
@@ -119,6 +120,14 @@ function createContext({
     isSecureContext: true,
     matchMedia() { return {matches: false}; },
     addEventListener() {},
+    missionAdmissionPwa: {
+      async ensureServiceWorker(options) {
+        pwaEnsureCount += 1;
+        assert.equal(options.waitForActive, true);
+        assert.equal(options.timeoutMs, 60000);
+        return registration;
+      },
+    },
     __MISSION_ADMISSION_FIREBASE_MODULES__: {appModule, messagingModule, analyticsModule},
   };
   context.window = context;
@@ -158,6 +167,7 @@ function createContext({
     get registerCount() { return registerCount; },
     get unregisterCount() { return unregisterCount; },
     get analyticsCount() { return analyticsCount; },
+    get pwaEnsureCount() { return pwaEnsureCount; },
   };
 }
 
@@ -190,6 +200,7 @@ async function testRegistrationLifecycle() {
   assert.equal(enabled.registrationKind, 'fid');
   assert.match(enabled.registrationUpdatedAt, /^\d{4}-\d{2}-\d{2}T/);
   assert.equal(fixture.registerCount >= 1, true);
+  assert.equal(fixture.pwaEnsureCount >= 1, true);
 
   assert.equal(
     typeof fixture.context.missionAdmissionNotifications

@@ -1,4 +1,4 @@
-# Misión Admisión — MVP web v0.9.3
+# Misión Admisión — MVP web v0.9.4
 
 PWA educativa en Flutter Web para aspirantes al EXANI-II. Vive en GitHub Pages, funciona sin cuentas, conserva el progreso local y distribuye contenido mediante JSON validados.
 
@@ -38,6 +38,7 @@ python3 tool/generate_content_from_csv.py admin/csv_samples --check-only
 python3 -m unittest discover -s tool/tests -v
 node tool/validate_firebase_config.js
 node tool/test_notifications_bridge.js
+node tool/test_pwa_bridge.js
 node tool/test_backup_bridge.js
 node tool/test_diagnostics_bridge.js
 flutter test

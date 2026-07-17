@@ -1,5 +1,15 @@
 # Historial de cambios
 
+## 0.9.4 — 2026-07-16
+
+- Corregida la carrera entre el registro de la PWA y la activación de notificaciones.
+- El service worker comienza a registrarse al cargar la página, sin esperar `window.load`.
+- El cliente de notificaciones reutiliza el puente PWA como única fuente de registro.
+- Espera de activación ampliada a 60 segundos con mensajes de error más precisos.
+- `register()` crea o actualiza de forma segura el worker del alcance de GitHub Pages.
+- Nueva prueba Node para el registro temprano del puente PWA.
+- No cambia la configuración Firebase ni el almacenamiento local.
+
 ## 0.9.3 — 2026-07-16
 
 - Inicialización opcional y tolerante a fallos de Google Analytics para campañas de Firebase Console.
