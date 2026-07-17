@@ -1,4 +1,4 @@
-# Misión Admisión — MVP web v0.9.9
+# Misión Admisión — MVP web v0.9.8
 
 PWA educativa en Flutter Web para aspirantes al EXANI-II. Vive en GitHub Pages, funciona sin cuentas, conserva el progreso local y distribuye contenido mediante JSON validados.
 
@@ -14,16 +14,12 @@ PWA educativa en Flutter Web para aspirantes al EXANI-II. Vive en GitHub Pages, 
 - Instalación como PWA y caché offline versionada.
 - Actualización controlada de la aplicación.
 - Firebase Cloud Messaging desde Firebase Console con recordatorios locales condicionados al reto pendiente.
+- Exportación e importación del progreso.
 - Administrador de contenido mediante Excel, Google Sheets o CSV.
+- Pantalla de ayuda con diagnóstico copiable y descargable.
 - Generación y validación segura de los JSON públicos.
 - Publicación automática en GitHub Pages.
 - Sin límite local de recordatorios: cada campaña Firebase puede reforzar la racha mientras el reto siga pendiente.
-
-## Alcance temporal de v0.9.9
-
-Las pantallas **Datos y respaldo** y **Ayuda y diagnóstico** están retiradas temporalmente de la navegación y del paquete Web activo. Su código fuente se conserva para poder reactivarlas más adelante sin reconstruir la lógica.
-
-La interfaz utiliza una escala visual mobile-first: tipografía más grande, botones de 54 px como mínimo, cards con mayor jerarquía y controles adaptables a pantallas estrechas.
 
 ## Requisitos
 
@@ -52,7 +48,7 @@ flutter test
 flutter run -d chrome
 ```
 
-Firebase está configurado para Web Push. La aplicación conserva el funcionamiento principal y el progreso local aunque Firebase no esté disponible.
+La configuración de Firebase permanece desactivada por defecto. Toda la aplicación excepto las notificaciones remotas funciona sin Firebase.
 
 ## Administrar contenido
 

@@ -1,17 +1,5 @@
 # Historial de cambios
 
-## 0.9.9 — 2026-07-17
-
-- Retiradas temporalmente de la navegación las secciones Datos y respaldo y Ayuda y diagnóstico.
-- Eliminadas sus rutas públicas y la carga de sus puentes JavaScript en la aplicación activa.
-- El código fuente interno permanece disponible para una futura reactivación.
-- Rediseño general mobile-first con tipografía, botones, iconos y superficies más grandes.
-- Nuevo resumen de progreso adaptable a dos columnas en celulares.
-- Cards principales con mayor jerarquía visual y acciones de ancho completo.
-- Cards de recursos ampliadas, con acciones apiladas en pantallas estrechas.
-- Preguntas, respuestas, resultados y controles de navegación optimizados para móvil.
-- Versión 0.9.9+21 y actualización coordinada del service worker.
-
 ## 0.9.8 — 2026-07-16
 
 - Cada mensaje de Firebase funciona como señal genérica para comprobar el reto diario local.
