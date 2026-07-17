@@ -57,7 +57,10 @@ def main() -> int:
     for name in sorted(required_web_files):
         if not (ROOT / "web" / name).is_file():
             errors.append(f"Falta web/{name}.")
-        if f'src="{name}"' not in index_html:
+        script_pattern = re.compile(
+            rf'src="{re.escape(name)}(?:\?[^"]*)?"'
+        )
+        if not script_pattern.search(index_html):
             errors.append(f"web/index.html no carga {name}.")
 
     required_docs = {

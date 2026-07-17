@@ -1,27 +1,32 @@
-# Hotfix v0.9.5 — registro del service worker
+# Hotfix v0.9.6 — recuperación de inscripción PWA vacía
 
-Corrige el error de Chrome:
+Corrige el error:
 
-`Failed to update a ServiceWorker ... with script ('Unknown'): Not found`
+```text
+El modo PWA continúa preparándose (sin estado)
+```
+
+La v0.9.5 podía desregistrar una inscripción anterior y volver a registrar el worker antes de que Chrome terminara la eliminación. El navegador conservaba entonces un registro sin `active`, `waiting` ni `installing`.
 
 ## Aplicación
 
-1. Copia el contenido de este paquete sobre la raíz del repositorio.
-2. Conserva `web/firebase_config.js`; este hotfix no lo incluye.
-3. Ejecuta:
+Copia el contenido de este directorio sobre la raíz del repositorio y acepta reemplazar los archivos.
 
-```powershell
+Este paquete no contiene `web/firebase_config.js`; conserva la configuración real de Firebase, Analytics y VAPID.
+
+Después:
+
+```bash
 git add .
-git commit -m "Corregir registro del service worker v0.9.5"
+git commit -m "Reparar inscripción PWA vacía v0.9.6"
 git push
 ```
 
-## Después del despliegue
+## Recuperación
 
-1. Cierra todas las pestañas y ventanas de Misión Admisión.
-2. Abre el sitio desde Chrome.
-3. Recarga una vez con internet.
-4. Espera a que Diagnóstico muestre `Service worker: active`.
-5. Pulsa `Activar notificaciones`.
-
-La migración elimina únicamente una inscripción de service worker antigua o incompleta. No borra localStorage, racha, escudos, intentos ni contenido descargado.
+- `register()` actualiza directamente el worker del mismo alcance.
+- No se desregistra un worker activo solo porque tenga un nombre de script anterior.
+- Solo se elimina una inscripción vacía sin workers asociados.
+- La espera consulta periódicamente el registro vigente del navegador.
+- `index.html` usa una URL versionada del puente PWA para no reutilizar el script v0.9.5 desde la caché HTTP.
+- No se borra el almacenamiento local ni el progreso educativo.

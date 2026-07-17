@@ -57,21 +57,8 @@
     return error;
   }
 
-  function workerScriptUrl(value) {
-    return value?.installing?.scriptURL ||
-      value?.waiting?.scriptURL ||
-      value?.active?.scriptURL ||
-      '';
-  }
-
-  function sameUrl(first, second) {
-    if (!first || !second) return false;
-    try {
-      return new URL(first, document.baseURI).href ===
-        new URL(second, document.baseURI).href;
-    } catch (_) {
-      return false;
-    }
+  function hasWorker(value) {
+    return Boolean(value?.installing || value?.waiting || value?.active);
   }
 
   async function registrationForScope(scopeUrl) {
@@ -86,56 +73,74 @@
     return null;
   }
 
-  async function removeStaleRegistration(scopeUrl, serviceWorkerUrl) {
-    const existing = await registrationForScope(scopeUrl);
-    if (!existing) return false;
-
-    const scriptUrl = workerScriptUrl(existing);
-    if (scriptUrl && sameUrl(scriptUrl, serviceWorkerUrl)) return false;
-
-    await existing.unregister();
-    if (registration === existing) registration = null;
-    return true;
+  function delay(milliseconds) {
+    return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
   }
 
-  function isMissingWorkerScriptError(error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return /failed to update a serviceworker|script \(.*unknown.*\)|not found/i.test(message);
+  async function waitForRegistrationRemoval(scopeUrl, timeoutMs = 5000) {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      const current = await registrationForScope(scopeUrl);
+      if (!current) return true;
+      if (hasWorker(current)) return false;
+      await delay(100);
+    }
+    return !(await registrationForScope(scopeUrl));
   }
 
   async function createServiceWorkerRegistration(serviceWorkerUrl, scopeUrl) {
-    await removeStaleRegistration(scopeUrl, serviceWorkerUrl);
     const options = {
       scope: scopeUrl.pathname,
       updateViaCache: 'none',
     };
 
-    try {
-      return await navigator.serviceWorker.register(serviceWorkerUrl, options);
-    } catch (error) {
-      if (!isMissingWorkerScriptError(error)) throw error;
+    // register() crea o actualiza la inscripción del mismo alcance. No se elimina
+    // una inscripción activa solo porque su script anterior tenga otro nombre.
+    let value = await navigator.serviceWorker.register(serviceWorkerUrl, options);
+    if (hasWorker(value)) return value;
 
-      const stale = await registrationForScope(scopeUrl);
-      await stale?.unregister();
-      return navigator.serviceWorker.register(serviceWorkerUrl, options);
+    // v0.9.5 podía dejar una inscripción vacía mientras unregister() terminaba.
+    // Primero se vuelve a consultar porque el navegador puede completar la tarea
+    // en segundo plano y exponer el worker en un objeto de registro nuevo.
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      await delay(100);
+      const current = await registrationForScope(scopeUrl);
+      if (hasWorker(current)) return current;
+      if (!current) break;
+      value = current;
     }
+
+    // Solo se elimina una inscripción fantasma sin installing/waiting/active.
+    // Nunca se desregistra un worker funcional ni se toca el almacenamiento local.
+    if (value && !hasWorker(value)) {
+      await value.unregister();
+      await waitForRegistrationRemoval(scopeUrl);
+    }
+
+    return navigator.serviceWorker.register(serviceWorkerUrl, options);
   }
 
-  async function waitForActiveWorker(value, timeoutMs = 60000) {
-    if (value?.active) return value;
+  async function waitForActiveWorker(initialValue, scopeUrl, timeoutMs = 60000) {
+    if (initialValue?.active) return initialValue;
 
     return new Promise((resolve, reject) => {
       let settled = false;
       let timeout = null;
+      let poll = null;
+      let currentValue = initialValue;
       const cleanups = [];
+      const observedWorkers = new Set();
 
       const cleanup = () => {
         if (timeout !== null) window.clearTimeout(timeout);
+        if (poll !== null) window.clearInterval(poll);
         while (cleanups.length > 0) cleanups.pop()();
       };
       const finish = (result) => {
         if (settled) return;
         settled = true;
+        registration = result;
+        updateWorkerState();
         cleanup();
         resolve(result);
       };
@@ -145,46 +150,58 @@
         cleanup();
         reject(error);
       };
-      const inspect = () => {
-        updateWorkerState();
-        if (value?.active) {
-          finish(value);
-          return;
-        }
-        const candidate = value?.installing || value?.waiting;
-        if (candidate?.state === 'redundant') {
-          fail(new Error(
-            'El service worker fue descartado durante su instalación. Recarga la página e inténtalo de nuevo.',
-          ));
-        }
-      };
-      const observe = (target, eventName) => {
+      const observe = (target, eventName, callback) => {
         if (!target?.addEventListener) return;
-        target.addEventListener(eventName, inspect);
-        cleanups.push(() => target.removeEventListener?.(eventName, inspect));
+        target.addEventListener(eventName, callback);
+        cleanups.push(() => target.removeEventListener?.(eventName, callback));
       };
       const observeCandidate = (candidate) => {
-        if (!candidate) return;
-        observe(candidate, 'statechange');
+        if (!candidate || observedWorkers.has(candidate)) return;
+        observedWorkers.add(candidate);
+        observe(candidate, 'statechange', inspect);
+      };
+      const adopt = (value) => {
+        if (!value) return;
+        currentValue = value;
+        registration = value;
+        observeCandidate(value.installing);
+        observeCandidate(value.waiting);
+      };
+      const inspect = async () => {
+        try {
+          const latest = await registrationForScope(scopeUrl);
+          if (latest) adopt(latest);
+          updateWorkerState();
+          if (currentValue?.active) {
+            finish(currentValue);
+            return;
+          }
+          const candidate = currentValue?.installing || currentValue?.waiting;
+          observeCandidate(candidate);
+          if (candidate?.state === 'redundant') {
+            fail(new Error(
+              'El service worker fue descartado durante su instalación. Recarga la página e inténtalo de nuevo.',
+            ));
+          }
+        } catch (error) {
+          fail(error);
+        }
       };
 
-      observe(value, 'updatefound');
-      observeCandidate(value?.installing);
-      observeCandidate(value?.waiting);
+      adopt(initialValue);
+      observe(currentValue, 'updatefound', inspect);
       if (navigator.serviceWorker?.addEventListener) {
-        navigator.serviceWorker.addEventListener('controllerchange', inspect);
-        cleanups.push(() => navigator.serviceWorker.removeEventListener?.(
-          'controllerchange',
-          inspect,
-        ));
+        observe(navigator.serviceWorker, 'controllerchange', inspect);
       }
-      value?.addEventListener?.('updatefound', () => {
-        observeCandidate(value.installing);
-        inspect();
-      }, {once: true});
 
+      // Los objetos ServiceWorkerRegistration pueden quedar obsoletos tras una
+      // migración. El sondeo recupera el objeto actual del navegador.
+      poll = window.setInterval(inspect, 250);
       timeout = window.setTimeout(() => {
-        const current = value?.installing?.state || value?.waiting?.state || 'sin estado';
+        const current = currentValue?.installing?.state ||
+          currentValue?.waiting?.state ||
+          currentValue?.active?.state ||
+          'sin estado';
         fail(timeoutError(
           `El modo PWA continúa preparándose (${current}). Recarga la página y vuelve a intentarlo.`,
         ));
@@ -248,7 +265,8 @@
 
     const value = await registrationPromise;
     if (!waitForActive) return value;
-    return waitForActiveWorker(value, timeoutMs);
+    const scopeUrl = new URL('./', document.baseURI);
+    return waitForActiveWorker(value, scopeUrl, timeoutMs);
   }
 
   window.addEventListener('beforeinstallprompt', (event) => {

@@ -1,5 +1,14 @@
 # Historial de cambios
 
+## 0.9.6 — 2026-07-16
+
+- Corregida la inscripción fantasma sin `active`, `waiting` ni `installing` dejada por la migración v0.9.5.
+- `register()` actualiza directamente el mismo alcance sin desregistrar workers funcionales.
+- Recuperación limitada únicamente a inscripciones vacías.
+- La espera consulta periódicamente el registro actual para no depender de un objeto obsoleto.
+- `index.html` solicita el puente PWA con versión para evitar conservar el script defectuoso en la caché HTTP.
+- No cambia Firebase, Analytics, el contenido ni el progreso local.
+
 ## 0.9.4 — 2026-07-16
 
 - Corregida la carrera entre el registro de la PWA y la activación de notificaciones.
