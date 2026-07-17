@@ -25,17 +25,48 @@ function eventTarget() {
 
 async function main() {
   let registerCount = 0;
-  let updateCount = 0;
-  const worker = {...eventTarget(), state: 'activated'};
+  let staleUnregisterCount = 0;
+  const expectedScript =
+    'https://example.test/mision-admision/app_service_worker.js';
+  const scope = 'https://example.test/mision-admision/';
+
+  const staleWorker = {
+    ...eventTarget(),
+    state: 'activated',
+    scriptURL: 'https://example.test/mision-admision/flutter_service_worker.js',
+  };
+  const staleRegistration = {
+    ...eventTarget(),
+    scope,
+    active: staleWorker,
+    waiting: null,
+    installing: null,
+    async unregister() {
+      staleUnregisterCount += 1;
+      return true;
+    },
+  };
+
+  const worker = {
+    ...eventTarget(),
+    state: 'activated',
+    scriptURL: expectedScript,
+  };
   const registration = {
     ...eventTarget(),
+    scope,
     active: worker,
     waiting: null,
     installing: null,
-    async update() { updateCount += 1; },
+    async unregister() { return true; },
+    async update() {
+      throw new Error('update() no debe ejecutarse inmediatamente después de register().');
+    },
   };
+
   const serviceWorkerEvents = eventTarget();
   const media = {...eventTarget(), matches: false};
+  let currentRegistration = staleRegistration;
 
   const context = {
     console,
@@ -48,7 +79,7 @@ async function main() {
       status: 200,
       async text() { return "const APP_SHELL = ['index.html'];"; },
     }),
-    document: {baseURI: 'https://example.test/mision-admision/'},
+    document: {baseURI: scope},
     navigator: {
       onLine: true,
       userAgent: 'Mozilla/5.0 (Android)',
@@ -57,14 +88,16 @@ async function main() {
       standalone: false,
       serviceWorker: {
         ...serviceWorkerEvents,
+        async getRegistration(url) {
+          assert.equal(String(url), scope);
+          return currentRegistration;
+        },
         async register(url, options) {
           registerCount += 1;
-          assert.equal(
-            String(url),
-            'https://example.test/mision-admision/app_service_worker.js',
-          );
+          assert.equal(String(url), expectedScript);
           assert.equal(options.scope, '/mision-admision/');
           assert.equal(options.updateViaCache, 'none');
+          currentRegistration = registration;
           return registration;
         },
       },
@@ -84,15 +117,17 @@ async function main() {
     timeoutMs: 10000,
   });
   assert.equal(ready, registration);
+  assert.equal(staleUnregisterCount, 1);
   assert.equal(registerCount, 1);
-  assert.equal(updateCount, 1);
 
   const state = await context.missionAdmissionPwa.getState();
   assert.equal(state.workerState, 'active');
   assert.equal(state.online, true);
   assert.equal(state.updateAvailable, false);
 
-  console.log('Puente PWA validado: registro temprano y espera de activación.');
+  console.log(
+    'Puente PWA validado: migración de inscripción antigua sin update() redundante.',
+  );
 }
 
 main().catch((error) => {

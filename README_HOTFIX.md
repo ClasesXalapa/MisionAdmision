@@ -1,19 +1,27 @@
-# Hotfix v0.9.4 — preparación de PWA para notificaciones
+# Hotfix v0.9.5 — registro del service worker
 
-Corrige el mensaje `El modo PWA no terminó de prepararse a tiempo` que podía aparecer al activar notificaciones durante la primera visita.
+Corrige el error de Chrome:
+
+`Failed to update a ServiceWorker ... with script ('Unknown'): Not found`
 
 ## Aplicación
 
-Copia todo el contenido de este paquete sobre la raíz del repositorio y acepta reemplazar archivos.
-
-Este paquete **no contiene `web/firebase_config.js`**, por lo que no reemplaza la configuración Firebase real.
-
-Después ejecuta:
+1. Copia el contenido de este paquete sobre la raíz del repositorio.
+2. Conserva `web/firebase_config.js`; este hotfix no lo incluye.
+3. Ejecuta:
 
 ```powershell
 git add .
-git commit -m "Corregir preparación PWA para notificaciones v0.9.4"
+git commit -m "Corregir registro del service worker v0.9.5"
 git push
 ```
 
-Después del despliegue, abre la PWA, aplica la actualización disponible, recarga una vez y vuelve a pulsar **Activar notificaciones**.
+## Después del despliegue
+
+1. Cierra todas las pestañas y ventanas de Misión Admisión.
+2. Abre el sitio desde Chrome.
+3. Recarga una vez con internet.
+4. Espera a que Diagnóstico muestre `Service worker: active`.
+5. Pulsa `Activar notificaciones`.
+
+La migración elimina únicamente una inscripción de service worker antigua o incompleta. No borra localStorage, racha, escudos, intentos ni contenido descargado.

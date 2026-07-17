@@ -57,6 +57,70 @@
     return error;
   }
 
+  function workerScriptUrl(value) {
+    return value?.installing?.scriptURL ||
+      value?.waiting?.scriptURL ||
+      value?.active?.scriptURL ||
+      '';
+  }
+
+  function sameUrl(first, second) {
+    if (!first || !second) return false;
+    try {
+      return new URL(first, document.baseURI).href ===
+        new URL(second, document.baseURI).href;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  async function registrationForScope(scopeUrl) {
+    if (typeof navigator.serviceWorker.getRegistration === 'function') {
+      const value = await navigator.serviceWorker.getRegistration(scopeUrl.href);
+      if (value) return value;
+    }
+    if (typeof navigator.serviceWorker.getRegistrations === 'function') {
+      const values = await navigator.serviceWorker.getRegistrations();
+      return values.find((value) => value.scope === scopeUrl.href) || null;
+    }
+    return null;
+  }
+
+  async function removeStaleRegistration(scopeUrl, serviceWorkerUrl) {
+    const existing = await registrationForScope(scopeUrl);
+    if (!existing) return false;
+
+    const scriptUrl = workerScriptUrl(existing);
+    if (scriptUrl && sameUrl(scriptUrl, serviceWorkerUrl)) return false;
+
+    await existing.unregister();
+    if (registration === existing) registration = null;
+    return true;
+  }
+
+  function isMissingWorkerScriptError(error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return /failed to update a serviceworker|script \(.*unknown.*\)|not found/i.test(message);
+  }
+
+  async function createServiceWorkerRegistration(serviceWorkerUrl, scopeUrl) {
+    await removeStaleRegistration(scopeUrl, serviceWorkerUrl);
+    const options = {
+      scope: scopeUrl.pathname,
+      updateViaCache: 'none',
+    };
+
+    try {
+      return await navigator.serviceWorker.register(serviceWorkerUrl, options);
+    } catch (error) {
+      if (!isMissingWorkerScriptError(error)) throw error;
+
+      const stale = await registrationForScope(scopeUrl);
+      await stale?.unregister();
+      return navigator.serviceWorker.register(serviceWorkerUrl, options);
+    }
+  }
+
   async function waitForActiveWorker(value, timeoutMs = 60000) {
     if (value?.active) return value;
 
@@ -159,25 +223,19 @@
             );
           }
 
-          // register() crea o actualiza la inscripción del mismo alcance. Es seguro
-          // invocarlo de nuevo y evita depender de una carrera con window.load.
-          registration = await navigator.serviceWorker.register(serviceWorkerUrl, {
-            scope: scopeUrl.pathname,
-            updateViaCache: 'none',
-          });
+          // register() ya crea o actualiza la inscripción del mismo alcance. No se
+          // llama update() inmediatamente: una inscripción recién creada puede no tener
+          // todavía un worker activo y Chrome intentaría actualizar un script desconocido.
+          registration = await createServiceWorkerRegistration(
+            serviceWorkerUrl,
+            scopeUrl,
+          );
 
           updateWorkerState();
           observeInstallingWorker(registration.installing);
           registration.addEventListener('updatefound', () => {
             observeInstallingWorker(registration.installing);
           });
-
-          try {
-            await registration.update();
-          } catch (error) {
-            if (!registration.active) throw error;
-          }
-          updateWorkerState();
           return registration;
         } catch (error) {
           workerState = 'error';
