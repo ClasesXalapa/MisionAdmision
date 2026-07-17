@@ -63,7 +63,7 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
     if (_controller.loading) {
       return const Card(
         child: Padding(
-          padding: EdgeInsets.all(18),
+          padding: EdgeInsets.all(20),
           child: LinearProgressIndicator(),
         ),
       );
@@ -74,7 +74,7 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -82,11 +82,11 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 44,
-                  height: 44,
+                  width: 52,
+                  height: 52,
                   decoration: BoxDecoration(
                     color: presentation.color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(presentation.icon, color: presentation.color),
                 ),
@@ -104,7 +104,7 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
                       const SizedBox(height: 5),
                       Text(
                         presentation.message,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context)
                                   .colorScheme
                                   .onSurfaceVariant,
@@ -239,7 +239,7 @@ class _ManualInstallInstructions extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: const Text(
         '1. Abre esta página en Safari.\n'

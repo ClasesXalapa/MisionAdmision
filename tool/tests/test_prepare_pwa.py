@@ -52,6 +52,8 @@ class PreparePwaTest(unittest.TestCase):
             self.assertNotIn("__BUILD_VERSION__", worker)
             self.assertIn("content/index.json", worker)
             self.assertNotIn("flutter_service_worker.js", worker)
+            self.assertNotIn("backup_bridge.js", worker)
+            self.assertNotIn("diagnostics_bridge.js", worker)
             self.assertTrue((build / ".nojekyll").exists())
             saved = json.loads((build / "pwa_build.json").read_text())
             self.assertEqual(saved["version"], metadata["version"])

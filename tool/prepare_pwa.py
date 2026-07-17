@@ -14,6 +14,8 @@ EXCLUDED_NAMES = {
     ".nojekyll",
     "app_service_worker.js",
     "flutter_service_worker.js",
+    "backup_bridge.js",
+    "diagnostics_bridge.js",
 }
 EXCLUDED_SUFFIXES = {
     ".map",
@@ -28,8 +30,6 @@ REQUIRED_FILES = {
     "firebase_config.js",
     "notifications_bridge.js",
     "notification_state_store.js",
-    "backup_bridge.js",
-    "diagnostics_bridge.js",
 }
 
 

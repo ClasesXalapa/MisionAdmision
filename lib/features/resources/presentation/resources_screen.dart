@@ -111,49 +111,55 @@ class _ResourceContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final resources = state.filteredResources;
+    final compact = MediaQuery.sizeOf(context).width < 600;
+    final horizontalPadding = compact ? 16.0 : 24.0;
+
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+      padding: EdgeInsets.fromLTRB(
+        horizontalPadding,
+        compact ? 12 : 20,
+        horizontalPadding,
+        32,
+      ),
       children: [
         Text(
           'Biblioteca de estudio',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
+          style: Theme.of(context).textTheme.headlineLarge,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         Text(
           'Filtra el contenido, abre el recurso original y marca lo que ya terminaste.',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 22),
         _Filters(
           state: state,
           onTypeSelected: onTypeSelected,
           onTagSelected: onTagSelected,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 22),
         Text(
           '${resources.length} ${resources.length == 1 ? 'recurso' : 'recursos'}',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+          style: Theme.of(context).textTheme.titleLarge,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         if (resources.isEmpty)
           const _EmptyResources()
         else
-          ...resources.map((resource) => Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: _ResourceTile(
-                  resource: resource,
-                  viewed: state.tracking.isViewed(resource.id),
-                  completed: state.tracking.isCompleted(resource.id),
-                  onOpen: () => onOpen(resource),
-                  onToggleCompleted: () => onToggleCompleted(resource.id),
-                ),
-              )),
+          ...resources.map(
+            (resource) => Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _ResourceTile(
+                resource: resource,
+                viewed: state.tracking.isViewed(resource.id),
+                completed: state.tracking.isCompleted(resource.id),
+                onOpen: () => onOpen(resource),
+                onToggleCompleted: () => onToggleCompleted(resource.id),
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -174,44 +180,48 @@ class _Filters extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Tipo', style: Theme.of(context).textTheme.labelLarge),
-            const SizedBox(height: 10),
+            Text('Tipo de recurso', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 12),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 10,
+              runSpacing: 10,
               children: [
                 FilterChip(
                   label: const Text('Todos'),
                   selected: state.selectedType == null,
                   onSelected: (_) => onTypeSelected(null),
                 ),
-                ...ResourceType.values.map((type) => FilterChip(
-                      label: Text(type.label),
-                      selected: state.selectedType == type,
-                      onSelected: (_) => onTypeSelected(type),
-                    )),
+                ...ResourceType.values.map(
+                  (type) => FilterChip(
+                    label: Text(type.label),
+                    selected: state.selectedType == type,
+                    onSelected: (_) => onTypeSelected(type),
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 18),
             DropdownButtonFormField<String>(
               initialValue: state.selectedTag ?? '__all__',
+              isExpanded: true,
               decoration: const InputDecoration(
                 labelText: 'Materia o etiqueta',
-                border: OutlineInputBorder(),
               ),
               items: [
                 const DropdownMenuItem<String>(
                   value: '__all__',
                   child: Text('Todas las etiquetas'),
                 ),
-                ...state.availableTags.map((tag) => DropdownMenuItem<String>(
-                      value: tag,
-                      child: Text(_readableTag(tag)),
-                    )),
+                ...state.availableTags.map(
+                  (tag) => DropdownMenuItem<String>(
+                    value: tag,
+                    child: Text(_readableTag(tag)),
+                  ),
+                ),
               ],
               onChanged: (value) =>
                   onTagSelected(value == '__all__' ? null : value),
@@ -240,15 +250,17 @@ class _ResourceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (resource.imageUrl != null) ...[
               ClipRRect(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
                 child: AspectRatio(
                   aspectRatio: 16 / 9,
                   child: Image.network(
@@ -256,25 +268,29 @@ class _ResourceTile extends StatelessWidget {
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
                       alignment: Alignment.center,
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      child: const Icon(Icons.broken_image_outlined, size: 42),
+                      color: colors.surfaceContainerHighest,
+                      child: const Icon(Icons.broken_image_outlined, size: 48),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
             ],
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 58,
+                  height: 58,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(14),
+                    color: colors.primaryContainer,
+                    borderRadius: BorderRadius.circular(18),
                   ),
-                  child: Icon(_iconFor(resource.type)),
+                  child: Icon(
+                    _iconFor(resource.type),
+                    size: 31,
+                    color: colors.primary,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -283,57 +299,91 @@ class _ResourceTile extends StatelessWidget {
                     children: [
                       Text(
                         resource.title,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        resource.type.label,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: colors.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
                             ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(resource.type.label),
                     ],
                   ),
                 ),
                 if (completed)
-                  const Tooltip(
+                  Tooltip(
                     message: 'Completado',
-                    child: Icon(Icons.check_circle, color: Colors.green),
+                    child: Icon(
+                      Icons.check_circle,
+                      size: 30,
+                      color: colors.primary,
+                    ),
                   )
                 else if (viewed)
                   const Tooltip(
                     message: 'Visto',
-                    child: Icon(Icons.visibility_outlined),
+                    child: Icon(Icons.visibility_outlined, size: 28),
                   ),
               ],
-            ),
-            const SizedBox(height: 14),
-            Text(resource.description),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: resource.tags
-                  .map((tag) => Chip(
-                        visualDensity: VisualDensity.compact,
-                        label: Text(_readableTag(tag)),
-                      ))
-                  .toList(),
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: onOpen,
-                    icon: const Icon(Icons.open_in_new),
-                    label: const Text('Abrir recurso'),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                IconButton.filledTonal(
-                  tooltip: completed ? 'Marcar como pendiente' : 'Marcar hecho',
+            Text(
+              resource.description,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            if (resource.tags.isNotEmpty) ...[
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: resource.tags
+                    .map((tag) => Chip(label: Text(_readableTag(tag))))
+                    .toList(),
+              ),
+            ],
+            const SizedBox(height: 20),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final stacked = constraints.maxWidth < 520;
+                final openButton = FilledButton.icon(
+                  onPressed: onOpen,
+                  icon: const Icon(Icons.open_in_new, size: 24),
+                  label: const Text('Abrir recurso'),
+                );
+                final completedButton = OutlinedButton.icon(
                   onPressed: onToggleCompleted,
-                  icon: Icon(completed ? Icons.undo : Icons.task_alt),
-                ),
-              ],
+                  icon: Icon(
+                    completed ? Icons.undo : Icons.task_alt,
+                    size: 24,
+                  ),
+                  label: Text(
+                    completed ? 'Marcar pendiente' : 'Marcar como hecho',
+                  ),
+                );
+
+                if (stacked) {
+                  return Column(
+                    children: [
+                      SizedBox(width: double.infinity, child: openButton),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        child: completedButton,
+                      ),
+                    ],
+                  );
+                }
+
+                return Row(
+                  children: [
+                    Expanded(child: openButton),
+                    const SizedBox(width: 12),
+                    Expanded(child: completedButton),
+                  ],
+                );
+              },
             ),
           ],
         ),
@@ -352,14 +402,18 @@ class _ResourceError extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 48),
-            const SizedBox(height: 12),
-            Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
+            const Icon(Icons.error_outline, size: 54),
+            const SizedBox(height: 14),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 18),
             FilledButton(onPressed: onRetry, child: const Text('Reintentar')),
           ],
         ),

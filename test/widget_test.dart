@@ -23,6 +23,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Misión Admisión'), findsOneWidget);
+    expect(find.text('Datos y respaldo'), findsNothing);
+    expect(find.text('Ayuda y diagnóstico'), findsNothing);
 
     final scrollable = find.byType(Scrollable).first;
 

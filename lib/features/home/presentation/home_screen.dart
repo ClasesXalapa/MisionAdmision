@@ -19,23 +19,11 @@ class HomeScreen extends ConsumerWidget {
     final pendingAttempt = ref.watch(pendingDailyAttemptProvider);
     final ranks = ref.watch(rankCatalogProvider);
     final today = localDateKey(ref.read(appClockProvider).now());
+    final compact = MediaQuery.sizeOf(context).width < 600;
+    final horizontalPadding = compact ? 16.0 : 24.0;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Misión Admisión'),
-        actions: [
-          IconButton(
-            tooltip: 'Ayuda y diagnóstico',
-            onPressed: () => context.go('/help'),
-            icon: const Icon(Icons.help_outline),
-          ),
-          IconButton(
-            tooltip: 'Datos y respaldo',
-            onPressed: () => context.go('/data'),
-            icon: const Icon(Icons.manage_accounts_outlined),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Misión Admisión')),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -50,26 +38,28 @@ class HomeScreen extends ConsumerWidget {
               },
               child: ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  compact ? 12 : 20,
+                  horizontalPadding,
+                  32,
+                ),
                 children: [
                   Semantics(
                     header: true,
                     child: Text(
                       'Prepárate para el EXANI-II',
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                      style: Theme.of(context).textTheme.headlineLarge,
                     ),
                   ),
                   const SizedBox(height: 12),
                   Text(
                     'Practica cada día, encuentra los recursos correctos y fortalece tu constancia.',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          height: 1.45,
                         ),
                   ),
-                  const SizedBox(height: 26),
+                  const SizedBox(height: 24),
                   progress.when(
                     data: (value) {
                       final rank = ranks.asData == null
@@ -102,17 +92,11 @@ class HomeScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   _FreeExamCard(onPressed: () => context.go('/exam')),
                   const SizedBox(height: 16),
-                  _DataManagementCard(onPressed: () => context.go('/data')),
-                  const SizedBox(height: 16),
-                  _SupportCard(onPressed: () => context.go('/help')),
-                  const SizedBox(height: 16),
                   const PwaStatusCard(),
                   const SizedBox(height: 16),
                   const NotificationReminderCard(),
                   const SizedBox(height: 16),
                   const ContentSyncCard(),
-                  const SizedBox(height: 16),
-                  const _LocalStorageNotice(),
                 ],
               ),
             ),
@@ -145,46 +129,69 @@ class _ProgressSummary extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.local_fire_department,
-                  color: Theme.of(context).colorScheme.primary,
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(
+                    Icons.local_fire_department,
+                    size: 30,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 14),
                 Expanded(
-                  child: Text(
-                    completedToday ? 'Reto de hoy completado' : 'Tu progreso',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        completedToday
+                            ? 'Reto de hoy completado'
+                            : 'Tu progreso',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      if (rank != null) ...[
+                        const SizedBox(height: 8),
+                        Chip(
+                          avatar: const Icon(
+                            Icons.workspace_premium_outlined,
+                            size: 20,
+                          ),
+                          label: Text(rank!.name),
                         ),
+                      ],
+                    ],
                   ),
                 ),
-                if (rank != null)
-                  Chip(
-                    avatar: const Icon(Icons.workspace_premium_outlined, size: 18),
-                    label: Text(rank!.name),
-                  ),
               ],
             ),
             if (shieldUsedToday) ...[
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.shield_outlined),
-                    const SizedBox(width: 10),
+                    const Icon(Icons.shield_outlined, size: 28),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         progress.lastShieldUseCount == 1
                             ? 'Un escudo protegió tu racha.'
                             : '${progress.lastShieldUseCount} escudos protegieron tu racha.',
-                        style: const TextStyle(fontWeight: FontWeight.w700),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
                       ),
                     ),
                   ],
@@ -192,24 +199,46 @@ class _ProgressSummary extends StatelessWidget {
               ),
             ],
             const SizedBox(height: 18),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                _Metric(label: 'Racha actual', value: '${progress.currentStreak}'),
-                _Metric(label: 'Mejor racha', value: '${progress.bestStreak}'),
-                _Metric(label: 'Escudos', value: '${progress.shields}'),
-                _Metric(
-                  label: 'Retos hechos',
-                  value: '${progress.totalDailyChallengesCompleted}',
-                ),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                const spacing = 12.0;
+                final columns = constraints.maxWidth >= 620 ? 4 : 2;
+                final width =
+                    (constraints.maxWidth - (spacing * (columns - 1))) /
+                        columns;
+                return Wrap(
+                  spacing: spacing,
+                  runSpacing: spacing,
+                  children: [
+                    _Metric(
+                      width: width,
+                      label: 'Racha actual',
+                      value: '${progress.currentStreak}',
+                    ),
+                    _Metric(
+                      width: width,
+                      label: 'Mejor racha',
+                      value: '${progress.bestStreak}',
+                    ),
+                    _Metric(
+                      width: width,
+                      label: 'Escudos',
+                      value: '${progress.shields}',
+                    ),
+                    _Metric(
+                      width: width,
+                      label: 'Retos hechos',
+                      value: '${progress.totalDailyChallengesCompleted}',
+                    ),
+                  ],
+                );
+              },
             ),
             if (rank != null) ...[
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               Text(
                 rank!.description,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
@@ -222,8 +251,13 @@ class _ProgressSummary extends StatelessWidget {
 }
 
 class _Metric extends StatelessWidget {
-  const _Metric({required this.label, required this.value});
+  const _Metric({
+    required this.width,
+    required this.label,
+    required this.value,
+  });
 
+  final double width;
   final String label;
   final String value;
 
@@ -233,26 +267,28 @@ class _Metric extends StatelessWidget {
       label: '$label: $value',
       child: ExcludeSemantics(
         child: SizedBox(
-          width: 150,
+          width: width,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               children: [
                 Text(
                   value,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
                       ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
                   label,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ],
             ),
@@ -270,7 +306,7 @@ class _ProgressLoading extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Card(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: EdgeInsets.all(28),
         child: Center(child: CircularProgressIndicator()),
       ),
     );
@@ -284,7 +320,7 @@ class _ProgressError extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Card(
       child: Padding(
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.all(22),
         child: Text('No fue posible leer el progreso local.'),
       ),
     );
@@ -361,45 +397,6 @@ class _FreeExamCard extends StatelessWidget {
   }
 }
 
-
-class _SupportCard extends StatelessWidget {
-  const _SupportCard({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return _ActionCard(
-      icon: Icons.help_outline,
-      title: 'Ayuda y diagnóstico',
-      description:
-          'Revisa la versión, conexión, modo offline y crea un reporte técnico para solicitar soporte.',
-      buttonLabel: 'Abrir diagnóstico',
-      buttonIcon: Icons.arrow_forward,
-      onPressed: onPressed,
-    );
-  }
-}
-
-class _DataManagementCard extends StatelessWidget {
-  const _DataManagementCard({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return _ActionCard(
-      icon: Icons.save_alt_outlined,
-      title: 'Datos y respaldo',
-      description:
-          'Exporta tu avance, restaura un respaldo o reinicia los datos guardados en este navegador.',
-      buttonLabel: 'Administrar progreso',
-      buttonIcon: Icons.arrow_forward,
-      onPressed: onPressed,
-    );
-  }
-}
-
 class _ActionCard extends StatelessWidget {
   const _ActionCard({
     required this.icon,
@@ -421,64 +418,50 @@ class _ActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     final button = filled
         ? FilledButton.icon(
             onPressed: onPressed,
-            icon: Icon(buttonIcon),
+            icon: Icon(buttonIcon, size: 24),
             label: Text(buttonLabel),
           )
         : OutlinedButton.icon(
             onPressed: onPressed,
-            icon: Icon(buttonIcon),
+            icon: Icon(buttonIcon, size: 24),
             label: Text(buttonLabel),
           );
 
     return Card(
+      color: filled ? colors.primaryContainer.withValues(alpha: 0.34) : null,
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 38, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(height: 18),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(description),
-            const SizedBox(height: 22),
-            SizedBox(width: double.infinity, child: button),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LocalStorageNotice extends StatelessWidget {
-  const _LocalStorageNotice();
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              Icons.save_outlined,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 12),
-            const Expanded(
-              child: Text(
-                'El progreso, los escudos y los recursos marcados se guardan únicamente en este navegador y dispositivo.',
+            Container(
+              width: 58,
+              height: 58,
+              decoration: BoxDecoration(
+                color: filled ? colors.primary : colors.primaryContainer,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Icon(
+                icon,
+                size: 32,
+                color: filled ? colors.onPrimary : colors.primary,
               ),
             ),
+            const SizedBox(height: 18),
+            Text(title, style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 10),
+            Text(
+              description,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+            ),
+            const SizedBox(height: 22),
+            SizedBox(width: double.infinity, child: button),
           ],
         ),
       ),

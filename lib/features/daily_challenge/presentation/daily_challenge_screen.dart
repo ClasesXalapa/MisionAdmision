@@ -167,7 +167,7 @@ class _ChallengeBanner extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -176,7 +176,12 @@ class _ChallengeBanner extends StatelessWidget {
               color: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(width: 12),
-            Expanded(child: Text(text)),
+            Expanded(
+              child: Text(
+                text,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
           ],
         ),
       ),
@@ -207,7 +212,7 @@ class _DailyResultExtra extends StatelessWidget {
       children: [
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.primaryContainer,
             borderRadius: BorderRadius.circular(14),

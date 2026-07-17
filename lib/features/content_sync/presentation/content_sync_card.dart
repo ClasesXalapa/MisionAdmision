@@ -92,16 +92,16 @@ class _ContentSyncCardState extends ConsumerState<ContentSyncCard> {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(20),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
                 color: presentation.color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: _syncing
                   ? const Padding(
@@ -126,7 +126,7 @@ class _ContentSyncCardState extends ConsumerState<ContentSyncCard> {
                     _syncing
                         ? 'Puedes seguir usando la aplicación mientras termina.'
                         : presentation.message,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           height: 1.4,
                         ),

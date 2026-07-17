@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mision_admision/features/backup/presentation/data_management_screen.dart';
 import 'package:mision_admision/features/daily_challenge/presentation/daily_challenge_screen.dart';
 import 'package:mision_admision/features/exam/presentation/exam_screen.dart';
 import 'package:mision_admision/features/home/presentation/home_screen.dart';
 import 'package:mision_admision/features/resources/presentation/resources_screen.dart';
-import 'package:mision_admision/features/support/presentation/help_diagnostics_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
@@ -51,14 +49,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/resources',
         builder: (context, state) => const ResourcesScreen(),
-      ),
-      GoRoute(
-        path: '/data',
-        builder: (context, state) => const DataManagementScreen(),
-      ),
-      GoRoute(
-        path: '/help',
-        builder: (context, state) => const HelpDiagnosticsScreen(),
       ),
     ],
   );

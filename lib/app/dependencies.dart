@@ -30,13 +30,7 @@ import 'package:mision_admision/domain/repositories/question_repository.dart';
 import 'package:mision_admision/domain/repositories/rank_repository.dart';
 import 'package:mision_admision/domain/repositories/resource_repository.dart';
 import 'package:mision_admision/domain/repositories/resource_tracking_repository.dart';
-import 'package:mision_admision/domain/services/progress_backup_service.dart';
-import 'package:mision_admision/domain/services/support_diagnostics_service.dart';
 import 'package:mision_admision/domain/services/content_sync_service.dart';
-import 'package:mision_admision/platform/backup/backup_file_service.dart';
-import 'package:mision_admision/platform/backup/backup_file_service_factory.dart';
-import 'package:mision_admision/platform/diagnostics/platform_diagnostics_service.dart';
-import 'package:mision_admision/platform/diagnostics/platform_diagnostics_service_factory.dart';
 import 'package:mision_admision/platform/notifications/notification_service.dart';
 import 'package:mision_admision/platform/notifications/notification_service_factory.dart';
 import 'package:mision_admision/platform/pwa/pwa_service.dart';
@@ -174,37 +168,4 @@ final pwaServiceProvider = Provider<PwaService>((ref) {
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {
   return createNotificationService();
-});
-
-final backupFileServiceProvider = Provider<BackupFileService>((ref) {
-  return createBackupFileService();
-});
-
-final progressBackupServiceProvider = Provider<ProgressBackupService>((ref) {
-  return ProgressBackupService(
-    progressRepository: ref.read(progressRepositoryProvider),
-    attemptRepository: ref.read(dailyAttemptRepositoryProvider),
-    trackingRepository: ref.read(resourceTrackingRepositoryProvider),
-    clock: ref.read(appClockProvider),
-    appVersion: AppConstants.appVersion,
-  );
-});
-
-final platformDiagnosticsServiceProvider =
-    Provider<PlatformDiagnosticsService>((ref) {
-  return createPlatformDiagnosticsService();
-});
-
-final supportDiagnosticsServiceProvider = Provider<SupportDiagnosticsService>((ref) {
-  return SupportDiagnosticsService(
-    platformService: ref.read(platformDiagnosticsServiceProvider),
-    pwaService: ref.read(pwaServiceProvider),
-    notificationService: ref.read(notificationServiceProvider),
-    contentRepository: ref.read(contentCacheRepositoryProvider),
-    progressRepository: ref.read(progressRepositoryProvider),
-    attemptRepository: ref.read(dailyAttemptRepositoryProvider),
-    clock: ref.read(appClockProvider),
-    appVersion: AppConstants.appVersion,
-    appBuildNumber: AppConstants.appBuildNumber,
-  );
 });

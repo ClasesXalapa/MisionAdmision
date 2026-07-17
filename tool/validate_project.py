@@ -56,9 +56,17 @@ def main() -> int:
         "pwa_bridge.js",
         "flutter_bootstrap.js",
     }
+    loaded_web_files = {
+        "firebase_config.js",
+        "notifications_bridge.js",
+        "notification_state_store.js",
+        "pwa_bridge.js",
+        "flutter_bootstrap.js",
+    }
     for name in sorted(required_web_files):
         if not (ROOT / "web" / name).is_file():
             errors.append(f"Falta web/{name}.")
+    for name in sorted(loaded_web_files):
         script_pattern = re.compile(
             rf'src="{re.escape(name)}(?:\?[^"]*)?"'
         )
