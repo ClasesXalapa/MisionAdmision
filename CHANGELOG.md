@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.10.4+27 — 2026-07-17
+
+### Inicio ampliado para celulares
+
+- Se aprovecha mejor la altura disponible sin agregar funciones ni contenido artificial.
+- La cabecera, el progreso, la misión diaria y las acciones rápidas usan una escala visual mayor.
+- La tarjeta de progreso aumenta el protagonismo de la racha y la legibilidad de las métricas secundarias.
+- El reto diario incorpora más espacio, texto mayor, progreso más visible y un botón principal de 78 px.
+- Biblioteca y Examen pasan a cards de 148 px con iconos, títulos y descripciones más grandes.
+- La navegación inferior aumenta iconos, etiquetas, altura y área táctil.
+- La estructura permanece preparada para añadir futuras funciones como nuevas cards.
+
 ## 0.10.3+26 — 2026-07-17
 
 ### Inicio móvil refinado

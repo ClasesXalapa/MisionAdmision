@@ -80,17 +80,18 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 76,
         title: const Text(
           'Misión Admisión',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+          style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800),
         ),
         actions: [
           IconButton(
             tooltip: 'Configuración',
             onPressed: () => _openAppSettings(context),
-            icon: const Icon(Icons.tune_rounded, size: 34),
+            icon: const Icon(Icons.tune_rounded, size: 38),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
         ],
       ),
       bottomNavigationBar: const AppBottomNavigation(selectedIndex: 0),
@@ -105,10 +106,10 @@ class HomeScreen extends ConsumerWidget {
           },
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 36),
+            padding: const EdgeInsets.fromLTRB(12, 18, 12, 48),
             children: [
                 const _WelcomeHeader(),
-                const SizedBox(height: 22),
+                const SizedBox(height: 28),
                 progress.when(
                   data: (value) {
                     final rank = ranks.asData == null
@@ -128,7 +129,7 @@ class HomeScreen extends ConsumerWidget {
                   loading: () => const _ProgressLoading(),
                   error: (error, stackTrace) => const _ProgressError(),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 24),
                 _DailyChallengeCard(
                   hasPendingAttempt: hasPendingAttempt,
                   completedToday: completedToday,
@@ -138,15 +139,15 @@ class HomeScreen extends ConsumerWidget {
                       hasPendingAttempt ? currentAttempt!.questionIds.length : 10,
                   onPressed: () => context.go('/daily'),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
                 Text(
                   'Sigue practicando',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontSize: 28,
-                        height: 1.15,
+                        fontSize: 31,
+                        height: 1.12,
                       ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 18),
               _QuickActions(
                 onResources: () => context.go('/resources'),
                 onExam: () => context.go('/exam'),
@@ -173,19 +174,19 @@ class _WelcomeHeader extends StatelessWidget {
           child: Text(
             'Tu misión de hoy',
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  fontSize: 40,
-                  height: 1.08,
+                  fontSize: 44,
+                  height: 1.06,
                   letterSpacing: -0.7,
                 ),
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         Text(
           'Avanza un poco cada día hacia tu ingreso al EXANI-II.',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: colors.onSurfaceVariant,
-                fontSize: 21,
-                height: 1.4,
+                fontSize: 22,
+                height: 1.42,
               ),
         ),
       ],
@@ -214,27 +215,28 @@ class _ProgressSummary extends StatelessWidget {
     final nextStreakUnit = nextStreak == 1 ? 'día' : 'días';
 
     return Card(
+      key: const Key('home_progress_card'),
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(22),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  width: 58,
-                  height: 58,
+                  width: 66,
+                  height: 66,
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFE8C9),
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Icon(
                     Icons.local_fire_department_rounded,
-                    size: 36,
+                    size: 40,
                     color: Color(0xFFB64A00),
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,8 +244,8 @@ class _ProgressSummary extends StatelessWidget {
                       Text(
                         completedToday ? '¡Misión cumplida!' : 'Tu progreso',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontSize: 26,
-                              height: 1.12,
+                              fontSize: 29,
+                              height: 1.1,
                             ),
                       ),
                       if (rank != null) ...[
@@ -252,7 +254,7 @@ class _ProgressSummary extends StatelessWidget {
                           rank!.name,
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                 color: colors.primary,
-                                fontSize: 18,
+                                fontSize: 20,
                                 height: 1.2,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -271,23 +273,23 @@ class _ProgressSummary extends StatelessWidget {
                     child: const Icon(
                       Icons.check_rounded,
                       color: Color(0xFF18733C),
-                      size: 27,
+                      size: 31,
                     ),
                   ),
               ],
             ),
             if (shieldUsedToday) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(17),
                 decoration: BoxDecoration(
                   color: colors.secondaryContainer,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.shield_rounded, size: 27),
+                    const Icon(Icons.shield_rounded, size: 31),
                     const SizedBox(width: 11),
                     Expanded(
                       child: Text(
@@ -295,7 +297,7 @@ class _ProgressSummary extends StatelessWidget {
                             ? 'Un escudo protegió tu racha.'
                             : '${progress.lastShieldUseCount} escudos protegieron tu racha.',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              fontSize: 17,
+                              fontSize: 19,
                               fontWeight: FontWeight.w700,
                             ),
                       ),
@@ -304,19 +306,19 @@ class _ProgressSummary extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: 18),
+            const SizedBox(height: 22),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
               decoration: BoxDecoration(
                 color: const Color(0xFFFFF1DF),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(22),
               ),
               child: Row(
                 children: [
                   Container(
-                    width: 58,
-                    height: 58,
+                    width: 70,
+                    height: 70,
                     decoration: const BoxDecoration(
                       color: Color(0xFFFFDFC0),
                       shape: BoxShape.circle,
@@ -324,10 +326,10 @@ class _ProgressSummary extends StatelessWidget {
                     child: const Icon(
                       Icons.local_fire_department_rounded,
                       color: Color(0xFFA84300),
-                      size: 35,
+                      size: 42,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 20),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -336,17 +338,17 @@ class _ProgressSummary extends StatelessWidget {
                           '${progress.currentStreak} $streakUnit',
                           style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                                 color: const Color(0xFF8F3900),
-                                fontSize: 38,
+                                fontSize: 48,
                                 height: 1,
                                 fontWeight: FontWeight.w900,
                               ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 8),
                         Text(
                           completedToday ? 'Racha protegida hoy' : 'Racha actual',
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 color: const Color(0xFF8F3900),
-                                fontSize: 18,
+                                fontSize: 20,
                                 fontWeight: FontWeight.w800,
                               ),
                         ),
@@ -356,7 +358,7 @@ class _ProgressSummary extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
@@ -384,15 +386,15 @@ class _ProgressSummary extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             Text(
               completedToday
                   ? 'Tu racha está protegida por hoy. Sigue practicando a tu ritmo.'
                   : 'Completa el reto de hoy para alcanzar una racha de $nextStreak $nextStreakUnit.',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: colors.onSurfaceVariant,
-                    fontSize: 17,
-                    height: 1.35,
+                    fontSize: 19,
+                    height: 1.42,
                   ),
             ),
           ],
@@ -420,34 +422,34 @@ class _SecondaryMetric extends StatelessWidget {
       label: '$label: $value',
       child: ExcludeSemantics(
         child: Container(
-          constraints: const BoxConstraints(minHeight: 112),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          constraints: const BoxConstraints(minHeight: 136),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
           decoration: BoxDecoration(
             color: const Color(0xFFF2F4F9),
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: colors.primary, size: 28),
-              const SizedBox(height: 6),
+              Icon(icon, color: colors.primary, size: 33),
+              const SizedBox(height: 9),
               Text(
                 value,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: colors.onSurface,
-                      fontSize: 27,
+                      fontSize: 33,
                       height: 1,
                       fontWeight: FontWeight.w900,
                     ),
               ),
-              const SizedBox(height: 7),
+              const SizedBox(height: 9),
               Text(
                 label,
                 maxLines: 2,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: colors.onSurfaceVariant,
-                      fontSize: 15.5,
+                      fontSize: 17,
                       height: 1.15,
                     ),
               ),
@@ -515,40 +517,41 @@ class _DailyChallengeCard extends StatelessWidget {
             : 'Comenzar reto';
 
     return Card(
+      key: const Key('home_daily_challenge_card'),
       color: const Color(0xFFEEF2FF),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(26),
         side: BorderSide(
           color: colors.primary.withValues(alpha: 0.18),
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  width: 58,
-                  height: 58,
+                  width: 66,
+                  height: 66,
                   decoration: BoxDecoration(
                     color: colors.primary,
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Icon(
                     Icons.local_fire_department_rounded,
-                    size: 35,
+                    size: 40,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Text(
                     'RETO DE HOY',
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           color: colors.primary,
-                          fontSize: 17,
+                          fontSize: 18,
                           letterSpacing: 0.6,
                           fontWeight: FontWeight.w900,
                         ),
@@ -586,16 +589,16 @@ class _DailyChallengeCard extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             Text(
               hasPendingAttempt ? 'Continúa donde te quedaste' : 'Tu misión diaria',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     color: colors.onSurface,
-                    fontSize: 31,
-                    height: 1.12,
+                    fontSize: 35,
+                    height: 1.1,
                   ),
             ),
-            const SizedBox(height: 9),
+            const SizedBox(height: 12),
             Text(
               hasPendingAttempt
                   ? 'Tu avance está guardado. Termina antes de que concluya el día.'
@@ -604,18 +607,18 @@ class _DailyChallengeCard extends StatelessWidget {
                       : 'Responde 10 preguntas y protege tu racha.',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: colors.onSurfaceVariant,
-                    fontSize: 19,
-                    height: 1.4,
+                    fontSize: 21,
+                    height: 1.42,
                   ),
             ),
             if (hasPendingAttempt) ...[
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               Row(
                 children: [
                   Text(
                     'Tu progreso',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontSize: 17,
+                          fontSize: 19,
                         ),
                   ),
                   const Spacer(),
@@ -623,23 +626,23 @@ class _DailyChallengeCard extends StatelessWidget {
                     '$safeAnswered de $safeTotal',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: colors.primary,
-                          fontSize: 17,
+                          fontSize: 19,
                         ),
                   ),
                 ],
               ),
-              const SizedBox(height: 9),
+              const SizedBox(height: 11),
               ClipRRect(
                 borderRadius: BorderRadius.circular(999),
                 child: LinearProgressIndicator(
                   value: progressValue,
-                  minHeight: 11,
+                  minHeight: 13,
                   backgroundColor: colors.primary.withValues(alpha: 0.13),
                   color: colors.primary,
                 ),
               ),
             ],
-            const SizedBox(height: 22),
+            const SizedBox(height: 26),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
@@ -648,18 +651,18 @@ class _DailyChallengeCard extends StatelessWidget {
                 style: FilledButton.styleFrom(
                   backgroundColor: colors.primary,
                   foregroundColor: colors.onPrimary,
-                  minimumSize: const Size.fromHeight(70),
+                  minimumSize: const Size.fromHeight(78),
                 ),
                 icon: Icon(
                   hasPendingAttempt
                       ? Icons.play_circle_fill_rounded
                       : Icons.play_arrow_rounded,
-                  size: 29,
+                  size: 32,
                 ),
                 label: Text(
                   label,
                   style: const TextStyle(
-                    fontSize: 19,
+                    fontSize: 21,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -692,7 +695,7 @@ class _QuickActions extends StatelessWidget {
           description: 'Videos, guías y simulacros organizados por tema.',
           onPressed: onResources,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         _QuickActionTile(
           actionKey: const Key('home_exam_action'),
           icon: Icons.quiz_rounded,
@@ -731,22 +734,22 @@ class _QuickActionTile extends StatelessWidget {
           key: actionKey,
           onTap: onPressed,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 112),
+            constraints: const BoxConstraints(minHeight: 148),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
+              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    width: 62,
-                    height: 62,
+                    width: 74,
+                    height: 74,
                     decoration: BoxDecoration(
                       color: colors.primaryContainer,
-                      borderRadius: BorderRadius.circular(19),
+                      borderRadius: BorderRadius.circular(22),
                     ),
-                    child: Icon(icon, color: colors.primary, size: 36),
+                    child: Icon(icon, color: colors.primary, size: 42),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 20),
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -755,27 +758,27 @@ class _QuickActionTile extends StatelessWidget {
                         Text(
                           title,
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontSize: 23,
-                                height: 1.15,
+                                fontSize: 26,
+                                height: 1.12,
                               ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 9),
                         Text(
                           description,
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                 color: colors.onSurfaceVariant,
-                                fontSize: 17,
-                                height: 1.3,
+                                fontSize: 19,
+                                height: 1.34,
                               ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 14),
                   Icon(
                     Icons.arrow_forward_rounded,
                     color: colors.primary,
-                    size: 34,
+                    size: 40,
                   ),
                 ],
               ),
