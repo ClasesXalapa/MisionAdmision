@@ -9,6 +9,14 @@ import 'helpers/memory_json_store.dart';
 
 void main() {
   testWidgets('muestra la pantalla inicial', (tester) async {
+    // Reproduce el tipo de viewport ancho que algunos navegadores Android
+    // reportan para una PWA, en lugar de depender del tamaño de prueba 800x600.
+    tester.view
+      ..physicalSize = const Size(720, 1600)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -34,21 +42,19 @@ void main() {
     expect(find.text('Aplicación instalada'), findsNothing);
     expect(find.text('Copiar ID de prueba'), findsNothing);
 
+    // Las claves son estables aunque el texto cambie entre comenzar,
+    // continuar o repetir según el progreso local del alumno.
+    expect(find.byKey(const Key('home_daily_challenge_action')), findsOneWidget);
+
     final scrollable = find.byType(Scrollable).first;
-
     await tester.scrollUntilVisible(
-      find.text('Comenzar reto de hoy'),
-      300,
+      find.byKey(const Key('home_exam_action')),
+      350,
       scrollable: scrollable,
     );
-    expect(find.text('Comenzar reto de hoy'), findsOneWidget);
 
-    await tester.scrollUntilVisible(
-      find.text('Iniciar examen'),
-      300,
-      scrollable: scrollable,
-    );
-    expect(find.text('Iniciar examen'), findsOneWidget);
+    expect(find.byKey(const Key('home_resources_action')), findsOneWidget);
+    expect(find.byKey(const Key('home_exam_action')), findsOneWidget);
   });
 }
 

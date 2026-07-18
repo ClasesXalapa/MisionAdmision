@@ -385,39 +385,44 @@ class _Metric extends StatelessWidget {
       child: ExcludeSemantics(
         child: SizedBox(
           width: width,
-          height: 132,
-          child: Container(
-            padding: const EdgeInsets.all(17),
-            decoration: BoxDecoration(
-              color: background,
-              borderRadius: BorderRadius.circular(19),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(icon, size: 31, color: foreground),
-                    const Spacer(),
-                    Text(
-                      value,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            color: foreground,
-                            fontWeight: FontWeight.w900,
-                          ),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                Text(
-                  label,
-                  maxLines: 2,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: foreground,
-                        fontWeight: FontWeight.w800,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 138),
+            child: Container(
+              padding: const EdgeInsets.all(17),
+              decoration: BoxDecoration(
+                color: background,
+                borderRadius: BorderRadius.circular(19),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(icon, size: 31, color: foreground),
+                      const Spacer(),
+                      Text(
+                        value,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                              color: foreground,
+                              fontWeight: FontWeight.w900,
+                            ),
                       ),
-                ),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: foreground,
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -545,6 +550,7 @@ class _DailyChallengeCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
+                key: const Key('home_daily_challenge_action'),
                 onPressed: onPressed,
                 style: FilledButton.styleFrom(
                   backgroundColor: Colors.white,
@@ -580,6 +586,7 @@ class _QuickActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final cards = [
       _QuickActionTile(
+        actionKey: const Key('home_resources_action'),
         icon: Icons.library_books_rounded,
         title: 'Biblioteca de recursos',
         description: 'Videos, guías y simulacros organizados por tema.',
@@ -587,6 +594,7 @@ class _QuickActions extends StatelessWidget {
         onPressed: onResources,
       ),
       _QuickActionTile(
+        actionKey: const Key('home_exam_action'),
         icon: Icons.quiz_rounded,
         title: 'Examen libre',
         description: 'Practica con 10 preguntas sin afectar tu racha.',
@@ -617,6 +625,7 @@ class _QuickActions extends StatelessWidget {
 
 class _QuickActionTile extends StatelessWidget {
   const _QuickActionTile({
+    required this.actionKey,
     required this.icon,
     required this.title,
     required this.description,
@@ -624,6 +633,7 @@ class _QuickActionTile extends StatelessWidget {
     required this.onPressed,
   });
 
+  final Key actionKey;
   final IconData icon;
   final String title;
   final String description;
@@ -636,6 +646,7 @@ class _QuickActionTile extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
+        key: actionKey,
         onTap: onPressed,
         child: Padding(
           padding: const EdgeInsets.all(20),

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.10.1+24 — 2026-07-17
+
+- Corrige la prueba de la pantalla inicial con un viewport móvil determinista.
+- Sustituye expectativas de texto dinámico por claves estables de interfaz.
+- Elimina la altura rígida de las métricas de progreso para evitar desbordamientos con escalado de texto.
+- Actualiza la revisión del service worker a 24.
+
 ## 0.10.1 — 2026-07-17
 
 ### Interfaz móvil corregida
