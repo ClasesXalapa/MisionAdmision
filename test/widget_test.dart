@@ -75,8 +75,13 @@ void main() {
 
     expect(examTopLeft.dy, greaterThan(resourcesTopLeft.dy));
     expect((examTopLeft.dx - resourcesTopLeft.dx).abs(), lessThan(1));
-    expect(resourcesSize.width, greaterThan(690));
-    expect(examSize.width, greaterThan(690));
+    final scaffoldWidth = tester.getSize(find.byType(Scaffold).first).width;
+    expect(resourcesSize.width, greaterThan(scaffoldWidth - 36));
+    expect(examSize.width, greaterThan(scaffoldWidth - 36));
+
+    // El escalado móvil no debe producir desbordamientos ni otras excepciones
+    // de renderizado en la barra inferior o en las cards de Inicio.
+    expect(tester.takeException(), isNull);
   });
 }
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.10.4+28 — 2026-07-17
+
+### Hotfix de prueba y navegación inferior
+
+- Corrige un desbordamiento vertical de la opción seleccionada en la navegación inferior al aplicar la escala tipográfica móvil de 1.24.
+- Aumenta ligeramente la altura disponible de la barra y reduce su padding interno para conservar iconos y etiquetas grandes.
+- Las cards de Biblioteca y Examen eliminan el margen implícito de `Card` y ocupan realmente todo el ancho útil de Inicio.
+- La prueba de Inicio valida el ancho proporcional al viewport en lugar de depender de un valor absoluto frágil.
+- La prueba comprueba explícitamente que no existan excepciones de renderizado.
+
 ## 0.10.4+27 — 2026-07-17
 
 ### Inicio ampliado para celulares

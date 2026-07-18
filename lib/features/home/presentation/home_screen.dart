@@ -729,6 +729,7 @@ class _QuickActionTile extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: Card(
+        margin: EdgeInsets.zero,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           key: actionKey,

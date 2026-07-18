@@ -48,7 +48,7 @@ class AppBottomNavigation extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 108,
+          height: 116,
           child: Row(
             children: List.generate(_items.length, (index) {
               final item = _items[index];
@@ -60,14 +60,14 @@ class AppBottomNavigation extends StatelessWidget {
                   selected: selected,
                   label: item.label,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(22),
                       onTap: selected ? null : () => context.go(item.route),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 180),
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
                           color: selected
                               ? colors.primaryContainer
