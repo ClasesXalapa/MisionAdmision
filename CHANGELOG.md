@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.10.5+29 — 2026-07-17
+
+### Accesos principales de Inicio ampliados
+
+- Biblioteca de recursos y Examen libre aumentan su altura mínima de 148 a 188 px.
+- Los iconos pasan a contenedores de 94 px con símbolos de 54 px.
+- Títulos y descripciones usan una escala mayor para lectura cómoda en celular.
+- Se amplían padding, separación interna y distancia entre ambas cards.
+- La flecha de navegación se convierte en un control circular más visible.
+- Toda la superficie de cada card continúa siendo pulsable.
+
 ## 0.10.4+28 — 2026-07-17
 
 ### Hotfix de prueba y navegación inferior

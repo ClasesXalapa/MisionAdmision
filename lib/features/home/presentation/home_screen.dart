@@ -695,7 +695,7 @@ class _QuickActions extends StatelessWidget {
           description: 'Videos, guías y simulacros organizados por tema.',
           onPressed: onResources,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 22),
         _QuickActionTile(
           actionKey: const Key('home_exam_action'),
           icon: Icons.quiz_rounded,
@@ -735,22 +735,22 @@ class _QuickActionTile extends StatelessWidget {
           key: actionKey,
           onTap: onPressed,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 148),
+            constraints: const BoxConstraints(minHeight: 188),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 30),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    width: 74,
-                    height: 74,
+                    width: 94,
+                    height: 94,
                     decoration: BoxDecoration(
                       color: colors.primaryContainer,
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: BorderRadius.circular(28),
                     ),
-                    child: Icon(icon, color: colors.primary, size: 42),
+                    child: Icon(icon, color: colors.primary, size: 54),
                   ),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 26),
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -759,27 +759,36 @@ class _QuickActionTile extends StatelessWidget {
                         Text(
                           title,
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontSize: 26,
+                                fontSize: 31,
                                 height: 1.12,
+                                fontWeight: FontWeight.w800,
                               ),
                         ),
-                        const SizedBox(height: 9),
+                        const SizedBox(height: 12),
                         Text(
                           description,
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                 color: colors.onSurfaceVariant,
-                                fontSize: 19,
-                                height: 1.34,
+                                fontSize: 22,
+                                height: 1.38,
                               ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 14),
-                  Icon(
-                    Icons.arrow_forward_rounded,
-                    color: colors.primary,
-                    size: 40,
+                  const SizedBox(width: 18),
+                  Container(
+                    width: 58,
+                    height: 58,
+                    decoration: BoxDecoration(
+                      color: colors.primary.withValues(alpha: 0.10),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.arrow_forward_rounded,
+                      color: colors.primary,
+                      size: 38,
+                    ),
                   ),
                 ],
               ),

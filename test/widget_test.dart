@@ -78,6 +78,8 @@ void main() {
     final scaffoldWidth = tester.getSize(find.byType(Scaffold).first).width;
     expect(resourcesSize.width, greaterThan(scaffoldWidth - 36));
     expect(examSize.width, greaterThan(scaffoldWidth - 36));
+    expect(resourcesSize.height, greaterThanOrEqualTo(188));
+    expect(examSize.height, greaterThanOrEqualTo(188));
 
     // El escalado móvil no debe producir desbordamientos ni otras excepciones
     // de renderizado en la barra inferior o en las cards de Inicio.
