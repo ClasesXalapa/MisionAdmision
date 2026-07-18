@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "content_version": "2026_07_004",
-  "generated_at": "2026-07-15T18:00:00-06:00",
-  "min_app_version": 1,
+  "content_version": "2026_07_005",
+  "generated_at": "2026-07-17T22:00:00-06:00",
+  "min_app_version": 31,
   "files": {
     "questions": {
       "url": "content/preguntas/banco_global.json",
-      "version": "questions_001",
+      "version": "questions_002",
       "required": true
     },
     "challenges": {

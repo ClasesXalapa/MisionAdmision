@@ -1,7 +1,7 @@
 {
-  "schema_version": 1,
-  "version": "questions_001",
-  "generated_at": "2026-07-14T20:00:00-06:00",
+  "schema_version": 2,
+  "version": "questions_002",
+  "generated_at": "2026-07-17T22:00:00-06:00",
   "preguntas": [
     {
       "id": "MAT-ARI-001",
@@ -12,6 +12,12 @@
         "45",
         "55",
         "65"
+      ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
       ],
       "respuesta_correcta": "B",
       "categoria": "matematicas",
@@ -31,6 +37,12 @@
         "9",
         "10"
       ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
+      ],
       "respuesta_correcta": "C",
       "categoria": "matematicas",
       "etiquetas": [
@@ -48,6 +60,12 @@
         "5",
         "7",
         "15"
+      ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
       ],
       "respuesta_correcta": "B",
       "categoria": "matematicas",
@@ -67,6 +85,12 @@
         "3a + 6",
         "2a + 6"
       ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
+      ],
       "respuesta_correcta": "C",
       "categoria": "matematicas",
       "etiquetas": [
@@ -84,6 +108,12 @@
         "$575",
         "$600",
         "$625"
+      ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
       ],
       "respuesta_correcta": "C",
       "categoria": "matematicas",
@@ -103,6 +133,12 @@
         "750 g",
         "900 g"
       ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
+      ],
       "respuesta_correcta": "C",
       "categoria": "matematicas",
       "etiquetas": [
@@ -120,6 +156,12 @@
         "26 cm²",
         "40 cm²",
         "80 cm²"
+      ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
       ],
       "respuesta_correcta": "C",
       "categoria": "matematicas",
@@ -139,6 +181,12 @@
         "60 cm²",
         "120 cm²"
       ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
+      ],
       "respuesta_correcta": "B",
       "categoria": "matematicas",
       "etiquetas": [
@@ -156,6 +204,12 @@
         "7",
         "8",
         "9"
+      ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
       ],
       "respuesta_correcta": "B",
       "categoria": "matematicas",
@@ -175,6 +229,12 @@
         "32",
         "36"
       ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
+      ],
       "respuesta_correcta": "B",
       "categoria": "matematicas",
       "etiquetas": [
@@ -192,6 +252,12 @@
         "Una tormenta eléctrica",
         "El horario de invierno",
         "Una reparación"
+      ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
       ],
       "respuesta_correcta": "B",
       "categoria": "comprension-lectora",
@@ -211,6 +277,12 @@
         "que admite más de una interpretación",
         "completamente falsa"
       ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
+      ],
       "respuesta_correcta": "C",
       "categoria": "comprension-lectora",
       "etiquetas": [
@@ -228,6 +300,12 @@
         "Dormir bien beneficia varias funciones personales",
         "El estado de ánimo depende de la alimentación",
         "La atención no se puede mejorar"
+      ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
       ],
       "respuesta_correcta": "B",
       "categoria": "comprension-lectora",
@@ -247,6 +325,12 @@
         "Elena olvidó el paraguas",
         "Elena llegó en automóvil"
       ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
+      ],
       "respuesta_correcta": "B",
       "categoria": "comprension-lectora",
       "etiquetas": [
@@ -264,6 +348,12 @@
         "por eso",
         "aunque",
         "mientras"
+      ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
       ],
       "respuesta_correcta": "B",
       "categoria": "redaccion-indirecta",
@@ -283,6 +373,12 @@
         "Aún no se sí vendrá.",
         "Aun no sé sí vendra."
       ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
+      ],
       "respuesta_correcta": "B",
       "categoria": "redaccion-indirecta",
       "etiquetas": [
@@ -300,6 +396,12 @@
         "María compró pan, leche y fruta.",
         "María, compró pan leche, y fruta.",
         "María compró pan leche y, fruta."
+      ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
       ],
       "respuesta_correcta": "B",
       "categoria": "redaccion-indirecta",
@@ -319,6 +421,12 @@
         "La actividad se canceló debido a la lluvia.",
         "La lluvia debido canceló la actividad."
       ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
+      ],
       "respuesta_correcta": "C",
       "categoria": "redaccion-indirecta",
       "etiquetas": [
@@ -337,6 +445,12 @@
         "Todos los cuadernos son útiles",
         "Ningún cuaderno es reciclado"
       ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
+      ],
       "respuesta_correcta": "C",
       "categoria": "matematicas",
       "etiquetas": [
@@ -354,6 +468,12 @@
         "2/5",
         "3/5",
         "1/2"
+      ],
+      "imagenes_opciones": [
+        null,
+        null,
+        null,
+        null
       ],
       "respuesta_correcta": "B",
       "categoria": "matematicas",

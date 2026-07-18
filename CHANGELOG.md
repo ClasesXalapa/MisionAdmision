@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.10.7+31 — 2026-07-17
+
+### Reto y examen optimizados para celular e imágenes en reactivos
+
+- Reto diario y Examen libre usan casi todo el ancho del teléfono, con cabeceras, progreso, preguntas, incisos y controles inferiores de mayor tamaño.
+- La pregunta se separa de los incisos para mejorar la jerarquía visual y cada respuesta tiene un área táctil mínima de 108 px.
+- Los botones Anterior, Siguiente y Finalizar crecen a 74 px y permanecen fijos sobre el área segura.
+- Las imágenes principales se muestran a gran tamaño y pueden ampliarse con zoom.
+- Cada inciso admite texto, imagen o ambos mediante `imagenes_opciones`.
+- El banco de preguntas pasa al esquema 2; la aplicación mantiene compatibilidad de lectura con bancos de esquema 1.
+- Excel, Google Sheets, CSV, generadores, validadores y documentación administrativa incorporan una URL de imagen independiente para A, B, C y D.
+
 ## 0.10.6+30 — 2026-07-17
 
 ### Biblioteca de recursos optimizada para celulares

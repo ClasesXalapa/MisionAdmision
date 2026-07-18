@@ -11,17 +11,31 @@ class Question {
     required List<String> tags,
     required this.difficulty,
     this.imageUrl,
+    List<String?>? optionImageUrls,
   })  : options = List.unmodifiable(options),
-        tags = List.unmodifiable(tags);
+        optionImageUrls = List.unmodifiable(
+          optionImageUrls ?? List<String?>.filled(options.length, null),
+        ),
+        tags = List.unmodifiable(tags) {
+    if (this.optionImageUrls.length != this.options.length) {
+      throw ArgumentError(
+        'Cada opción debe tener una posición equivalente para su imagen.',
+      );
+    }
+  }
 
   final String id;
   final String statement;
   final String? imageUrl;
   final List<String> options;
+  final List<String?> optionImageUrls;
   final AnswerOption correctAnswer;
   final String category;
   final List<String> tags;
   final QuestionDifficulty difficulty;
 
   String optionText(AnswerOption option) => options[option.index];
+
+  String? optionImageUrl(AnswerOption option) =>
+      optionImageUrls[option.index];
 }

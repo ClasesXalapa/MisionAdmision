@@ -49,16 +49,59 @@ void main() {
       isTrue,
     );
   });
+
+  test('acepta un inciso compuesto únicamente por una imagen HTTPS', () {
+    final report = validator.validateBank([
+      _validQuestion(
+        options: const ['', '2', '3', '4'],
+        optionImageUrls: const [
+          'https://example.com/opcion-a.png',
+          null,
+          null,
+          null,
+        ],
+      ),
+    ]);
+
+    expect(report.isValid, isTrue);
+    expect(
+      report.value!.single.optionImageUrls.first,
+      'https://example.com/opcion-a.png',
+    );
+  });
+
+  test('rechaza imágenes de incisos que no sean HTTPS', () {
+    final report = validator.validateBank([
+      _validQuestion(
+        optionImageUrls: const [
+          'http://example.com/opcion-a.png',
+          null,
+          null,
+          null,
+        ],
+      ),
+    ]);
+
+    expect(report.isValid, isFalse);
+    expect(
+      report.issues.any(
+        (issue) => issue.code == 'invalid_option_image_url',
+      ),
+      isTrue,
+    );
+  });
 }
 
 QuestionDto _validQuestion({
   String correctAnswer = 'A',
   List<String> options = const ['1', '2', '3', '4'],
+  List<String?> optionImageUrls = const [null, null, null, null],
 }) {
   return QuestionDto(
     id: 'MAT-001',
     statement: '¿Cuánto es 1 + 1?',
     options: options,
+    optionImageUrls: optionImageUrls,
     correctAnswer: correctAnswer,
     category: 'matematicas',
     tags: const ['aritmetica'],

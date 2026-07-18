@@ -97,8 +97,9 @@ Detecta, entre otros casos:
 |---|---|
 | `id` | Único y permanente. No reutilizar. |
 | `enunciado` | Texto obligatorio. |
-| `imagen_url` | Vacío o URL HTTPS. |
-| `opcion_a` a `opcion_d` | Exactamente cuatro opciones no vacías. |
+| `imagen_url` | Vacío o URL HTTPS para la imagen principal de la pregunta. |
+| `opcion_a` a `opcion_d` | Texto opcional de cada inciso. Cada inciso debe tener texto, imagen o ambos. |
+| `imagen_opcion_a` a `imagen_opcion_d` | URL HTTPS opcional para la imagen de cada inciso. |
 | `respuesta_correcta` | A, B, C o D. |
 | `categoria` | Texto no vacío. |
 | `etiquetas` | Una o más, separadas con `;`. |

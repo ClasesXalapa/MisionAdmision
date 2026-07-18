@@ -30,7 +30,8 @@ class ContentDocumentParser {
   List<Question> parseQuestions(String raw) {
     final decoded = _decodeObject(raw, 'El banco de preguntas');
     final bank = QuestionBankDto.fromJson(decoded);
-    if (bank.schemaVersion != 1 || bank.version.trim().isEmpty) {
+    if ((bank.schemaVersion != 1 && bank.schemaVersion != 2) ||
+        bank.version.trim().isEmpty) {
       throw const FormatException('Metadatos de preguntas inválidos.');
     }
     final report = questionValidator.validateBank(bank.questions);

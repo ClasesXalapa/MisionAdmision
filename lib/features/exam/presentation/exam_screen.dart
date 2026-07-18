@@ -87,12 +87,17 @@ class _ExamScreenState extends ConsumerState<ExamScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
+          toolbarHeight: 82,
+          leadingWidth: 68,
           leading: IconButton(
             tooltip: 'Volver al inicio',
             onPressed: _requestExit,
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back_rounded, size: 34),
           ),
-          title: const Text('Examen libre'),
+          title: const Text(
+            'Examen libre',
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.w900),
+          ),
         ),
         body: SafeArea(
           child: fullWidthCentered(

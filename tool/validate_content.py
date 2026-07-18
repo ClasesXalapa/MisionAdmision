@@ -66,10 +66,14 @@ def is_iso_date(value: object) -> bool:
     return True
 
 
-def validate_metadata(data, label: str) -> list[str]:
+def validate_metadata(
+    data, label: str, supported_schema_versions: set[int] | None = None
+) -> list[str]:
     errors: list[str] = []
-    if data.get("schema_version") != 1:
-        errors.append(f"{label}: schema_version debe ser 1.")
+    supported = supported_schema_versions or {1}
+    if data.get("schema_version") not in supported:
+        readable = ", ".join(str(value) for value in sorted(supported))
+        errors.append(f"{label}: schema_version debe ser uno de: {readable}.")
     if not isinstance(data.get("version"), str) or not data["version"].strip():
         errors.append(f"{label}: version debe ser texto no vacío.")
     elif not VERSION_PATTERN.fullmatch(data["version"]):
@@ -135,7 +139,7 @@ def validate_bank(data) -> tuple[list[str], set[str]]:
     question_ids: set[str] = set()
     if not isinstance(data, dict):
         return ["El banco debe contener un objeto JSON."], question_ids
-    errors.extend(validate_metadata(data, "preguntas"))
+    errors.extend(validate_metadata(data, "preguntas", {1, 2}))
 
     questions = data.get("preguntas")
     if not isinstance(questions, list):
@@ -164,8 +168,38 @@ def validate_bank(data) -> tuple[list[str], set[str]]:
         options = question.get("opciones")
         if not isinstance(options, list) or len(options) != 4:
             errors.append(f"{path}.opciones debe contener exactamente 4 elementos.")
-        elif any(not isinstance(option, str) or not option.strip() for option in options):
-            errors.append(f"{path}.opciones contiene opciones vacías o no textuales.")
+            options = []
+        elif any(not isinstance(option, str) for option in options):
+            errors.append(f"{path}.opciones solo puede contener texto.")
+
+        option_images = question.get("imagenes_opciones")
+        if option_images is None and data.get("schema_version") == 1:
+            option_images = [None, None, None, None]
+        if not isinstance(option_images, list) or len(option_images) != 4:
+            errors.append(
+                f"{path}.imagenes_opciones debe contener exactamente 4 elementos."
+            )
+            option_images = []
+        else:
+            for option_index, image in enumerate(option_images):
+                if image is not None and (
+                    not isinstance(image, str) or not is_https_url(image)
+                ):
+                    errors.append(
+                        f"{path}.imagenes_opciones[{option_index}] debe ser null "
+                        "o una URL HTTPS."
+                    )
+
+        if len(options) == 4 and len(option_images) == 4:
+            for option_index, (option, image) in enumerate(
+                zip(options, option_images, strict=True)
+            ):
+                option_text = option.strip() if isinstance(option, str) else ""
+                if not option_text and image is None:
+                    errors.append(
+                        f"{path}.opciones[{option_index}] debe incluir texto, "
+                        "imagen o ambos."
+                    )
 
         if question.get("respuesta_correcta") not in VALID_ANSWERS:
             errors.append(f"{path}.respuesta_correcta debe ser A, B, C o D.")

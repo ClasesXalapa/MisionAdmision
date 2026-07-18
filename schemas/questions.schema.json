@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["schema_version", "version", "generated_at", "preguntas"],
   "properties": {
-    "schema_version": {"const": 1},
+    "schema_version": {"const": 2},
     "version": {"type": "string", "pattern": "^[A-Za-z0-9._-]{1,100}$"},
     "generated_at": {"type": "string", "format": "date-time"},
     "preguntas": {
@@ -20,6 +20,7 @@
           "enunciado",
           "imagen_url",
           "opciones",
+          "imagenes_opciones",
           "respuesta_correcta",
           "categoria",
           "etiquetas",
@@ -38,7 +39,18 @@
             "type": "array",
             "minItems": 4,
             "maxItems": 4,
-            "items": {"type": "string", "minLength": 1}
+            "items": {"type": "string"}
+          },
+          "imagenes_opciones": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "oneOf": [
+                {"type": "null"},
+                {"type": "string", "format": "uri", "pattern": "^https://"}
+              ]
+            }
           },
           "respuesta_correcta": {"enum": ["A", "B", "C", "D"]},
           "categoria": {"type": "string", "minLength": 1},

@@ -111,6 +111,12 @@ function construirDocumentos_() {
       text_(row.opcion_c),
       text_(row.opcion_d),
     ],
+    imagenes_opciones: [
+      nullable_(row.imagen_opcion_a),
+      nullable_(row.imagen_opcion_b),
+      nullable_(row.imagen_opcion_c),
+      nullable_(row.imagen_opcion_d),
+    ],
     respuesta_correcta: text_(row.respuesta_correcta).toUpperCase(),
     categoria: text_(row.categoria).toLowerCase(),
     etiquetas: list_(row.etiquetas, true),
@@ -151,7 +157,7 @@ function construirDocumentos_() {
 
   return {
     questions: {
-      schema_version: 1,
+      schema_version: 2,
       version: text_(config.questions_version),
       generated_at: generatedAt,
       preguntas: questions,
@@ -221,8 +227,20 @@ function validarDocumentos_(documents) {
     const path = `Preguntas fila ${index + 2}`;
     requiredText_(errors, path, question, ['id', 'enunciado', 'categoria']);
     duplicate_(errors, `${path}: ID`, question.id, questionIds);
-    if (question.opciones.length !== 4 || question.opciones.some((value) => !value)) {
-      errors.push(`${path}: las cuatro opciones son obligatorias.`);
+    if (question.opciones.length !== 4 || question.imagenes_opciones.length !== 4) {
+      errors.push(`${path}: deben existir cuatro opciones y cuatro posiciones de imagen.`);
+    } else {
+      question.opciones.forEach((value, optionIndex) => {
+        const image = question.imagenes_opciones[optionIndex];
+        if (!value && !image) {
+          errors.push(`${path}: cada opción debe incluir texto, imagen o ambos.`);
+        }
+        optionalHttps_(
+          errors,
+          `${path}: imagenes_opciones[${optionIndex}]`,
+          image,
+        );
+      });
     }
     if (!MA_VALID_ANSWERS.has(question.respuesta_correcta)) {
       errors.push(`${path}: respuesta_correcta debe ser A, B, C o D.`);

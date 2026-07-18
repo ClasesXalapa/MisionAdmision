@@ -118,12 +118,17 @@ class _DailyChallengeScreenState extends ConsumerState<DailyChallengeScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
+          toolbarHeight: 82,
+          leadingWidth: 68,
           leading: IconButton(
             tooltip: 'Volver al inicio',
             onPressed: _requestExit,
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back_rounded, size: 34),
           ),
-          title: const Text('Reto de hoy'),
+          title: const Text(
+            'Reto de hoy',
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.w900),
+          ),
         ),
         body: SafeArea(
           child: fullWidthCentered(
@@ -203,28 +208,38 @@ class _ChallengeBanner extends StatelessWidget {
             ? 'Preparamos 10 preguntas para tu práctica diaria.'
             : 'Completa las 10 preguntas para proteger tu racha de hoy.';
 
+    final colors = Theme.of(context).colorScheme;
     return Card(
-      color: Theme.of(context)
-          .colorScheme
-          .primaryContainer
-          .withValues(alpha: 0.45),
+      color: colors.primaryContainer.withValues(alpha: 0.62),
       child: Padding(
-        padding: const EdgeInsets.all(15),
+        padding: const EdgeInsets.all(20),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              wasResumed
-                  ? Icons.restore_rounded
-                  : Icons.local_fire_department_outlined,
-              color: Theme.of(context).colorScheme.primary,
-              size: 26,
+            Container(
+              width: 58,
+              height: 58,
+              decoration: BoxDecoration(
+                color: colors.primary,
+                borderRadius: BorderRadius.circular(17),
+              ),
+              child: Icon(
+                wasResumed
+                    ? Icons.restore_rounded
+                    : Icons.local_fire_department_rounded,
+                color: colors.onPrimary,
+                size: 34,
+              ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             Expanded(
               child: Text(
                 text,
-                style: Theme.of(context).textTheme.bodyLarge,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontSize: 21,
+                      fontWeight: FontWeight.w700,
+                      height: 1.4,
+                    ),
               ),
             ),
           ],

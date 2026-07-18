@@ -1,10 +1,11 @@
-# Misión Admisión — MVP web v0.10.6
+# Misión Admisión — MVP web v0.10.7
 
 PWA educativa en Flutter Web para aspirantes al EXANI-II. Vive en GitHub Pages, funciona sin cuentas, conserva el progreso local y distribuye contenido mediante JSON validados.
 
 ## Funciones incluidas
 
 - Examen libre aleatorio de 10 preguntas.
+- Preguntas e incisos con imágenes opcionales, ampliación y zoom.
 - Reto diario programado y reto automático estable.
 - Guardado y reanudación del intento durante el mismo día.
 - Racha, récord, escudos y rangos.

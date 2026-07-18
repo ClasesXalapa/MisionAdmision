@@ -26,7 +26,7 @@ class AssetQuestionRepository implements QuestionRepository {
     }
 
     final bank = QuestionBankDto.fromJson(decoded);
-    if (bank.schemaVersion != 1) {
+    if (bank.schemaVersion != 1 && bank.schemaVersion != 2) {
       throw FormatException(
         'Versión de esquema no soportada: ${bank.schemaVersion}.',
       );

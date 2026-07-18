@@ -1,6 +1,6 @@
-# Contratos JSON — v0.4.0
+# Contratos JSON — v0.10.7
 
-Todos los documentos utilizan `schema_version: 1`, una versión textual y `generated_at` en formato ISO 8601.
+El índice, retos, recursos y rangos utilizan `schema_version: 1`. El banco de preguntas utiliza `schema_version: 2`; la aplicación conserva compatibilidad de lectura con bancos de preguntas de esquema 1.
 
 ## `content/index.json`
 
@@ -9,13 +9,13 @@ Campos obligatorios:
 ```json
 {
   "schema_version": 1,
-  "content_version": "2026_07_004",
+  "content_version": "2026_07_005",
   "generated_at": "2026-07-15T18:00:00-06:00",
-  "min_app_version": 1,
+  "min_app_version": 31,
   "files": {
     "questions": {
       "url": "content/preguntas/banco_global.json",
-      "version": "questions_001",
+      "version": "questions_002",
       "required": true
     },
     "challenges": {
@@ -51,7 +51,7 @@ Reglas:
 
 Ruta: `content/preguntas/banco_global.json`.
 
-Cada pregunta requiere ID único, enunciado, cuatro opciones, respuesta A/B/C/D, categoría, etiquetas, dificultad e imagen HTTPS opcional.
+Cada pregunta requiere ID único, enunciado, cuatro posiciones de opción, cuatro posiciones de imagen, respuesta A/B/C/D, categoría, etiquetas y dificultad. `imagen_url` permite una imagen principal HTTPS. `imagenes_opciones` permite una imagen HTTPS independiente para A, B, C y D. Cada inciso debe contener texto, imagen o ambos.
 
 ## Retos programados
 

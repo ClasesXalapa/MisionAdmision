@@ -42,16 +42,45 @@ class QuestionValidator {
             '$path.opciones',
           ),
         );
-      } else {
+      }
+
+      if (dto.optionImageUrls.length != AnswerOption.values.length) {
+        issues.add(
+          _issue(
+            'invalid_option_image_count',
+            'Debe contener exactamente cuatro posiciones de imagen.',
+            '$path.imagenes_opciones',
+          ),
+        );
+      }
+
+      if (dto.options.length == AnswerOption.values.length &&
+          dto.optionImageUrls.length == AnswerOption.values.length) {
         for (var optionIndex = 0;
-            optionIndex < dto.options.length;
+            optionIndex < AnswerOption.values.length;
             optionIndex += 1) {
-          if (dto.options[optionIndex].trim().isEmpty) {
+          final optionText = dto.options[optionIndex].trim();
+          final optionImage = dto.optionImageUrls[optionIndex]?.trim();
+
+          if (optionText.isEmpty &&
+              (optionImage == null || optionImage.isEmpty)) {
             issues.add(
               _issue(
                 'empty_option',
-                'La opción no puede estar vacía.',
+                'Cada opción debe incluir texto, imagen o ambos.',
                 '$path.opciones[$optionIndex]',
+              ),
+            );
+          }
+
+          if (optionImage != null &&
+              optionImage.isNotEmpty &&
+              !_isValidHttpsUrl(optionImage)) {
+            issues.add(
+              _issue(
+                'invalid_option_image_url',
+                'La imagen del inciso debe utilizar una URL HTTPS válida.',
+                '$path.imagenes_opciones[$optionIndex]',
               ),
             );
           }
@@ -120,6 +149,9 @@ class QuestionValidator {
         statement: dto.statement.trim(),
         imageUrl: _normalizedNullable(dto.imageUrl),
         options: dto.options.map((option) => option.trim()).toList(),
+        optionImageUrls: dto.optionImageUrls
+            .map(_normalizedNullable)
+            .toList(growable: false),
         correctAnswer: AnswerOption.tryParse(dto.correctAnswer)!,
         category: dto.category.trim().toLowerCase(),
         tags: dto.tags.map((tag) => tag.trim().toLowerCase()).toList(),

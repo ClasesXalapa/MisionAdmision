@@ -34,9 +34,13 @@ CSV_COLUMNS: Final[dict[str, tuple[str, ...]]] = {
         "enunciado",
         "imagen_url",
         "opcion_a",
+        "imagen_opcion_a",
         "opcion_b",
+        "imagen_opcion_b",
         "opcion_c",
+        "imagen_opcion_c",
         "opcion_d",
+        "imagen_opcion_d",
         "respuesta_correcta",
         "categoria",
         "etiquetas",
@@ -261,6 +265,12 @@ def build_documents(input_dir: Path) -> dict[str, object]:
                     row["opcion_c"],
                     row["opcion_d"],
                 ],
+                "imagenes_opciones": [
+                    nullable(row["imagen_opcion_a"]),
+                    nullable(row["imagen_opcion_b"]),
+                    nullable(row["imagen_opcion_c"]),
+                    nullable(row["imagen_opcion_d"]),
+                ],
                 "respuesta_correcta": row["respuesta_correcta"].upper(),
                 "categoria": row["categoria"].lower(),
                 "etiquetas": split_values(row["etiquetas"], lowercase=True),
@@ -337,7 +347,7 @@ def build_documents(input_dir: Path) -> dict[str, object]:
         )
 
     question_bank = {
-        "schema_version": 1,
+        "schema_version": 2,
         "version": config["questions_version"],
         "generated_at": timestamp,
         "preguntas": questions,
