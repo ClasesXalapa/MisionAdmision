@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.10.7+33 — 2026-07-18
+
+### Hotfix de versiones de prueba para sincronización
+
+- Los tres escenarios que simulan una actualización del banco de preguntas dejan de fijar `questions_002`.
+- La versión remota de prueba ahora se calcula a partir de la versión actual (`questions_002` → `questions_003`).
+- Se evita que el servicio omita la descarga por considerar que la versión simulada ya estaba almacenada.
+- La corrección cubre intento pendiente, intento vencido y retos existentes con referencias protegidas.
+- Se coordinan la versión de la aplicación y la revisión del service worker en el build 33.
+
 ## 0.10.7+32 — 2026-07-18
 
 ### Hotfix de sincronización de contenido en pruebas

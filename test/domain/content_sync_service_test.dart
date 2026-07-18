@@ -119,14 +119,15 @@ void main() {
     await fixture.service.synchronize();
     final previous = await fixture.cache.readRaw(ContentFileKind.questions);
 
+    final updatedVersion = _nextVersion(questionBank['version'] as String);
     final index = jsonDecode(content['content/index.json']!) as Map<String, dynamic>;
     ((index['files'] as Map<String, dynamic>)['questions']
-        as Map<String, dynamic>)['version'] = 'questions_002';
+        as Map<String, dynamic>)['version'] = updatedVersion;
     fixture.remote.values['content/index.json'] = jsonEncode(index);
     (questionBank['preguntas'] as List).removeWhere(
       (item) => (item as Map<String, dynamic>)['id'] == protectedId,
     );
-    questionBank['version'] = 'questions_002';
+    questionBank['version'] = updatedVersion;
     fixture.remote.values['content/preguntas/banco_global.json'] =
         jsonEncode(questionBank);
 
@@ -159,12 +160,13 @@ void main() {
     final fixture = _fixture(content, attempt: staleAttempt);
     await fixture.service.synchronize();
 
+    final updatedVersion = _nextVersion(questionBank['version'] as String);
     final index = jsonDecode(content['content/index.json']!)
         as Map<String, dynamic>;
     ((index['files'] as Map<String, dynamic>)['questions']
-        as Map<String, dynamic>)['version'] = 'questions_002';
+        as Map<String, dynamic>)['version'] = updatedVersion;
     fixture.remote.values['content/index.json'] = jsonEncode(index);
-    questionBank['version'] = 'questions_002';
+    questionBank['version'] = updatedVersion;
     (questionBank['preguntas'] as List).removeWhere(
       (item) => (item as Map<String, dynamic>)['id'] == removableId,
     );
@@ -187,14 +189,15 @@ void main() {
     await fixture.service.synchronize();
     final previous = await fixture.cache.readRaw(ContentFileKind.questions);
 
-    final index = jsonDecode(content['content/index.json']!) as Map<String, dynamic>;
-    ((index['files'] as Map<String, dynamic>)['questions']
-        as Map<String, dynamic>)['version'] = 'questions_002';
-    fixture.remote.values['content/index.json'] = jsonEncode(index);
-
     final questions = jsonDecode(content['content/preguntas/banco_global.json']!)
         as Map<String, dynamic>;
-    questions['version'] = 'questions_002';
+    final updatedVersion = _nextVersion(questions['version'] as String);
+    final index = jsonDecode(content['content/index.json']!) as Map<String, dynamic>;
+    ((index['files'] as Map<String, dynamic>)['questions']
+        as Map<String, dynamic>)['version'] = updatedVersion;
+    fixture.remote.values['content/index.json'] = jsonEncode(index);
+
+    questions['version'] = updatedVersion;
     final challengeBank = jsonDecode(content['content/retos/retos_actuales.json']!)
         as Map<String, dynamic>;
     final challenge = (challengeBank['retos'] as List).first as Map<String, dynamic>;
@@ -210,6 +213,16 @@ void main() {
     expect(report.metadata.lastOutcome, ContentSyncOutcome.partial);
     expect(await fixture.cache.readRaw(ContentFileKind.questions), previous);
   });
+}
+
+String _nextVersion(String current) {
+  final match = RegExp(r'^(.*?)(\d+)$').firstMatch(current);
+  if (match == null) return '${current}_next';
+
+  final prefix = match.group(1)!;
+  final digits = match.group(2)!;
+  final next = int.parse(digits) + 1;
+  return '$prefix${next.toString().padLeft(digits.length, '0')}';
 }
 
 _SyncFixture _fixture(
