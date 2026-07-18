@@ -1,3 +1,19 @@
+# Changelog
+
+## 0.10.1 — 2026-07-17
+
+### Interfaz móvil corregida
+
+- La detección móvil ya no depende únicamente de un breakpoint de 600 px.
+- Se corrigen teléfonos Android/PWA que reportan un ancho lógico amplio y activaban composiciones de tableta.
+- Se fuerza el ancho útil completo en Inicio, Reto, Examen y Recursos.
+- Se incorpora una escala tipográfica móvil adaptativa sin reducir las preferencias de accesibilidad.
+- Inicio usa métricas 2×2 y accesos secundarios en una sola columna.
+- Se amplían tipografía, botones, iconos, navegación y áreas táctiles.
+- La hoja de configuración adopta altura según contenido y oculta las herramientas técnicas hasta que el usuario las despliega.
+- Las cards de recursos eliminan portadas genéricas vacías y priorizan título, descripción y acciones.
+- Preguntas y respuestas ocupan más ancho y tienen controles inferiores más amplios.
+
 # Historial de cambios
 
 ## 0.10.0 — 2026-07-17

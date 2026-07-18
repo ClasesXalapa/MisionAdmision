@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mision_admision/app/dependencies.dart';
+import 'package:mision_admision/app/responsive.dart';
 import 'package:mision_admision/domain/models/exam_kind.dart';
 import 'package:mision_admision/domain/models/resolution_resource.dart';
 import 'package:mision_admision/features/daily_challenge/application/daily_challenge_controller.dart';
@@ -125,10 +126,9 @@ class _DailyChallengeScreenState extends ConsumerState<DailyChallengeScreen> {
           title: const Text('Reto de hoy'),
         ),
         body: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 820),
-              child: switch (state.phase) {
+          child: fullWidthCentered(
+            maxWidth: 820,
+            child: switch (state.phase) {
                 DailyChallengePhase.loading => const ExamLoadingView(
                     message: 'Preparando el reto de hoy...',
                   ),
@@ -167,8 +167,7 @@ class _DailyChallengeScreenState extends ConsumerState<DailyChallengeScreen> {
                       onOpenResource: _openResolution,
                     ),
                   ),
-              },
-            ),
+            },
           ),
         ),
       ),

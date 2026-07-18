@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mision_admision/app/dependencies.dart';
+import 'package:mision_admision/app/responsive.dart';
 import 'package:mision_admision/features/exam/application/exam_controller.dart';
 import 'package:mision_admision/features/exam/application/exam_state.dart';
 import 'package:mision_admision/features/exam/presentation/widgets/exam_runner_widgets.dart';
@@ -94,10 +95,9 @@ class _ExamScreenState extends ConsumerState<ExamScreen> {
           title: const Text('Examen libre'),
         ),
         body: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 820),
-              child: switch (state.phase) {
+          child: fullWidthCentered(
+            maxWidth: 820,
+            child: switch (state.phase) {
                 ExamPhase.loading => const ExamLoadingView(),
                 ExamPhase.failure => ExamErrorView(
                     message:
@@ -120,8 +120,7 @@ class _ExamScreenState extends ConsumerState<ExamScreen> {
                     secondaryLabel: 'Volver al inicio',
                     onSecondary: () => context.go('/'),
                   ),
-              },
-            ),
+            },
           ),
         ),
       ),

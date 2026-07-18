@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mision_admision/app/dependencies.dart';
+import 'package:mision_admision/app/responsive.dart';
 import 'package:mision_admision/core/time/local_date.dart';
 import 'package:mision_admision/domain/models/learner_progress.dart';
 import 'package:mision_admision/domain/models/rank.dart';
@@ -20,43 +21,48 @@ class HomeScreen extends ConsumerWidget {
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: true,
-      builder: (context) {
-        final height = MediaQuery.sizeOf(context).height * 0.88;
-        return SizedBox(
-          height: height,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 12, 12),
-                child: Row(
+      builder: (sheetContext) {
+        final maxHeight = MediaQuery.sizeOf(sheetContext).height * 0.9;
+        return ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: maxHeight),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(22, 0, 22, 30),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
                     Expanded(
                       child: Text(
-                        'Configuración de la aplicación',
-                        style: Theme.of(context).textTheme.titleLarge,
+                        'Configuración',
+                        style: Theme.of(sheetContext).textTheme.headlineSmall,
                       ),
                     ),
                     IconButton(
                       tooltip: 'Cerrar',
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.of(sheetContext).pop(),
+                      icon: const Icon(Icons.close_rounded),
                     ),
                   ],
                 ),
-              ),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
-                  children: const [
-                    PwaStatusCard(),
-                    SizedBox(height: 14),
-                    NotificationReminderCard(),
-                    SizedBox(height: 14),
-                    ContentSyncCard(),
-                  ],
+                const SizedBox(height: 8),
+                Text(
+                  'Estado de instalación, recordatorios y contenido.',
+                  style: Theme.of(sheetContext).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(sheetContext)
+                            .colorScheme
+                            .onSurfaceVariant,
+                      ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                const PwaStatusCard(),
+                const SizedBox(height: 16),
+                const NotificationReminderCard(),
+                const SizedBox(height: 16),
+                const ContentSyncCard(),
+              ],
+            ),
           ),
         );
       },
@@ -69,8 +75,6 @@ class HomeScreen extends ConsumerWidget {
     final pendingAttempt = ref.watch(pendingDailyAttemptProvider);
     final ranks = ref.watch(rankCatalogProvider);
     final today = localDateKey(ref.read(appClockProvider).now());
-    final compact = MediaQuery.sizeOf(context).width < 600;
-    final horizontalPadding = compact ? 16.0 : 24.0;
     final currentAttempt = pendingAttempt.asData?.value;
     final hasPendingAttempt = currentAttempt?.dateKey == today;
     final completedToday = progress.asData?.value.lastCompletedDateKey == today;
@@ -80,82 +84,76 @@ class HomeScreen extends ConsumerWidget {
         title: const Text('Misión Admisión'),
         actions: [
           IconButton(
-            tooltip: 'Configuración de la aplicación',
+            tooltip: 'Configuración',
             onPressed: () => _openAppSettings(context),
             icon: const Icon(Icons.tune_rounded),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
         ],
       ),
       bottomNavigationBar: const AppBottomNavigation(selectedIndex: 0),
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 820),
-            child: RefreshIndicator(
-              onRefresh: () async {
-                ref
-                  ..invalidate(learnerProgressProvider)
-                  ..invalidate(pendingDailyAttemptProvider)
-                  ..invalidate(rankCatalogProvider);
-                await ref.read(learnerProgressProvider.future);
-              },
-              child: ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(
-                  horizontalPadding,
-                  compact ? 8 : 18,
-                  horizontalPadding,
-                  28,
-                ),
-                children: [
-                  const _WelcomeHeader(),
-                  const SizedBox(height: 22),
-                  progress.when(
-                    data: (value) {
-                      final rank = ranks.asData == null
-                          ? null
-                          : ref.read(rankEngineProvider).resolve(
-                                ranks: ranks.asData!.value,
-                                bestStreak: value.bestStreak,
-                              );
-                      return _ProgressSummary(
-                        progress: value,
-                        completedToday: value.lastCompletedDateKey == today,
-                        rank: rank,
-                        shieldUsedToday: value.lastShieldUsedDateKey == today &&
-                            value.lastShieldUseCount > 0,
-                      );
-                    },
-                    loading: () => const _ProgressLoading(),
-                    error: (error, stackTrace) => const _ProgressError(),
-                  ),
-                  const SizedBox(height: 18),
-                  _DailyChallengeCard(
-                    hasPendingAttempt: hasPendingAttempt,
-                    completedToday: completedToday,
-                    answeredQuestions:
-                        hasPendingAttempt ? currentAttempt!.answers.length : 0,
-                    totalQuestions:
-                        hasPendingAttempt ? currentAttempt!.questionIds.length : 10,
-                    onPressed: () => context.go('/daily'),
-                  ),
-                  const SizedBox(height: 18),
-                  Text(
-                    'Continúa tu preparación',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 12),
-                  _QuickActions(
-                    onResources: () => context.go('/resources'),
-                    onExam: () => context.go('/exam'),
-                  ),
-                  const SizedBox(height: 20),
-                  _SettingsShortcut(
-                    onPressed: () => _openAppSettings(context),
-                  ),
-                ],
+        child: fullWidthCentered(
+          maxWidth: 820,
+          child: RefreshIndicator(
+            onRefresh: () async {
+              ref
+                ..invalidate(learnerProgressProvider)
+                ..invalidate(pendingDailyAttemptProvider)
+                ..invalidate(rankCatalogProvider);
+              await ref.read(learnerProgressProvider.future);
+            },
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(
+                appHorizontalPadding(context),
+                14,
+                appHorizontalPadding(context),
+                34,
               ),
+              children: [
+                const _WelcomeHeader(),
+                const SizedBox(height: 26),
+                progress.when(
+                  data: (value) {
+                    final rank = ranks.asData == null
+                        ? null
+                        : ref.read(rankEngineProvider).resolve(
+                              ranks: ranks.asData!.value,
+                              bestStreak: value.bestStreak,
+                            );
+                    return _ProgressSummary(
+                      progress: value,
+                      completedToday: value.lastCompletedDateKey == today,
+                      rank: rank,
+                      shieldUsedToday: value.lastShieldUsedDateKey == today &&
+                          value.lastShieldUseCount > 0,
+                    );
+                  },
+                  loading: () => const _ProgressLoading(),
+                  error: (error, stackTrace) => const _ProgressError(),
+                ),
+                const SizedBox(height: 22),
+                _DailyChallengeCard(
+                  hasPendingAttempt: hasPendingAttempt,
+                  completedToday: completedToday,
+                  answeredQuestions:
+                      hasPendingAttempt ? currentAttempt!.answers.length : 0,
+                  totalQuestions:
+                      hasPendingAttempt ? currentAttempt!.questionIds.length : 10,
+                  onPressed: () => context.go('/daily'),
+                ),
+                const SizedBox(height: 28),
+                Text(
+                  'Sigue practicando',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 14),
+                _QuickActions(
+                  onResources: () => context.go('/resources'),
+                  onExam: () => context.go('/exam'),
+                ),
+              ],
             ),
           ),
         ),
@@ -180,9 +178,9 @@ class _WelcomeHeader extends StatelessWidget {
             style: Theme.of(context).textTheme.headlineLarge,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         Text(
-          'Practica, fortalece tu constancia y avanza hacia el EXANI-II.',
+          'Avanza un poco cada día hacia tu ingreso al EXANI-II.',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: colors.onSurfaceVariant,
               ),
@@ -210,26 +208,26 @@ class _ProgressSummary extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(22),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  width: 50,
-                  height: 50,
+                  width: 60,
+                  height: 60,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFE5C2),
-                    borderRadius: BorderRadius.circular(16),
+                    color: const Color(0xFFFFE8C9),
+                    borderRadius: BorderRadius.circular(19),
                   ),
                   child: const Icon(
                     Icons.local_fire_department_rounded,
-                    size: 30,
+                    size: 36,
                     color: Color(0xFFB64A00),
                   ),
                 ),
-                const SizedBox(width: 13),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,12 +237,12 @@ class _ProgressSummary extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       if (rank != null) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 5),
                         Text(
                           rank!.name,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                 color: colors.primary,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w800,
                               ),
                         ),
                       ],
@@ -254,53 +252,40 @@ class _ProgressSummary extends StatelessWidget {
                 if (completedToday)
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 7,
+                      horizontal: 13,
+                      vertical: 9,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE4F5E8),
+                      color: const Color(0xFFE3F5E8),
                       borderRadius: BorderRadius.circular(999),
                     ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.check_circle_rounded,
-                          size: 18,
-                          color: Color(0xFF18733C),
-                        ),
-                        SizedBox(width: 5),
-                        Text(
-                          'Hoy',
-                          style: TextStyle(
-                            color: Color(0xFF135D32),
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
+                    child: const Icon(
+                      Icons.check_circle_rounded,
+                      color: Color(0xFF18733C),
+                      size: 25,
                     ),
                   ),
               ],
             ),
             if (shieldUsedToday) ...[
-              const SizedBox(height: 14),
+              const SizedBox(height: 18),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: colors.secondaryContainer,
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(17),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.shield_rounded, size: 25),
-                    const SizedBox(width: 10),
+                    const Icon(Icons.shield_rounded, size: 29),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         progress.lastShieldUseCount == 1
                             ? 'Un escudo protegió tu racha.'
                             : '${progress.lastShieldUseCount} escudos protegieron tu racha.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               fontWeight: FontWeight.w700,
                             ),
                       ),
@@ -309,14 +294,17 @@ class _ProgressSummary extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             LayoutBuilder(
               builder: (context, constraints) {
-                const spacing = 10.0;
-                final columns = constraints.maxWidth >= 620 ? 4 : 2;
+                const spacing = 12.0;
+                final columns = isHandsetLayout(context)
+                    ? 2
+                    : constraints.maxWidth >= 900
+                        ? 4
+                        : 2;
                 final width =
-                    (constraints.maxWidth - (spacing * (columns - 1))) /
-                        columns;
+                    (constraints.maxWidth - spacing * (columns - 1)) / columns;
                 return Wrap(
                   spacing: spacing,
                   runSpacing: spacing,
@@ -335,7 +323,7 @@ class _ProgressSummary extends StatelessWidget {
                       label: 'Mejor racha',
                       value: '${progress.bestStreak}',
                       background: const Color(0xFFFFF6D8),
-                      foreground: const Color(0xFF8B6500),
+                      foreground: const Color(0xFF806000),
                     ),
                     _Metric(
                       width: width,
@@ -348,7 +336,7 @@ class _ProgressSummary extends StatelessWidget {
                     _Metric(
                       width: width,
                       icon: Icons.task_alt_rounded,
-                      label: 'Retos hechos',
+                      label: 'Retos completados',
                       value: '${progress.totalDailyChallengesCompleted}',
                       background: const Color(0xFFE4F5E8),
                       foreground: const Color(0xFF18733C),
@@ -358,10 +346,10 @@ class _ProgressSummary extends StatelessWidget {
               },
             ),
             if (rank != null) ...[
-              const SizedBox(height: 14),
+              const SizedBox(height: 18),
               Text(
                 rank!.description,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: colors.onSurfaceVariant,
                     ),
               ),
@@ -397,38 +385,37 @@ class _Metric extends StatelessWidget {
       child: ExcludeSemantics(
         child: SizedBox(
           width: width,
+          height: 132,
           child: Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(17),
             decoration: BoxDecoration(
               color: background,
-              borderRadius: BorderRadius.circular(17),
+              borderRadius: BorderRadius.circular(19),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, size: 27, color: foreground),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        value,
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              color: foreground,
-                              fontWeight: FontWeight.w900,
-                            ),
+                Row(
+                  children: [
+                    Icon(icon, size: 31, color: foreground),
+                    const Spacer(),
+                    Text(
+                      value,
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            color: foreground,
+                            fontWeight: FontWeight.w900,
+                          ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Text(
+                  label,
+                  maxLines: 2,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: foreground,
+                        fontWeight: FontWeight.w800,
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        label,
-                        maxLines: 2,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: foreground,
-                              fontWeight: FontWeight.w700,
-                            ),
-                      ),
-                    ],
-                  ),
                 ),
               ],
             ),
@@ -446,7 +433,7 @@ class _ProgressLoading extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Card(
       child: Padding(
-        padding: EdgeInsets.all(28),
+        padding: EdgeInsets.all(34),
         child: Center(child: CircularProgressIndicator()),
       ),
     );
@@ -460,7 +447,7 @@ class _ProgressError extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Card(
       child: Padding(
-        padding: EdgeInsets.all(22),
+        padding: EdgeInsets.all(24),
         child: Text('No fue posible leer el progreso local.'),
       ),
     );
@@ -486,75 +473,75 @@ class _DailyChallengeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final label = hasPendingAttempt
-        ? 'Continuar reto · $answeredQuestions/$totalQuestions'
+        ? 'Continuar reto · $answeredQuestions de $totalQuestions'
         : completedToday
             ? 'Practicar otra vez'
-            : 'Hacer reto de hoy';
+            : 'Comenzar reto de hoy';
 
     return Card(
       color: colors.primary,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(26),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(25),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  width: 54,
-                  height: 54,
+                  width: 62,
+                  height: 62,
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.16),
-                    borderRadius: BorderRadius.circular(17),
+                    borderRadius: BorderRadius.circular(19),
                   ),
                   child: const Icon(
                     Icons.local_fire_department_rounded,
-                    size: 32,
+                    size: 38,
                     color: Colors.white,
                   ),
                 ),
                 const Spacer(),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 11,
-                    vertical: 7,
+                    horizontal: 14,
+                    vertical: 10,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
-                    completedToday ? 'Completado' : '10 preguntas',
+                    completedToday ? 'Completado hoy' : '10 preguntas',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
                           color: Colors.white,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
                         ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 24),
             Text(
-              hasPendingAttempt ? 'Tu reto te está esperando' : 'Reto diario',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              hasPendingAttempt ? 'Continúa donde te quedaste' : 'Reto diario',
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     color: Colors.white,
                   ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
               hasPendingAttempt
-                  ? 'Tu avance está guardado. Continúa antes de que termine el día.'
+                  ? 'Tu avance está guardado. Termina antes de que concluya el día.'
                   : completedToday
-                      ? 'Ya protegiste tu racha de hoy. Puedes repetirlo para practicar.'
-                      : 'Responde 10 preguntas y protege tu racha. La calificación no afecta tu avance diario.',
+                      ? 'Tu racha ya está protegida. Puedes repetir el reto para seguir practicando.'
+                      : 'Responde 10 preguntas y protege tu racha diaria.',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.9),
+                    color: Colors.white.withValues(alpha: 0.92),
                   ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
@@ -562,9 +549,13 @@ class _DailyChallengeCard extends StatelessWidget {
                 style: FilledButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: colors.primary,
+                  minimumSize: const Size.fromHeight(68),
                 ),
                 icon: Icon(
-                  hasPendingAttempt ? Icons.play_circle_fill : Icons.play_arrow,
+                  hasPendingAttempt
+                      ? Icons.play_circle_fill_rounded
+                      : Icons.play_arrow_rounded,
+                  size: 29,
                 ),
                 label: Text(label),
               ),
@@ -587,37 +578,39 @@ class _QuickActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const spacing = 12.0;
-        final width = (constraints.maxWidth - spacing) / 2;
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: width,
-              child: _QuickActionTile(
-                icon: Icons.library_books_rounded,
-                title: 'Recursos',
-                description: 'Videos, guías y simulacros.',
-                actionLabel: 'Explorar recursos',
-                onPressed: onResources,
-              ),
-            ),
-            const SizedBox(width: spacing),
-            SizedBox(
-              width: width,
-              child: _QuickActionTile(
-                icon: Icons.quiz_rounded,
-                title: 'Examen libre',
-                description: '10 preguntas para practicar.',
-                actionLabel: 'Iniciar examen',
-                onPressed: onExam,
-              ),
-            ),
-          ],
-        );
-      },
+    final cards = [
+      _QuickActionTile(
+        icon: Icons.library_books_rounded,
+        title: 'Biblioteca de recursos',
+        description: 'Videos, guías y simulacros organizados por tema.',
+        actionLabel: 'Explorar recursos',
+        onPressed: onResources,
+      ),
+      _QuickActionTile(
+        icon: Icons.quiz_rounded,
+        title: 'Examen libre',
+        description: 'Practica con 10 preguntas sin afectar tu racha.',
+        actionLabel: 'Iniciar examen',
+        onPressed: onExam,
+      ),
+    ];
+
+    if (isHandsetLayout(context)) {
+      return Column(
+        children: [
+          cards[0],
+          const SizedBox(height: 14),
+          cards[1],
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(child: cards[0]),
+        const SizedBox(width: 14),
+        Expanded(child: cards[1]),
+      ],
     );
   }
 }
@@ -645,88 +638,47 @@ class _QuickActionTile extends StatelessWidget {
       child: InkWell(
         onTap: onPressed,
         child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: colors.primaryContainer,
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Icon(icon, color: colors.primary, size: 28),
-              ),
-              const SizedBox(height: 14),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                description,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-              ),
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      actionLabel,
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: colors.primary,
-                            fontWeight: FontWeight.w800,
-                          ),
-                    ),
-                  ),
-                  Icon(Icons.arrow_forward_rounded, color: colors.primary),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SettingsShortcut extends StatelessWidget {
-  const _SettingsShortcut({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Material(
-      color: colors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(color: Color(0xFFDDE2EE)),
-      ),
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(18),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.all(20),
           child: Row(
             children: [
-              Icon(Icons.verified_user_outlined, color: colors.primary),
-              const SizedBox(width: 12),
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: colors.primaryContainer,
+                  borderRadius: BorderRadius.circular(19),
+                ),
+                child: Icon(icon, color: colors.primary, size: 35),
+              ),
+              const SizedBox(width: 17),
               Expanded(
-                child: Text(
-                  'Aplicación lista · revisa notificaciones y contenido',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: 6),
+                    Text(
+                      description,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      actionLabel,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: colors.primary,
+                          ),
+                    ),
+                  ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded),
+              const SizedBox(width: 8),
+              Icon(
+                Icons.arrow_forward_rounded,
+                color: colors.primary,
+                size: 31,
+              ),
             ],
           ),
         ),

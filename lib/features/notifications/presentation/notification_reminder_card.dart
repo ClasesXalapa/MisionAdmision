@@ -16,6 +16,7 @@ class NotificationReminderCard extends ConsumerStatefulWidget {
 class _NotificationReminderCardState
     extends ConsumerState<NotificationReminderCard> {
   late final NotificationController _controller;
+  bool _showTechnicalTools = false;
 
   @override
   void initState() {
@@ -183,29 +184,50 @@ class _NotificationReminderCardState
             if (status.configured && status.supported) ...[
               const SizedBox(height: 16),
               if (status.enabled)
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     OutlinedButton.icon(
-                      onPressed: _controller.busy ? null : _test,
-                      icon: const Icon(Icons.notifications_active_outlined),
-                      label: const Text('Probar'),
+                      onPressed: _controller.busy
+                          ? null
+                          : () => setState(
+                                () => _showTechnicalTools =
+                                    !_showTechnicalTools,
+                              ),
+                      icon: Icon(
+                        _showTechnicalTools
+                            ? Icons.expand_less_rounded
+                            : Icons.build_outlined,
+                      ),
+                      label: const Text('Herramientas técnicas'),
                     ),
-                    OutlinedButton.icon(
-                      onPressed:
-                          _controller.busy ? null : _refreshRegistration,
-                      icon: const Icon(Icons.build_outlined),
-                      label: const Text('Reparar notificaciones'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: _controller.busy ? null : _copyTestingId,
-                      icon: const Icon(Icons.copy_outlined),
-                      label: const Text('Copiar ID de prueba'),
-                    ),
+                    if (_showTechnicalTools) ...[
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed: _controller.busy ? null : _test,
+                        icon: const Icon(
+                          Icons.notifications_active_outlined,
+                        ),
+                        label: const Text('Enviar prueba local'),
+                      ),
+                      const SizedBox(height: 10),
+                      OutlinedButton.icon(
+                        onPressed:
+                            _controller.busy ? null : _refreshRegistration,
+                        icon: const Icon(Icons.build_outlined),
+                        label: const Text('Reparar notificaciones'),
+                      ),
+                      const SizedBox(height: 10),
+                      OutlinedButton.icon(
+                        onPressed: _controller.busy ? null : _copyTestingId,
+                        icon: const Icon(Icons.copy_outlined),
+                        label: const Text('Copiar ID de prueba'),
+                      ),
+                    ],
+                    const SizedBox(height: 4),
                     TextButton(
                       onPressed: _controller.busy ? null : _disable,
-                      child: const Text('Desactivar'),
+                      child: const Text('Desactivar notificaciones'),
                     ),
                   ],
                 )

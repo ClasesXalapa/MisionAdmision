@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mision_admision/app/dependencies.dart';
+import 'package:mision_admision/app/responsive.dart';
 import 'package:mision_admision/domain/models/resource_card.dart';
 import 'package:mision_admision/domain/models/resource_type.dart';
 import 'package:mision_admision/features/navigation/presentation/app_bottom_navigation.dart';
@@ -69,10 +70,9 @@ class _ResourcesScreenState extends ConsumerState<ResourcesScreen> {
       appBar: AppBar(title: const Text('Recursos')),
       bottomNavigationBar: const AppBottomNavigation(selectedIndex: 2),
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 960),
-            child: switch (state.phase) {
+        child: fullWidthCentered(
+          maxWidth: 960,
+          child: switch (state.phase) {
               ResourcePhase.loading => const Center(
                   child: CircularProgressIndicator(),
                 ),
@@ -91,8 +91,7 @@ class _ResourcesScreenState extends ConsumerState<ResourcesScreen> {
                   onOpen: _open,
                   onToggleCompleted: _controller.toggleCompleted,
                 ),
-            },
-          ),
+          },
         ),
       ),
     );
@@ -135,14 +134,13 @@ class _ResourceContent extends StatelessWidget {
       ].join(' ').toLowerCase();
       return searchable.contains(normalizedQuery);
     }).toList(growable: false);
-    final compact = MediaQuery.sizeOf(context).width < 600;
-    final horizontalPadding = compact ? 16.0 : 24.0;
+    final horizontalPadding = appHorizontalPadding(context);
 
     return ListView(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: EdgeInsets.fromLTRB(
         horizontalPadding,
-        compact ? 8 : 18,
+        14,
         horizontalPadding,
         28,
       ),
@@ -345,30 +343,33 @@ class _ResourceTile extends StatelessWidget {
                 errorBuilder: (context, error, stackTrace) =>
                     _ResourceCover(type: resource.type),
               ),
-            )
-          else
-            _ResourceCover(type: resource.type),
+            ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(18, 17, 18, 16),
+            padding: const EdgeInsets.all(22),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    _ResourceTypeIcon(type: resource.type),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             resource.type.label.toUpperCase(),
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(
                                   color: colors.primary,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 0.5,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0.6,
                                 ),
                           ),
-                          const SizedBox(height: 5),
+                          const SizedBox(height: 6),
                           Text(
                             resource.title,
                             style: Theme.of(context).textTheme.titleLarge,
@@ -380,44 +381,43 @@ class _ResourceTile extends StatelessWidget {
                     _StatusBadge(completed: completed, viewed: viewed),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 Text(
                   resource.description,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: colors.onSurfaceVariant,
                       ),
                 ),
                 if (resource.tags.isNotEmpty) ...[
-                  const SizedBox(height: 13),
+                  const SizedBox(height: 16),
                   Wrap(
-                    spacing: 7,
-                    runSpacing: 7,
+                    spacing: 8,
+                    runSpacing: 8,
                     children: resource.tags
-                        .take(4)
+                        .take(3)
                         .map(
                           (tag) => Chip(
-                            visualDensity: VisualDensity.compact,
                             label: Text(_readableTag(tag)),
                           ),
                         )
                         .toList(),
                   ),
                 ],
-                const SizedBox(height: 17),
+                const SizedBox(height: 22),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
                     onPressed: onOpen,
-                    icon: const Icon(Icons.open_in_new_rounded),
+                    icon: const Icon(Icons.open_in_new_rounded, size: 25),
                     label: const Text('Abrir recurso'),
                   ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
-                  child: TextButton.icon(
+                  child: OutlinedButton.icon(
                     onPressed: onToggleCompleted,
                     icon: Icon(
                       completed
@@ -426,7 +426,7 @@ class _ResourceTile extends StatelessWidget {
                     ),
                     label: Text(
                       completed
-                          ? 'Completado · marcar pendiente'
+                          ? 'Recurso completado'
                           : 'Marcar como completado',
                     ),
                   ),
@@ -436,6 +436,26 @@ class _ResourceTile extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ResourceTypeIcon extends StatelessWidget {
+  const _ResourceTypeIcon({required this.type});
+
+  final ResourceType type;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      width: 62,
+      height: 62,
+      decoration: BoxDecoration(
+        color: colors.primaryContainer,
+        borderRadius: BorderRadius.circular(19),
+      ),
+      child: Icon(_iconFor(type), size: 34, color: colors.primary),
     );
   }
 }

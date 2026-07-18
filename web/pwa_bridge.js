@@ -8,7 +8,7 @@
   let errorMessage = '';
   let reloadWhenControlled = false;
 
-  const SERVICE_WORKER_RELEASE = '22';
+  const SERVICE_WORKER_RELEASE = '23';
 
   const standaloneQuery = window.matchMedia('(display-mode: standalone)');
   const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) ||

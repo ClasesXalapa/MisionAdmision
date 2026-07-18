@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mision_admision/app/responsive.dart';
 import 'package:mision_admision/domain/models/answer_option.dart';
 import 'package:mision_admision/domain/models/exam.dart';
 import 'package:mision_admision/domain/models/exam_result.dart';
@@ -119,8 +120,8 @@ class ExamQuestionView extends StatelessWidget {
     final isFirst = currentIndex == 0;
     final isLast = currentIndex == exam.questions.length - 1;
     final allAnswered = answers.length == exam.questions.length;
-    final compact = MediaQuery.sizeOf(context).width < 600;
-    final horizontalPadding = compact ? 16.0 : 24.0;
+    final compact = isHandsetLayout(context);
+    final horizontalPadding = appHorizontalPadding(context);
 
     return Stack(
       children: [
@@ -128,7 +129,7 @@ class ExamQuestionView extends StatelessWidget {
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.fromLTRB(
             horizontalPadding,
-            8,
+            14,
             horizontalPadding,
             isLast && !allAnswered ? 150 : 126,
           ),
@@ -145,12 +146,12 @@ class ExamQuestionView extends StatelessWidget {
             const SizedBox(height: 16),
             Card(
               child: Padding(
-                padding: EdgeInsets.all(compact ? 18 : 24),
+                padding: EdgeInsets.all(compact ? 22 : 26),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _QuestionMetadata(question: question),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     Text(
                       question.statement,
                       style:
@@ -172,7 +173,7 @@ class ExamQuestionView extends StatelessWidget {
                         ),
                       ),
                     ],
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 26),
                     for (final option in AnswerOption.values) ...[
                       _AnswerTile(
                         option: option,
@@ -279,7 +280,7 @@ class _QuestionActionBar extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          padding: const EdgeInsets.fromLTRB(22, 14, 22, 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -311,8 +312,8 @@ class _QuestionActionBar extends StatelessWidget {
                   return Row(
                     children: [
                       Expanded(flex: 4, child: previousButton),
-                      const SizedBox(width: 11),
-                      Expanded(flex: 6, child: nextButton),
+                      const SizedBox(width: 16),
+                      Expanded(flex: 7, child: nextButton),
                     ],
                   );
                 },
@@ -548,16 +549,16 @@ class _AnswerTile extends StatelessWidget {
             onTap: onTap,
             borderRadius: BorderRadius.circular(17),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 66),
+              constraints: const BoxConstraints(minHeight: 82),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 14,
+                  horizontal: 18,
+                  vertical: 17,
                 ),
                 child: Row(
                   children: [
                     CircleAvatar(
-                      radius: 21,
+                      radius: 24,
                       backgroundColor:
                           selected ? colors.primary : colors.surfaceContainerHighest,
                       foregroundColor:
@@ -565,7 +566,7 @@ class _AnswerTile extends StatelessWidget {
                       child: Text(
                         option.label,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 18,
                           fontWeight: FontWeight.w800,
                         ),
                       ),

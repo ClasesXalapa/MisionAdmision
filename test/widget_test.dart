@@ -37,11 +37,11 @@ void main() {
     final scrollable = find.byType(Scrollable).first;
 
     await tester.scrollUntilVisible(
-      find.text('Hacer reto de hoy'),
+      find.text('Comenzar reto de hoy'),
       300,
       scrollable: scrollable,
     );
-    expect(find.text('Hacer reto de hoy'), findsOneWidget);
+    expect(find.text('Comenzar reto de hoy'), findsOneWidget);
 
     await tester.scrollUntilVisible(
       find.text('Iniciar examen'),
