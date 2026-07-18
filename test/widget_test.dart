@@ -54,6 +54,9 @@ void main() {
     expect(find.text('Iniciar examen'), findsNothing);
 
     final scrollable = find.byType(Scrollable).first;
+    final scrollPosition = tester.state<ScrollableState>(scrollable).position;
+    expect(scrollPosition.maxScrollExtent, greaterThan(0));
+
     await tester.scrollUntilVisible(
       find.byKey(const Key('home_exam_action')),
       350,
@@ -78,8 +81,8 @@ void main() {
     final scaffoldWidth = tester.getSize(find.byType(Scaffold).first).width;
     expect(resourcesSize.width, greaterThan(scaffoldWidth - 36));
     expect(examSize.width, greaterThan(scaffoldWidth - 36));
-    expect(resourcesSize.height, greaterThanOrEqualTo(188));
-    expect(examSize.height, greaterThanOrEqualTo(188));
+    expect(resourcesSize.height, greaterThanOrEqualTo(236));
+    expect(examSize.height, greaterThanOrEqualTo(236));
 
     // El escalado móvil no debe producir desbordamientos ni otras excepciones
     // de renderizado en la barra inferior o en las cards de Inicio.

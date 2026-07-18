@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.10.8+34 — 2026-07-18
+
+- La pantalla de Inicio deja de intentar concentrar todo el contenido en una sola vista y adopta desplazamiento vertical como comportamiento normal.
+- Se amplían la cabecera, la tarjeta de progreso, la racha principal, el reto diario, Biblioteca de recursos y Examen libre.
+- Mejor racha, escudos y retos completados pasan de tres columnas comprimidas a tres filas completas y legibles.
+- Las cards de Biblioteca y Examen aumentan a una altura mínima de 236 px, con iconos, títulos, descripciones y flechas mayores.
+- La barra inferior aumenta su altura, iconos y etiquetas para mejorar el uso táctil en celulares.
+- La prueba de Inicio verifica que exista desplazamiento vertical, que las acciones mantengan ancho completo y que no haya desbordamientos.
+
 ## 0.10.7+33 — 2026-07-18
 
 ### Hotfix de versiones de prueba para sincronización

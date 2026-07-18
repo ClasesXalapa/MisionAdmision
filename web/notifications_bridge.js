@@ -5,7 +5,7 @@
   const ENABLED_KEY = 'mision_admision.notifications_enabled.v1';
   const REGISTERED_AT_KEY = 'mision_admision.fcm_registered_at.v1';
   const REGISTRATION_KIND = 'fid';
-  const SERVICE_WORKER_RELEASE = '33';
+  const SERVICE_WORKER_RELEASE = '34';
 
   let firebaseApp = null;
   let messaging = null;
