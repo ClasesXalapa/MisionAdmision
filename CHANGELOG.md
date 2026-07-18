@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.10.2+25 — 2026-07-17
+
+- Rediseñada únicamente la pantalla de Inicio para aprovechar casi todo el ancho del celular.
+- Reducidos los márgenes laterales de Inicio a 8 px lógicos.
+- Aumentados títulos, descripciones, métricas, botones e iconos de Inicio.
+- Biblioteca de recursos y Examen libre ahora siempre ocupan una fila completa cada uno.
+- Sustituida la barra inferior Material 3 por una navegación móvil personalizada con iconos y etiquetas más grandes.
+- Añadida una prueba de widget que verifica que las dos acciones rápidas estén apiladas y ocupen todo el ancho en un viewport móvil de 720 px.
+
 ## 0.10.1+24 — 2026-07-17
 
 - Corrige la prueba de la pantalla inicial con un viewport móvil determinista.

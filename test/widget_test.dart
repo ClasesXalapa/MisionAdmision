@@ -32,7 +32,7 @@ void main() {
 
     expect(find.text('Misión Admisión'), findsOneWidget);
     expect(find.text('Tu misión de hoy'), findsOneWidget);
-    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byKey(const Key('app_bottom_navigation')), findsOneWidget);
     expect(find.text('Inicio'), findsOneWidget);
     expect(find.text('Reto'), findsOneWidget);
     expect(find.text('Recursos'), findsWidgets);
@@ -53,8 +53,23 @@ void main() {
       scrollable: scrollable,
     );
 
-    expect(find.byKey(const Key('home_resources_action')), findsOneWidget);
-    expect(find.byKey(const Key('home_exam_action')), findsOneWidget);
+    final resourcesFinder = find.byKey(const Key('home_resources_action'));
+    final examFinder = find.byKey(const Key('home_exam_action'));
+
+    expect(resourcesFinder, findsOneWidget);
+    expect(examFinder, findsOneWidget);
+
+    // En Inicio ambas acciones deben ocupar una fila completa y estar
+    // apiladas, incluso cuando el navegador móvil reporta 720 px de ancho.
+    final resourcesTopLeft = tester.getTopLeft(resourcesFinder);
+    final examTopLeft = tester.getTopLeft(examFinder);
+    final resourcesSize = tester.getSize(resourcesFinder);
+    final examSize = tester.getSize(examFinder);
+
+    expect(examTopLeft.dy, greaterThan(resourcesTopLeft.dy));
+    expect((examTopLeft.dx - resourcesTopLeft.dx).abs(), lessThan(1));
+    expect(resourcesSize.width, greaterThan(690));
+    expect(examSize.width, greaterThan(690));
   });
 }
 
