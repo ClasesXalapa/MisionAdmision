@@ -61,6 +61,36 @@ class _DailyChallengeScreenState extends ConsumerState<DailyChallengeScreen> {
       ..invalidate(pendingDailyAttemptProvider);
   }
 
+  Future<void> _requestExit() async {
+    final state = _controller.state;
+    if (state.phase != DailyChallengePhase.ready) {
+      if (mounted) context.go('/');
+      return;
+    }
+
+    final leave = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('¿Salir del reto?'),
+        content: const Text(
+          'Tu progreso está guardado en este dispositivo y podrás continuar hoy.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Seguir respondiendo'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Salir por ahora'),
+          ),
+        ],
+      ),
+    );
+
+    if (leave == true && mounted) context.go('/');
+  }
+
   Future<void> _openResolution(ResolutionResource resource) async {
     final opened = await launchUrl(
       resource.url,
@@ -78,58 +108,67 @@ class _DailyChallengeScreenState extends ConsumerState<DailyChallengeScreen> {
   Widget build(BuildContext context) {
     final state = _controller.state;
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          tooltip: 'Volver al inicio',
-          onPressed: () => context.go('/'),
-          icon: const Icon(Icons.arrow_back),
+    return PopScope<void>(
+      canPop: state.phase != DailyChallengePhase.ready,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (!didPop && state.phase == DailyChallengePhase.ready) {
+          await _requestExit();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            tooltip: 'Volver al inicio',
+            onPressed: _requestExit,
+            icon: const Icon(Icons.arrow_back),
+          ),
+          title: const Text('Reto de hoy'),
         ),
-        title: Text(state.exam?.title ?? 'Reto diario'),
-      ),
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 820),
-            child: switch (state.phase) {
-              DailyChallengePhase.loading => const ExamLoadingView(
-                  message: 'Preparando el reto de hoy...',
-                ),
-              DailyChallengePhase.failure => ExamErrorView(
-                  message: state.errorMessage ?? 'Ocurrió un error inesperado.',
-                  onRetry: _controller.start,
-                ),
-              DailyChallengePhase.ready => ExamQuestionView(
-                  exam: state.exam!,
-                  currentIndex: state.currentIndex,
-                  answers: state.answers,
-                  onAnswer: _controller.selectAnswer,
-                  onPrevious: _controller.previous,
-                  onNext: _controller.next,
-                  onFinish: _finish,
-                  banner: _ChallengeBanner(
-                    kind: state.exam!.kind,
-                    wasResumed: state.wasResumed,
+        body: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 820),
+              child: switch (state.phase) {
+                DailyChallengePhase.loading => const ExamLoadingView(
+                    message: 'Preparando el reto de hoy...',
                   ),
-                ),
-              DailyChallengePhase.finished => ExamResultView(
-                  result: state.result!,
-                  title: 'Reto completado',
-                  message: _resultMessage(state),
-                  primaryLabel: 'Volver al inicio',
-                  onPrimary: () => context.go('/'),
-                  secondaryLabel: 'Repetir reto',
-                  onSecondary: _controller.start,
-                  extraContent: _DailyResultExtra(
-                    currentStreak: state.progress.currentStreak,
-                    bestStreak: state.progress.bestStreak,
-                    shields: state.progress.shields,
-                    shieldEarned: state.shieldEarned,
-                    resource: state.exam!.resolutionResource,
-                    onOpenResource: _openResolution,
+                DailyChallengePhase.failure => ExamErrorView(
+                    message:
+                        state.errorMessage ?? 'Ocurrió un error inesperado.',
+                    onRetry: _controller.start,
                   ),
-                ),
-            },
+                DailyChallengePhase.ready => ExamQuestionView(
+                    exam: state.exam!,
+                    currentIndex: state.currentIndex,
+                    answers: state.answers,
+                    onAnswer: _controller.selectAnswer,
+                    onPrevious: _controller.previous,
+                    onNext: _controller.next,
+                    onFinish: _finish,
+                    banner: _ChallengeBanner(
+                      kind: state.exam!.kind,
+                      wasResumed: state.wasResumed,
+                    ),
+                  ),
+                DailyChallengePhase.finished => ExamResultView(
+                    result: state.result!,
+                    title: 'Reto completado',
+                    message: _resultMessage(state),
+                    primaryLabel: 'Volver al inicio',
+                    onPrimary: () => context.go('/'),
+                    secondaryLabel: 'Repetir reto',
+                    onSecondary: _controller.start,
+                    extraContent: _DailyResultExtra(
+                      currentStreak: state.progress.currentStreak,
+                      bestStreak: state.progress.bestStreak,
+                      shields: state.progress.shields,
+                      shieldEarned: state.shieldEarned,
+                      resource: state.exam!.resolutionResource,
+                      onOpenResource: _openResolution,
+                    ),
+                  ),
+              },
+            ),
           ),
         ),
       ),
@@ -160,20 +199,27 @@ class _ChallengeBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final automatic = kind == ExamKind.dailyAutomatic;
     final text = wasResumed
-        ? 'Continuaste el intento guardado en este dispositivo.'
+        ? 'Retomaste tu avance guardado. Continúa donde te quedaste.'
         : automatic
-            ? 'Hoy no hay un reto programado: preparamos 10 preguntas estables para ti.'
-            : 'Reto programado para hoy. Completarlo cuenta para tu racha.';
+            ? 'Preparamos 10 preguntas para tu práctica diaria.'
+            : 'Completa las 10 preguntas para proteger tu racha de hoy.';
 
     return Card(
+      color: Theme.of(context)
+          .colorScheme
+          .primaryContainer
+          .withValues(alpha: 0.45),
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(15),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(
-              wasResumed ? Icons.restore : Icons.local_fire_department_outlined,
+              wasResumed
+                  ? Icons.restore_rounded
+                  : Icons.local_fire_department_outlined,
               color: Theme.of(context).colorScheme.primary,
+              size: 26,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -212,20 +258,20 @@ class _DailyResultExtra extends StatelessWidget {
       children: [
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(17),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(17),
           ),
           child: Column(
             children: [
               Row(
                 children: [
-                  const Icon(Icons.local_fire_department),
-                  const SizedBox(width: 12),
+                  const Icon(Icons.local_fire_department_rounded),
+                  const SizedBox(width: 11),
                   Expanded(
                     child: Text(
-                      'Racha actual: $currentStreak días · Mejor racha: $bestStreak días',
+                      'Racha actual: $currentStreak días · Mejor: $bestStreak días',
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),
@@ -234,12 +280,12 @@ class _DailyResultExtra extends StatelessWidget {
               const SizedBox(height: 10),
               Row(
                 children: [
-                  const Icon(Icons.shield_outlined),
-                  const SizedBox(width: 12),
+                  const Icon(Icons.shield_rounded),
+                  const SizedBox(width: 11),
                   Expanded(
                     child: Text(
                       shieldEarned
-                          ? 'Nuevo escudo obtenido · Total: $shields de 3'
+                          ? 'Ganaste un escudo · Total: $shields de 3'
                           : 'Escudos disponibles: $shields de 3',
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
@@ -255,7 +301,7 @@ class _DailyResultExtra extends StatelessWidget {
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () => onOpenResource(resource!),
-              icon: const Icon(Icons.open_in_new),
+              icon: const Icon(Icons.open_in_new_rounded),
               label: Text(resource!.title),
             ),
           ),

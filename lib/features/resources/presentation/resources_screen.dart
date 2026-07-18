@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mision_admision/app/dependencies.dart';
 import 'package:mision_admision/domain/models/resource_card.dart';
 import 'package:mision_admision/domain/models/resource_type.dart';
+import 'package:mision_admision/features/navigation/presentation/app_bottom_navigation.dart';
 import 'package:mision_admision/features/resources/application/resource_controller.dart';
 import 'package:mision_admision/features/resources/application/resource_state.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -17,6 +17,8 @@ class ResourcesScreen extends ConsumerStatefulWidget {
 
 class _ResourcesScreenState extends ConsumerState<ResourcesScreen> {
   late final ResourceController _controller;
+  final TextEditingController _searchController = TextEditingController();
+  String _query = '';
 
   @override
   void initState() {
@@ -30,6 +32,7 @@ class _ResourcesScreenState extends ConsumerState<ResourcesScreen> {
 
   @override
   void dispose() {
+    _searchController.dispose();
     _controller
       ..removeListener(_refresh)
       ..dispose();
@@ -54,18 +57,17 @@ class _ResourcesScreenState extends ConsumerState<ResourcesScreen> {
     }
   }
 
+  void _clearSearch() {
+    _searchController.clear();
+    setState(() => _query = '');
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = _controller.state;
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          tooltip: 'Volver al inicio',
-          onPressed: () => context.go('/'),
-          icon: const Icon(Icons.arrow_back),
-        ),
-        title: const Text('Recursos'),
-      ),
+      appBar: AppBar(title: const Text('Recursos')),
+      bottomNavigationBar: const AppBottomNavigation(selectedIndex: 2),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -80,6 +82,10 @@ class _ResourcesScreenState extends ConsumerState<ResourcesScreen> {
                 ),
               ResourcePhase.ready => _ResourceContent(
                   state: state,
+                  query: _query,
+                  searchController: _searchController,
+                  onSearchChanged: (value) => setState(() => _query = value),
+                  onClearSearch: _clearSearch,
                   onTypeSelected: _controller.selectType,
                   onTagSelected: _controller.selectTag,
                   onOpen: _open,
@@ -96,6 +102,10 @@ class _ResourcesScreenState extends ConsumerState<ResourcesScreen> {
 class _ResourceContent extends StatelessWidget {
   const _ResourceContent({
     required this.state,
+    required this.query,
+    required this.searchController,
+    required this.onSearchChanged,
+    required this.onClearSearch,
     required this.onTypeSelected,
     required this.onTagSelected,
     required this.onOpen,
@@ -103,6 +113,10 @@ class _ResourceContent extends StatelessWidget {
   });
 
   final ResourceState state;
+  final String query;
+  final TextEditingController searchController;
+  final ValueChanged<String> onSearchChanged;
+  final VoidCallback onClearSearch;
   final ValueChanged<ResourceType?> onTypeSelected;
   final ValueChanged<String?> onTagSelected;
   final ValueChanged<ResourceCard> onOpen;
@@ -110,47 +124,79 @@ class _ResourceContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resources = state.filteredResources;
+    final normalizedQuery = query.trim().toLowerCase();
+    final resources = state.filteredResources.where((resource) {
+      if (normalizedQuery.isEmpty) return true;
+      final searchable = [
+        resource.title,
+        resource.description,
+        resource.type.label,
+        ...resource.tags,
+      ].join(' ').toLowerCase();
+      return searchable.contains(normalizedQuery);
+    }).toList(growable: false);
     final compact = MediaQuery.sizeOf(context).width < 600;
     final horizontalPadding = compact ? 16.0 : 24.0;
 
     return ListView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: EdgeInsets.fromLTRB(
         horizontalPadding,
-        compact ? 12 : 20,
+        compact ? 8 : 18,
         horizontalPadding,
-        32,
+        28,
       ),
       children: [
         Text(
           'Biblioteca de estudio',
           style: Theme.of(context).textTheme.headlineLarge,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Text(
-          'Filtra el contenido, abre el recurso original y marca lo que ya terminaste.',
+          'Encuentra el recurso correcto para reforzar cada tema.',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
-        const SizedBox(height: 22),
+        const SizedBox(height: 18),
         _Filters(
           state: state,
+          searchController: searchController,
+          hasSearch: normalizedQuery.isNotEmpty,
+          onSearchChanged: onSearchChanged,
+          onClearSearch: onClearSearch,
           onTypeSelected: onTypeSelected,
           onTagSelected: onTagSelected,
         ),
-        const SizedBox(height: 22),
-        Text(
-          '${resources.length} ${resources.length == 1 ? 'recurso' : 'recursos'}',
-          style: Theme.of(context).textTheme.titleLarge,
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                '${resources.length} ${resources.length == 1 ? 'recurso' : 'recursos'}',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            if (state.selectedType != null ||
+                state.selectedTag != null ||
+                normalizedQuery.isNotEmpty)
+              TextButton(
+                onPressed: () {
+                  onTypeSelected(null);
+                  onTagSelected(null);
+                  onClearSearch();
+                },
+                child: const Text('Limpiar filtros'),
+              ),
+          ],
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         if (resources.isEmpty)
           const _EmptyResources()
         else
           ...resources.map(
             (resource) => Padding(
-              padding: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.only(bottom: 14),
               child: _ResourceTile(
                 resource: resource,
                 viewed: state.tracking.isViewed(resource.id),
@@ -168,11 +214,19 @@ class _ResourceContent extends StatelessWidget {
 class _Filters extends StatelessWidget {
   const _Filters({
     required this.state,
+    required this.searchController,
+    required this.hasSearch,
+    required this.onSearchChanged,
+    required this.onClearSearch,
     required this.onTypeSelected,
     required this.onTagSelected,
   });
 
   final ResourceState state;
+  final TextEditingController searchController;
+  final bool hasSearch;
+  final ValueChanged<String> onSearchChanged;
+  final VoidCallback onClearSearch;
   final ValueChanged<ResourceType?> onTypeSelected;
   final ValueChanged<String?> onTagSelected;
 
@@ -180,36 +234,61 @@ class _Filters extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Tipo de recurso', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                FilterChip(
-                  label: const Text('Todos'),
-                  selected: state.selectedType == null,
-                  onSelected: (_) => onTypeSelected(null),
-                ),
-                ...ResourceType.values.map(
-                  (type) => FilterChip(
-                    label: Text(type.label),
-                    selected: state.selectedType == type,
-                    onSelected: (_) => onTypeSelected(type),
-                  ),
-                ),
-              ],
+            TextField(
+              controller: searchController,
+              onChanged: onSearchChanged,
+              textInputAction: TextInputAction.search,
+              decoration: InputDecoration(
+                hintText: 'Buscar por tema o recurso',
+                prefixIcon: const Icon(Icons.search_rounded),
+                suffixIcon: hasSearch
+                    ? IconButton(
+                        tooltip: 'Limpiar búsqueda',
+                        onPressed: onClearSearch,
+                        icon: const Icon(Icons.close_rounded),
+                      )
+                    : null,
+              ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 16),
+            Text(
+              'Tipo de recurso',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 10),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  FilterChip(
+                    label: const Text('Todos'),
+                    selected: state.selectedType == null,
+                    onSelected: (_) => onTypeSelected(null),
+                  ),
+                  for (final type in ResourceType.values) ...[
+                    const SizedBox(width: 8),
+                    FilterChip(
+                      avatar: Icon(_iconFor(type), size: 19),
+                      label: Text(type.label),
+                      selected: state.selectedType == type,
+                      onSelected: (_) => onTypeSelected(type),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
             DropdownButtonFormField<String>(
+              key: ValueKey(state.selectedTag ?? '__all__'),
               initialValue: state.selectedTag ?? '__all__',
               isExpanded: true,
               decoration: const InputDecoration(
                 labelText: 'Materia o etiqueta',
+                prefixIcon: Icon(Icons.sell_outlined),
               ),
               items: [
                 const DropdownMenuItem<String>(
@@ -253,140 +332,189 @@ class _ResourceTile extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (resource.imageUrl != null) ...[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: Image.network(
-                    resource.imageUrl.toString(),
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      alignment: Alignment.center,
-                      color: colors.surfaceContainerHighest,
-                      child: const Icon(Icons.broken_image_outlined, size: 48),
-                    ),
-                  ),
-                ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (resource.imageUrl != null)
+            AspectRatio(
+              aspectRatio: 16 / 8.5,
+              child: Image.network(
+                resource.imageUrl.toString(),
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    _ResourceCover(type: resource.type),
               ),
-              const SizedBox(height: 18),
-            ],
-            Row(
+            )
+          else
+            _ResourceCover(type: resource.type),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 17, 18, 16),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 58,
-                  height: 58,
-                  decoration: BoxDecoration(
-                    color: colors.primaryContainer,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Icon(
-                    _iconFor(resource.type),
-                    size: 31,
-                    color: colors.primary,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        resource.title,
-                        style: Theme.of(context).textTheme.titleLarge,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            resource.type.label.toUpperCase(),
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: colors.primary,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.5,
+                                ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            resource.title,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 5),
-                      Text(
-                        resource.type.label,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: colors.onSurfaceVariant,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (completed)
-                  Tooltip(
-                    message: 'Completado',
-                    child: Icon(
-                      Icons.check_circle,
-                      size: 30,
-                      color: colors.primary,
                     ),
-                  )
-                else if (viewed)
-                  const Tooltip(
-                    message: 'Visto',
-                    child: Icon(Icons.visibility_outlined, size: 28),
+                    const SizedBox(width: 10),
+                    _StatusBadge(completed: completed, viewed: viewed),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  resource.description,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                ),
+                if (resource.tags.isNotEmpty) ...[
+                  const SizedBox(height: 13),
+                  Wrap(
+                    spacing: 7,
+                    runSpacing: 7,
+                    children: resource.tags
+                        .take(4)
+                        .map(
+                          (tag) => Chip(
+                            visualDensity: VisualDensity.compact,
+                            label: Text(_readableTag(tag)),
+                          ),
+                        )
+                        .toList(),
                   ),
+                ],
+                const SizedBox(height: 17),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: onOpen,
+                    icon: const Icon(Icons.open_in_new_rounded),
+                    label: const Text('Abrir recurso'),
+                  ),
+                ),
+                const SizedBox(height: 5),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton.icon(
+                    onPressed: onToggleCompleted,
+                    icon: Icon(
+                      completed
+                          ? Icons.check_circle_rounded
+                          : Icons.radio_button_unchecked_rounded,
+                    ),
+                    label: Text(
+                      completed
+                          ? 'Completado · marcar pendiente'
+                          : 'Marcar como completado',
+                    ),
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 16),
-            Text(
-              resource.description,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            if (resource.tags.isNotEmpty) ...[
-              const SizedBox(height: 14),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: resource.tags
-                    .map((tag) => Chip(label: Text(_readableTag(tag))))
-                    .toList(),
-              ),
-            ],
-            const SizedBox(height: 20),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final stacked = constraints.maxWidth < 520;
-                final openButton = FilledButton.icon(
-                  onPressed: onOpen,
-                  icon: const Icon(Icons.open_in_new, size: 24),
-                  label: const Text('Abrir recurso'),
-                );
-                final completedButton = OutlinedButton.icon(
-                  onPressed: onToggleCompleted,
-                  icon: Icon(
-                    completed ? Icons.undo : Icons.task_alt,
-                    size: 24,
-                  ),
-                  label: Text(
-                    completed ? 'Marcar pendiente' : 'Marcar como hecho',
-                  ),
-                );
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-                if (stacked) {
-                  return Column(
-                    children: [
-                      SizedBox(width: double.infinity, child: openButton),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: double.infinity,
-                        child: completedButton,
-                      ),
-                    ],
-                  );
-                }
+class _ResourceCover extends StatelessWidget {
+  const _ResourceCover({required this.type});
 
-                return Row(
-                  children: [
-                    Expanded(child: openButton),
-                    const SizedBox(width: 12),
-                    Expanded(child: completedButton),
-                  ],
-                );
-              },
+  final ResourceType type;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      height: 112,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: colors.primaryContainer.withValues(alpha: 0.72),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 62,
+            height: 62,
+            decoration: BoxDecoration(
+              color: colors.surface.withValues(alpha: 0.78),
+              borderRadius: BorderRadius.circular(20),
             ),
-          ],
-        ),
+            child: Icon(_iconFor(type), size: 34, color: colors.primary),
+          ),
+          const Spacer(),
+          Icon(
+            Icons.school_rounded,
+            size: 54,
+            color: colors.primary.withValues(alpha: 0.22),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  const _StatusBadge({required this.completed, required this.viewed});
+
+  final bool completed;
+  final bool viewed;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!completed && !viewed) return const SizedBox.shrink();
+    final background = completed
+        ? const Color(0xFFE4F5E8)
+        : Theme.of(context).colorScheme.surfaceContainerHighest;
+    final foreground = completed
+        ? const Color(0xFF18733C)
+        : Theme.of(context).colorScheme.onSurfaceVariant;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            completed ? Icons.check_circle_rounded : Icons.visibility_outlined,
+            size: 17,
+            color: foreground,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            completed ? 'Hecho' : 'Visto',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: foreground,
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+        ],
       ),
     );
   }
@@ -427,10 +555,29 @@ class _EmptyResources extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Card(
+    return Card(
       child: Padding(
-        padding: EdgeInsets.all(24),
-        child: Center(child: Text('No hay recursos con estos filtros.')),
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          children: [
+            Icon(
+              Icons.search_off_rounded,
+              size: 52,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'No encontramos recursos',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Prueba con otra búsqueda o limpia los filtros.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -438,12 +585,12 @@ class _EmptyResources extends StatelessWidget {
 
 IconData _iconFor(ResourceType type) {
   return switch (type) {
-    ResourceType.video => Icons.play_circle_outline,
+    ResourceType.video => Icons.play_circle_outline_rounded,
     ResourceType.pdf => Icons.picture_as_pdf_outlined,
-    ResourceType.form => Icons.list_alt_outlined,
-    ResourceType.simulator => Icons.quiz_outlined,
-    ResourceType.post => Icons.article_outlined,
-    ResourceType.announcement => Icons.campaign_outlined,
+    ResourceType.form => Icons.list_alt_rounded,
+    ResourceType.simulator => Icons.quiz_rounded,
+    ResourceType.post => Icons.article_rounded,
+    ResourceType.announcement => Icons.campaign_rounded,
   };
 }
 

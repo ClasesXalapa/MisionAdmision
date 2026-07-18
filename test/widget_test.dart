@@ -23,8 +23,16 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Misión Admisión'), findsOneWidget);
+    expect(find.text('Tu misión de hoy'), findsOneWidget);
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.text('Inicio'), findsOneWidget);
+    expect(find.text('Reto'), findsOneWidget);
+    expect(find.text('Recursos'), findsWidgets);
+    expect(find.text('Examen'), findsOneWidget);
     expect(find.text('Datos y respaldo'), findsNothing);
     expect(find.text('Ayuda y diagnóstico'), findsNothing);
+    expect(find.text('Aplicación instalada'), findsNothing);
+    expect(find.text('Copiar ID de prueba'), findsNothing);
 
     final scrollable = find.byType(Scrollable).first;
 

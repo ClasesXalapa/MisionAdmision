@@ -43,46 +43,85 @@ class _ExamScreenState extends ConsumerState<ExamScreen> {
     }
   }
 
+  Future<void> _requestExit() async {
+    final state = _controller.state;
+    if (state.phase != ExamPhase.ready) {
+      if (mounted) context.go('/');
+      return;
+    }
+
+    final leave = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('¿Salir del examen?'),
+        content: const Text(
+          'Este examen libre no se guarda. Si sales, perderás las respuestas actuales.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Continuar examen'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Salir'),
+          ),
+        ],
+      ),
+    );
+
+    if (leave == true && mounted) context.go('/');
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = _controller.state;
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          tooltip: 'Volver al inicio',
-          onPressed: () => context.go('/'),
-          icon: const Icon(Icons.arrow_back),
+    return PopScope<void>(
+      canPop: state.phase != ExamPhase.ready,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (!didPop && state.phase == ExamPhase.ready) {
+          await _requestExit();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            tooltip: 'Volver al inicio',
+            onPressed: _requestExit,
+            icon: const Icon(Icons.arrow_back),
+          ),
+          title: const Text('Examen libre'),
         ),
-        title: const Text('Examen libre'),
-      ),
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 820),
-            child: switch (state.phase) {
-              ExamPhase.loading => const ExamLoadingView(),
-              ExamPhase.failure => ExamErrorView(
-                  message: state.errorMessage ?? 'Ocurrió un error inesperado.',
-                  onRetry: _controller.start,
-                ),
-              ExamPhase.ready => ExamQuestionView(
-                  exam: state.exam!,
-                  currentIndex: state.currentIndex,
-                  answers: state.answers,
-                  onAnswer: _controller.selectAnswer,
-                  onPrevious: _controller.previous,
-                  onNext: _controller.next,
-                  onFinish: _controller.finish,
-                ),
-              ExamPhase.finished => ExamResultView(
-                  result: state.result!,
-                  primaryLabel: 'Nuevo examen',
-                  onPrimary: _controller.start,
-                  secondaryLabel: 'Volver al inicio',
-                  onSecondary: () => context.go('/'),
-                ),
-            },
+        body: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 820),
+              child: switch (state.phase) {
+                ExamPhase.loading => const ExamLoadingView(),
+                ExamPhase.failure => ExamErrorView(
+                    message:
+                        state.errorMessage ?? 'Ocurrió un error inesperado.',
+                    onRetry: _controller.start,
+                  ),
+                ExamPhase.ready => ExamQuestionView(
+                    exam: state.exam!,
+                    currentIndex: state.currentIndex,
+                    answers: state.answers,
+                    onAnswer: _controller.selectAnswer,
+                    onPrevious: _controller.previous,
+                    onNext: _controller.next,
+                    onFinish: _controller.finish,
+                  ),
+                ExamPhase.finished => ExamResultView(
+                    result: state.result!,
+                    primaryLabel: 'Nuevo examen',
+                    onPrimary: _controller.start,
+                    secondaryLabel: 'Volver al inicio',
+                    onSecondary: () => context.go('/'),
+                  ),
+              },
+            ),
           ),
         ),
       ),

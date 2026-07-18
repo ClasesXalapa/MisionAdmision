@@ -1,5 +1,18 @@
 # Historial de cambios
 
+## 0.10.0 — 2026-07-17
+
+- Rediseño mobile-first de la pantalla principal con jerarquía visual más clara.
+- Nueva navegación inferior para Inicio, Reto, Recursos y Examen.
+- Progreso reorganizado en una cuadrícula 2 × 2 con indicadores diferenciados.
+- El reto diario se convierte en la acción principal y muestra el avance pendiente.
+- Controles técnicos de PWA, notificaciones y contenido movidos a una hoja de configuración.
+- Reto y examen con progreso legible, respuestas táctiles y acciones fijas en la parte inferior.
+- Confirmación al salir de actividades para evitar pérdidas accidentales.
+- Biblioteca de recursos con búsqueda, filtros horizontales, estados visibles y cards renovadas.
+- Resultados con porcentaje y resumen visual de respuestas.
+- Paleta, contraste, superficies, tipografía y áreas táctiles reforzados para celulares.
+
 ## 0.9.8 — 2026-07-16
 
 - Cada mensaje de Firebase funciona como señal genérica para comprobar el reto diario local.
