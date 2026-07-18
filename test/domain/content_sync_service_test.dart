@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mision_admision/core/assets/asset_text_loader.dart';
+import 'package:mision_admision/core/constants/app_constants.dart';
 import 'package:mision_admision/core/network/remote_text_client.dart';
 import 'package:mision_admision/core/time/app_clock.dart';
 import 'package:mision_admision/data/parsers/content_document_parser.dart';
@@ -229,7 +230,7 @@ _SyncFixture _fixture(
     documentParser: const ContentDocumentParser(),
     clock: FixedClock(DateTime.parse('2026-07-15T12:00:00-06:00')),
     baseUri: Uri.parse('https://example.com/app/'),
-    appBuildNumber: 4,
+    appBuildNumber: AppConstants.appBuildNumber,
   );
   return _SyncFixture(service: service, cache: cache, remote: remote);
 }

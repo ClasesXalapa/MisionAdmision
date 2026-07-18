@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.10.7+32 — 2026-07-18
+
+### Hotfix de sincronización de contenido en pruebas
+
+- Las pruebas de `ContentSyncService` dejan de usar el build fijo 4 y toman `AppConstants.appBuildNumber`.
+- El fixture de sincronización vuelve a ser compatible con `min_app_version: 31` y con futuras actualizaciones del build.
+- Se conserva `min_app_version: 31` porque ese es el primer build que entiende el esquema 2 de preguntas.
+- Se coordinan la versión de la aplicación y la revisión del service worker en el build 32.
+
 ## 0.10.7+31 — 2026-07-17
 
 ### Reto y examen optimizados para celular e imágenes en reactivos
