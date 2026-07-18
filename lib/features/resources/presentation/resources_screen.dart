@@ -73,24 +73,24 @@ class _ResourcesScreenState extends ConsumerState<ResourcesScreen> {
         child: fullWidthCentered(
           maxWidth: 960,
           child: switch (state.phase) {
-              ResourcePhase.loading => const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              ResourcePhase.failure => _ResourceError(
-                  message: state.errorMessage ?? 'Ocurrió un error.',
-                  onRetry: _controller.start,
-                ),
-              ResourcePhase.ready => _ResourceContent(
-                  state: state,
-                  query: _query,
-                  searchController: _searchController,
-                  onSearchChanged: (value) => setState(() => _query = value),
-                  onClearSearch: _clearSearch,
-                  onTypeSelected: _controller.selectType,
-                  onTagSelected: _controller.selectTag,
-                  onOpen: _open,
-                  onToggleCompleted: _controller.toggleCompleted,
-                ),
+            ResourcePhase.loading => const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ResourcePhase.failure => _ResourceError(
+                message: state.errorMessage ?? 'Ocurrió un error.',
+                onRetry: _controller.start,
+              ),
+            ResourcePhase.ready => _ResourceContent(
+                state: state,
+                query: _query,
+                searchController: _searchController,
+                onSearchChanged: (value) => setState(() => _query = value),
+                onClearSearch: _clearSearch,
+                onTypeSelected: _controller.selectType,
+                onTagSelected: _controller.selectTag,
+                onOpen: _open,
+                onToggleCompleted: _controller.toggleCompleted,
+              ),
           },
         ),
       ),
@@ -134,29 +134,37 @@ class _ResourceContent extends StatelessWidget {
       ].join(' ').toLowerCase();
       return searchable.contains(normalizedQuery);
     }).toList(growable: false);
-    final horizontalPadding = appHorizontalPadding(context);
+    final handset = isHandsetLayout(context);
+    final horizontalPadding = handset ? 12.0 : 30.0;
+    final filtersActive = state.selectedType != null ||
+        state.selectedTag != null ||
+        normalizedQuery.isNotEmpty;
 
     return ListView(
+      key: const Key('resources_list'),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: EdgeInsets.fromLTRB(
         horizontalPadding,
-        14,
+        handset ? 12 : 18,
         horizontalPadding,
-        28,
+        34,
       ),
       children: [
         Text(
           'Biblioteca de estudio',
-          style: Theme.of(context).textTheme.headlineLarge,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Encuentra el recurso correcto para reforzar cada tema.',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                fontSize: handset ? 35 : null,
               ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 10),
+        Text(
+          'Encuentra videos, guías y simulacros para reforzar cada tema.',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: handset ? 19 : null,
+              ),
+        ),
+        const SizedBox(height: 22),
         _Filters(
           state: state,
           searchController: searchController,
@@ -166,36 +174,25 @@ class _ResourceContent extends StatelessWidget {
           onTypeSelected: onTypeSelected,
           onTagSelected: onTagSelected,
         ),
-        const SizedBox(height: 20),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                '${resources.length} ${resources.length == 1 ? 'recurso' : 'recursos'}',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            ),
-            if (state.selectedType != null ||
-                state.selectedTag != null ||
-                normalizedQuery.isNotEmpty)
-              TextButton(
-                onPressed: () {
-                  onTypeSelected(null);
-                  onTagSelected(null);
-                  onClearSearch();
-                },
-                child: const Text('Limpiar filtros'),
-              ),
-          ],
+        const SizedBox(height: 26),
+        _ResultsHeader(
+          count: resources.length,
+          filtersActive: filtersActive,
+          onClear: () {
+            onTypeSelected(null);
+            onTagSelected(null);
+            onClearSearch();
+          },
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         if (resources.isEmpty)
           const _EmptyResources()
         else
           ...resources.map(
             (resource) => Padding(
-              padding: const EdgeInsets.only(bottom: 14),
+              padding: const EdgeInsets.only(bottom: 20),
               child: _ResourceTile(
+                key: Key('resource_card_${resource.id}'),
                 resource: resource,
                 viewed: state.tracking.isViewed(resource.id),
                 completed: state.tracking.isCompleted(resource.id),
@@ -205,6 +202,72 @@ class _ResourceContent extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+class _ResultsHeader extends StatelessWidget {
+  const _ResultsHeader({
+    required this.count,
+    required this.filtersActive,
+    required this.onClear,
+  });
+
+  final int count;
+  final bool filtersActive;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final countText = Text(
+      '$count ${count == 1 ? 'recurso disponible' : 'recursos disponibles'}',
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontSize: isHandsetLayout(context) ? 24 : null,
+          ),
+    );
+    final clearButton = Material(
+      color: colors.primaryContainer,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onClear,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Text(
+            'Limpiar',
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: colors.primary,
+                ),
+          ),
+        ),
+      ),
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (filtersActive && constraints.maxWidth < 430) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              countText,
+              const SizedBox(height: 10),
+              clearButton,
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(child: countText),
+            if (filtersActive) ...[
+              const SizedBox(width: 10),
+              clearButton,
+            ],
+          ],
+        );
+      },
     );
   }
 }
@@ -230,19 +293,29 @@ class _Filters extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final handset = isHandsetLayout(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(handset ? 18 : 22),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              'Busca un recurso',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontSize: handset ? 24 : null,
+                  ),
+            ),
+            const SizedBox(height: 12),
             TextField(
+              key: const Key('resources_search_field'),
               controller: searchController,
               onChanged: onSearchChanged,
               textInputAction: TextInputAction.search,
+              style: Theme.of(context).textTheme.bodyLarge,
               decoration: InputDecoration(
-                hintText: 'Buscar por tema o recurso',
-                prefixIcon: const Icon(Icons.search_rounded),
+                hintText: 'Tema, materia o tipo de recurso',
+                prefixIcon: const Icon(Icons.search_rounded, size: 30),
                 suffixIcon: hasSearch
                     ? IconButton(
                         tooltip: 'Limpiar búsqueda',
@@ -252,46 +325,60 @@ class _Filters extends StatelessWidget {
                     : null,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 22),
             Text(
               'Tipo de recurso',
-              style: Theme.of(context).textTheme.titleSmall,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontSize: handset ? 21 : null,
+                  ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             SingleChildScrollView(
+              key: const Key('resources_type_filters'),
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  FilterChip(
-                    label: const Text('Todos'),
+                  _TypeFilterButton(
+                    label: 'Todos',
+                    icon: Icons.grid_view_rounded,
                     selected: state.selectedType == null,
-                    onSelected: (_) => onTypeSelected(null),
+                    onTap: () => onTypeSelected(null),
                   ),
                   for (final type in ResourceType.values) ...[
-                    const SizedBox(width: 8),
-                    FilterChip(
-                      avatar: Icon(_iconFor(type), size: 19),
-                      label: Text(type.label),
+                    const SizedBox(width: 10),
+                    _TypeFilterButton(
+                      label: type.label,
+                      icon: _iconFor(type),
                       selected: state.selectedType == type,
-                      onSelected: (_) => onTypeSelected(type),
+                      onTap: () => onTypeSelected(type),
                     ),
                   ],
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 22),
+            Text(
+              'Materia o etiqueta',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontSize: handset ? 21 : null,
+                  ),
+            ),
+            const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               key: ValueKey(state.selectedTag ?? '__all__'),
               initialValue: state.selectedTag ?? '__all__',
               isExpanded: true,
+              icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 30),
               decoration: const InputDecoration(
-                labelText: 'Materia o etiqueta',
-                prefixIcon: Icon(Icons.sell_outlined),
+                prefixIcon: Icon(Icons.sell_outlined, size: 28),
               ),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
               items: [
                 const DropdownMenuItem<String>(
                   value: '__all__',
-                  child: Text('Todas las etiquetas'),
+                  child: Text('Todas las materias'),
                 ),
                 ...state.availableTags.map(
                   (tag) => DropdownMenuItem<String>(
@@ -310,6 +397,62 @@ class _Filters extends StatelessWidget {
   }
 }
 
+class _TypeFilterButton extends StatelessWidget {
+  const _TypeFilterButton({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final foreground = selected ? colors.onPrimary : colors.onSurfaceVariant;
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        color: selected ? colors.primary : colors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: selected ? colors.primary : const Color(0xFFD8DDE8),
+          ),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 54),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 24, color: foreground),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: foreground,
+                        fontSize: 16.5,
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _ResourceTile extends StatelessWidget {
   const _ResourceTile({
     required this.resource,
@@ -317,6 +460,7 @@ class _ResourceTile extends StatelessWidget {
     required this.completed,
     required this.onOpen,
     required this.onToggleCompleted,
+    super.key,
   });
 
   final ResourceCard resource;
@@ -328,6 +472,7 @@ class _ResourceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final handset = isHandsetLayout(context);
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -336,7 +481,7 @@ class _ResourceTile extends StatelessWidget {
         children: [
           if (resource.imageUrl != null)
             AspectRatio(
-              aspectRatio: 16 / 8.5,
+              aspectRatio: 16 / 9,
               child: Image.network(
                 resource.imageUrl.toString(),
                 fit: BoxFit.cover,
@@ -345,7 +490,7 @@ class _ResourceTile extends StatelessWidget {
               ),
             ),
           Padding(
-            padding: const EdgeInsets.all(22),
+            padding: EdgeInsets.all(handset ? 20 : 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -358,83 +503,180 @@ class _ResourceTile extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            resource.type.label.toUpperCase(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelMedium
-                                ?.copyWith(
-                                  color: colors.primary,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 0.6,
-                                ),
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 8,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Text(
+                                resource.type.label.toUpperCase(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(
+                                      color: colors.primary,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.7,
+                                      fontSize: handset ? 15.5 : null,
+                                    ),
+                              ),
+                              _StatusBadge(
+                                completed: completed,
+                                viewed: viewed,
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 8),
                           Text(
                             resource.title,
-                            style: Theme.of(context).textTheme.titleLarge,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
+                                  fontSize: handset ? 27 : null,
+                                ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    _StatusBadge(completed: completed, viewed: viewed),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
                 Text(
                   resource.description,
-                  maxLines: 3,
+                  maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: colors.onSurfaceVariant,
+                        fontSize: handset ? 19 : null,
                       ),
                 ),
                 if (resource.tags.isNotEmpty) ...[
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
                   Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                    spacing: 9,
+                    runSpacing: 9,
                     children: resource.tags
                         .take(3)
                         .map(
-                          (tag) => Chip(
-                            label: Text(_readableTag(tag)),
-                          ),
+                          (tag) => _TagPill(label: _readableTag(tag)),
                         )
                         .toList(),
                   ),
                 ],
-                const SizedBox(height: 22),
+                const SizedBox(height: 24),
                 SizedBox(
+                  key: Key('resource_open_${resource.id}'),
                   width: double.infinity,
+                  height: handset ? 72 : 66,
                   child: FilledButton.icon(
                     onPressed: onOpen,
-                    icon: const Icon(Icons.open_in_new_rounded, size: 25),
-                    label: const Text('Abrir recurso'),
+                    icon: const Icon(Icons.open_in_new_rounded, size: 27),
+                    label: Text(_openLabelFor(resource.type)),
                   ),
                 ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: onToggleCompleted,
-                    icon: Icon(
-                      completed
-                          ? Icons.check_circle_rounded
-                          : Icons.radio_button_unchecked_rounded,
-                    ),
-                    label: Text(
-                      completed
-                          ? 'Recurso completado'
-                          : 'Marcar como completado',
-                    ),
-                  ),
+                const SizedBox(height: 12),
+                _CompletionAction(
+                  completed: completed,
+                  onTap: onToggleCompleted,
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CompletionAction extends StatelessWidget {
+  const _CompletionAction({
+    required this.completed,
+    required this.onTap,
+  });
+
+  final bool completed;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final background = completed
+        ? const Color(0xFFE4F5E8)
+        : colors.surfaceContainerLowest;
+    final foreground =
+        completed ? const Color(0xFF18733C) : colors.onSurfaceVariant;
+    final border = completed
+        ? const Color(0xFF9FD6AE)
+        : const Color(0xFFD8DDE8);
+
+    return Semantics(
+      button: true,
+      selected: completed,
+      child: Material(
+        color: background,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(17),
+          side: BorderSide(color: border),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(17),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 64),
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  completed
+                      ? Icons.check_circle_rounded
+                      : Icons.radio_button_unchecked_rounded,
+                  size: 27,
+                  color: foreground,
+                ),
+                const SizedBox(width: 10),
+                Flexible(
+                  child: Text(
+                    completed ? 'Completado' : 'Marcar como completado',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: foreground,
+                          fontSize: 17.5,
+                        ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TagPill extends StatelessWidget {
+  const _TagPill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFD8DDE8)),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: colors.onSurfaceVariant,
+              fontSize: 15,
+            ),
       ),
     );
   }
@@ -449,13 +691,13 @@ class _ResourceTypeIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Container(
-      width: 62,
-      height: 62,
+      width: 76,
+      height: 76,
       decoration: BoxDecoration(
         color: colors.primaryContainer,
-        borderRadius: BorderRadius.circular(19),
+        borderRadius: BorderRadius.circular(22),
       ),
-      child: Icon(_iconFor(type), size: 34, color: colors.primary),
+      child: Icon(_iconFor(type), size: 42, color: colors.primary),
     );
   }
 }
@@ -469,26 +711,25 @@ class _ResourceCover extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Container(
-      height: 112,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: colors.primaryContainer.withValues(alpha: 0.72),
       ),
       child: Row(
         children: [
           Container(
-            width: 62,
-            height: 62,
+            width: 76,
+            height: 76,
             decoration: BoxDecoration(
-              color: colors.surface.withValues(alpha: 0.78),
-              borderRadius: BorderRadius.circular(20),
+              color: colors.surface.withValues(alpha: 0.82),
+              borderRadius: BorderRadius.circular(22),
             ),
-            child: Icon(_iconFor(type), size: 34, color: colors.primary),
+            child: Icon(_iconFor(type), size: 42, color: colors.primary),
           ),
           const Spacer(),
           Icon(
             Icons.school_rounded,
-            size: 54,
+            size: 66,
             color: colors.primary.withValues(alpha: 0.22),
           ),
         ],
@@ -513,7 +754,7 @@ class _StatusBadge extends StatelessWidget {
         ? const Color(0xFF18733C)
         : Theme.of(context).colorScheme.onSurfaceVariant;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(999),
@@ -523,15 +764,15 @@ class _StatusBadge extends StatelessWidget {
         children: [
           Icon(
             completed ? Icons.check_circle_rounded : Icons.visibility_outlined,
-            size: 17,
+            size: 18,
             color: foreground,
           ),
-          const SizedBox(width: 5),
+          const SizedBox(width: 6),
           Text(
-            completed ? 'Hecho' : 'Visto',
+            completed ? 'Completado' : 'Visto',
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: foreground,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                 ),
           ),
         ],
@@ -550,18 +791,18 @@ class _ResourceError extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 54),
-            const SizedBox(height: 14),
+            const Icon(Icons.error_outline, size: 64),
+            const SizedBox(height: 16),
             Text(
               message,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 20),
             FilledButton(onPressed: onRetry, child: const Text('Reintentar')),
           ],
         ),
@@ -577,24 +818,26 @@ class _EmptyResources extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(28),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
         child: Column(
           children: [
             Icon(
               Icons.search_off_rounded,
-              size: 52,
+              size: 64,
               color: Theme.of(context).colorScheme.primary,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text(
               'No encontramos recursos',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               'Prueba con otra búsqueda o limpia los filtros.',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
           ],
         ),
@@ -611,6 +854,17 @@ IconData _iconFor(ResourceType type) {
     ResourceType.simulator => Icons.quiz_rounded,
     ResourceType.post => Icons.article_rounded,
     ResourceType.announcement => Icons.campaign_rounded,
+  };
+}
+
+String _openLabelFor(ResourceType type) {
+  return switch (type) {
+    ResourceType.video => 'Ver video',
+    ResourceType.pdf => 'Abrir PDF',
+    ResourceType.form => 'Abrir formulario',
+    ResourceType.simulator => 'Abrir simulacro',
+    ResourceType.post => 'Leer publicación',
+    ResourceType.announcement => 'Ver anuncio',
   };
 }
 

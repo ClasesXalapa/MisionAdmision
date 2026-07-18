@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.10.6+30 — 2026-07-17
+
+### Biblioteca de recursos optimizada para celulares
+
+- La pantalla usa 12 px de margen lateral y aprovecha mejor el ancho útil del teléfono.
+- La cabecera, búsqueda, filtros y contador aumentan su tamaño y jerarquía visual.
+- Los tipos de recurso se muestran como controles táctiles de 54 px con estado seleccionado de alto contraste.
+- Las cards amplían iconos, títulos, descripciones, etiquetas y separación interna.
+- Cada tipo utiliza una acción principal contextual: ver video, abrir PDF, abrir formulario, abrir simulacro, leer publicación o ver anuncio.
+- El estado de finalización se convierte en una acción secundaria amplia y claramente diferenciada.
+- Se conservan búsqueda, filtros, seguimiento de visto/completado y apertura externa sin cambiar su lógica.
+
 ## 0.10.5+29 — 2026-07-17
 
 ### Accesos principales de Inicio ampliados
