@@ -46,6 +46,13 @@ void main() {
     // continuar o repetir según el progreso local del alumno.
     expect(find.byKey(const Key('home_daily_challenge_action')), findsOneWidget);
 
+    expect(find.text('Racha actual'), findsOneWidget);
+    expect(find.text('Mejor racha'), findsOneWidget);
+    expect(find.text('Escudos'), findsOneWidget);
+    expect(find.text('Retos'), findsOneWidget);
+    expect(find.text('Explorar recursos'), findsNothing);
+    expect(find.text('Iniciar examen'), findsNothing);
+
     final scrollable = find.byType(Scrollable).first;
     await tester.scrollUntilVisible(
       find.byKey(const Key('home_exam_action')),

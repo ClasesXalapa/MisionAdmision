@@ -48,7 +48,7 @@ class AppBottomNavigation extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 102,
+          height: 98,
           child: Row(
             children: List.generate(_items.length, (index) {
               final item = _items[index];
@@ -59,48 +59,49 @@ class AppBottomNavigation extends StatelessWidget {
                   button: true,
                   selected: selected,
                   label: item.label,
-                  child: InkWell(
-                    onTap: selected ? null : () => context.go(item.route),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 180),
-                            width: 66,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: selected
-                                  ? colors.primaryContainer
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                            child: Icon(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 7),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: selected ? null : () => context.go(item.route),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: selected
+                              ? colors.primaryContainer
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
                               selected ? item.selectedIcon : item.icon,
-                              size: selected ? 41 : 38,
+                              size: selected ? 42 : 38,
                               color: selected
                                   ? colors.primary
                                   : colors.onSurfaceVariant,
                             ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            item.label,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: selected
-                                  ? colors.primary
-                                  : colors.onSurfaceVariant,
-                              fontSize: 16.5,
-                              height: 1,
-                              fontWeight: selected
-                                  ? FontWeight.w800
-                                  : FontWeight.w700,
+                            const SizedBox(height: 5),
+                            Text(
+                              item.label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: selected
+                                    ? colors.primary
+                                    : colors.onSurfaceVariant,
+                                fontSize: 17,
+                                height: 1,
+                                fontWeight: selected
+                                    ? FontWeight.w900
+                                    : FontWeight.w700,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

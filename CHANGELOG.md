@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.10.3+26 — 2026-07-17
+
+### Inicio móvil refinado
+
+- La racha actual pasa a ser la métrica principal de la tarjeta de progreso.
+- Mejor racha, escudos y retos se muestran como indicadores secundarios más limpios.
+- El mensaje inferior del progreso indica la siguiente acción del alumno.
+- La tarjeta del reto usa una sola acción sólida y muestra progreso solo cuando existe un intento pendiente.
+- Biblioteca y Examen eliminan enlaces pequeños; toda la tarjeta es pulsable.
+- La barra inferior resalta icono y etiqueta dentro de un único indicador amplio.
+- La iteración se limita a Inicio y navegación inferior; no modifica las demás pantallas.
+
 ## 0.10.2+25 — 2026-07-17
 
 - Rediseñada únicamente la pantalla de Inicio para aprovechar casi todo el ancho del celular.
