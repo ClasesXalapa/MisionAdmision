@@ -164,58 +164,62 @@ class HomeScreen extends ConsumerWidget {
               ..invalidate(rankCatalogProvider);
             await ref.read(learnerProgressProvider.future);
           },
-          child: ListView(
+          child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 30),
-            children: [
-              progress.when(
-                data: (value) {
-                  final rank = ranks.asData == null
-                      ? null
-                      : ref.read(rankEngineProvider).resolve(
-                            ranks: ranks.asData!.value,
-                            bestStreak: value.bestStreak,
-                          );
-                  return _MissionHero(
-                    progress: value,
-                    rank: rank,
-                    completedToday: completedToday,
-                  );
-                },
-                loading: () => const _ProgressLoading(),
-                error: (error, stackTrace) => const _ProgressError(),
-              ),
-              const SizedBox(height: 16),
-              progress.when(
-                data: (value) => _ProgressSummary(
-                  progress: value,
-                  shieldUsedToday: value.lastShieldUsedDateKey == today &&
-                      value.lastShieldUseCount > 0,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                progress.when(
+                  data: (value) {
+                    final rank = ranks.asData == null
+                        ? null
+                        : ref.read(rankEngineProvider).resolve(
+                              ranks: ranks.asData!.value,
+                              bestStreak: value.bestStreak,
+                            );
+                    return _MissionHero(
+                      progress: value,
+                      rank: rank,
+                      completedToday: completedToday,
+                    );
+                  },
+                  loading: () => const _ProgressLoading(),
+                  error: (error, stackTrace) => const _ProgressError(),
                 ),
-                loading: () => const SizedBox.shrink(),
-                error: (error, stackTrace) => const SizedBox.shrink(),
-              ),
-              const SizedBox(height: 22),
-              _DailyChallengeCard(
-                hasPendingAttempt: hasPendingAttempt,
-                completedToday: completedToday,
-                answeredQuestions:
-                    hasPendingAttempt ? currentAttempt!.answers.length : 0,
-                totalQuestions:
-                    hasPendingAttempt ? currentAttempt!.questionIds.length : 10,
-                onPressed: () => context.go('/daily'),
-              ),
-              const SizedBox(height: 26),
-              const AppSectionHeading(
-                title: 'Sigue practicando',
-                subtitle: 'Elige cómo quieres avanzar hoy.',
-              ),
-              const SizedBox(height: 14),
-              _QuickActions(
-                onResources: () => context.go('/resources'),
-                onExam: () => context.go('/exam'),
-              ),
-            ],
+                const SizedBox(height: 16),
+                progress.when(
+                  data: (value) => _ProgressSummary(
+                    progress: value,
+                    shieldUsedToday: value.lastShieldUsedDateKey == today &&
+                        value.lastShieldUseCount > 0,
+                  ),
+                  loading: () => const SizedBox.shrink(),
+                  error: (error, stackTrace) => const SizedBox.shrink(),
+                ),
+                const SizedBox(height: 22),
+                _DailyChallengeCard(
+                  hasPendingAttempt: hasPendingAttempt,
+                  completedToday: completedToday,
+                  answeredQuestions:
+                      hasPendingAttempt ? currentAttempt!.answers.length : 0,
+                  totalQuestions: hasPendingAttempt
+                      ? currentAttempt!.questionIds.length
+                      : 10,
+                  onPressed: () => context.go('/daily'),
+                ),
+                const SizedBox(height: 26),
+                const AppSectionHeading(
+                  title: 'Sigue practicando',
+                  subtitle: 'Elige cómo quieres avanzar hoy.',
+                ),
+                const SizedBox(height: 14),
+                _QuickActions(
+                  onResources: () => context.go('/resources'),
+                  onExam: () => context.go('/exam'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
