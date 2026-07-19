@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.11.1+44 — 19 de julio de 2026
+
+### Hotfix de construcción completa en Inicio
+
+- Sustituye el `ListView` perezoso de Inicio por `SingleChildScrollView` con `Column`, apropiado para el contenido corto y fijo de esta pantalla.
+- Garantiza que las acciones `home_resources_action` y `home_exam_action` estén construidas aunque queden inicialmente fuera del viewport normalizado.
+- Corrige la prueba `muestra la pantalla inicial` sin retirar keys, reducir la escala móvil ni debilitar las expectativas del test.
+- Conserva el gesto de actualización mediante `RefreshIndicator` y `AlwaysScrollableScrollPhysics`.
+- Actualiza el build y la revisión PWA a `0.11.1+44`.
+
 ## 0.11.1+43 — 19 de julio de 2026
 
 ### Corrección

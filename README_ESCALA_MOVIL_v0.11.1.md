@@ -1,6 +1,6 @@
 # Ajuste de escala móvil real — v0.11.1+42
 
-> **Hotfix vigente:** `v0.11.1+43` corrige un desbordamiento del título de Inicio detectado por las pruebas de widgets, sin cambiar la escala visual de esta entrega.
+> **Hotfix vigente:** `v0.11.1+44` conserva la corrección del encabezado y garantiza que las dos acciones de Inicio se construyan también fuera del viewport inicial, sin cambiar la escala visual.
 
 Esta entrega corrige el problema observado en las capturas reales del teléfono:
 el rediseño v0.11.0 tenía una composición moderna, pero Android PWA reportaba un
