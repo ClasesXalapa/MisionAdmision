@@ -1,8 +1,8 @@
 class AppConstants {
   const AppConstants._();
 
-  static const String appVersion = '0.10.9';
-  static const int appBuildNumber = 35;
+  static const String appVersion = '0.10.10';
+  static const int appBuildNumber = 36;
   static const int supportedContentSchemaVersion = 1;
   static const Duration contentRequestTimeout = Duration(seconds: 15);
   static const int maxContentDocumentBytes = 5 * 1024 * 1024;

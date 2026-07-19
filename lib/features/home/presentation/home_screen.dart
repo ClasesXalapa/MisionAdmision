@@ -15,51 +15,107 @@ class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   Future<void> _openAppSettings(BuildContext context) async {
+    final screenSize = MediaQuery.sizeOf(context);
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      showDragHandle: true,
+      showDragHandle: false,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.58),
+      constraints: BoxConstraints(maxWidth: screenSize.width),
       builder: (sheetContext) {
-        final maxHeight = MediaQuery.sizeOf(sheetContext).height * 0.9;
-        return ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: maxHeight),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(22, 0, 22, 30),
+        final colors = Theme.of(sheetContext).colorScheme;
+        return FractionallySizedBox(
+          heightFactor: 0.94,
+          widthFactor: 1,
+          child: Material(
+            key: const Key('app_settings_sheet'),
+            color: colors.surface,
+            clipBehavior: Clip.antiAlias,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(42)),
+            ),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Configuración',
-                        style: Theme.of(sheetContext).textTheme.headlineSmall,
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'Cerrar',
-                      onPressed: () => Navigator.of(sheetContext).pop(),
-                      icon: const Icon(Icons.close_rounded),
-                    ),
-                  ],
+                const SizedBox(height: 18),
+                Container(
+                  width: 92,
+                  height: 9,
+                  decoration: BoxDecoration(
+                    color: colors.outlineVariant,
+                    borderRadius: BorderRadius.circular(99),
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Estado de instalación, recordatorios y contenido.',
-                  style: Theme.of(sheetContext).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(sheetContext)
-                            .colorScheme
-                            .onSurfaceVariant,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(28, 26, 22, 24),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Configuración',
+                              style: Theme.of(sheetContext)
+                                  .textTheme
+                                  .headlineMedium
+                                  ?.copyWith(
+                                    fontSize: 44,
+                                    height: 1.05,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                            ),
+                            const SizedBox(height: 14),
+                            FractionallySizedBox(
+                              widthFactor: 0.9,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Administra la instalación, los recordatorios y el contenido guardado.',
+                                style: Theme.of(sheetContext)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(
+                                      color: colors.onSurfaceVariant,
+                                      fontSize: 24,
+                                      height: 1.35,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 18),
+                      SizedBox(
+                        width: 74,
+                        height: 74,
+                        child: IconButton.filledTonal(
+                          tooltip: 'Cerrar',
+                          onPressed: () => Navigator.of(sheetContext).pop(),
+                          icon: const Icon(Icons.close_rounded, size: 38),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 20),
-                const PwaStatusCard(),
-                const SizedBox(height: 16),
-                const NotificationReminderCard(),
-                const SizedBox(height: 16),
-                const ContentSyncCard(),
+                Divider(height: 1, color: colors.outlineVariant),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(20, 28, 20, 56),
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        PwaStatusCard(),
+                        SizedBox(height: 28),
+                        NotificationReminderCard(),
+                        SizedBox(height: 28),
+                        ContentSyncCard(),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

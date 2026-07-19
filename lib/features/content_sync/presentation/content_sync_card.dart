@@ -89,65 +89,107 @@ class _ContentSyncCardState extends ConsumerState<ContentSyncCard> {
     final metadataAsync = ref.watch(contentCacheMetadataProvider);
     final metadata = _lastReport?.metadata ?? metadataAsync.asData?.value;
     final presentation = _presentation(metadata);
+    final colors = Theme.of(context).colorScheme;
 
     return Card(
+      key: const Key('settings_content_card'),
+      margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
+        padding: const EdgeInsets.all(32),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: presentation.color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: _syncing
-                  ? const Padding(
-                      padding: EdgeInsets.all(11),
-                      child: CircularProgressIndicator(strokeWidth: 2.5),
-                    )
-                  : Icon(presentation.icon, color: presentation.color),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 88,
+                  height: 88,
+                  decoration: BoxDecoration(
+                    color: presentation.color.withValues(alpha: 0.13),
+                    borderRadius: BorderRadius.circular(26),
+                  ),
+                  child: _syncing
+                      ? const Padding(
+                          padding: EdgeInsets.all(24),
+                          child: CircularProgressIndicator(strokeWidth: 4),
+                        )
+                      : Icon(
+                          presentation.icon,
+                          color: presentation.color,
+                          size: 48,
+                        ),
+                ),
+                const SizedBox(width: 24),
+                Expanded(
+                  child: Text(
                     _syncing ? 'Buscando contenido nuevo' : presentation.title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontSize: 34,
+                          height: 1.08,
+                          fontWeight: FontWeight.w900,
                         ),
                   ),
-                  const SizedBox(height: 5),
-                  Text(
-                    _syncing
-                        ? 'Puedes seguir usando la aplicación mientras termina.'
-                        : presentation.message,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          height: 1.4,
-                        ),
-                  ),
-                  if (!_syncing && metadata?.lastSuccessAt != null) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      'Última actualización válida: ${_formatDate(metadata!.lastSuccessAt!)}',
-                      style: Theme.of(context).textTheme.labelSmall,
-                    ),
-                  ],
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(width: 10),
-            IconButton.filledTonal(
-              tooltip: 'Actualizar contenido',
-              onPressed: _syncing
-                  ? null
-                  : () => _synchronize(force: true, showFeedback: true),
-              icon: const Icon(Icons.refresh),
+            const SizedBox(height: 22),
+            Text(
+              _syncing
+                  ? 'Puedes seguir usando la aplicación mientras termina la revisión.'
+                  : presentation.message,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: colors.onSurfaceVariant,
+                    fontSize: 23,
+                    height: 1.4,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+            if (!_syncing && metadata?.lastSuccessAt != null) ...[
+              const SizedBox(height: 22),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 22,
+                  vertical: 18,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Última actualización válida: ${_formatDate(metadata!.lastSuccessAt!)}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colors.onSurfaceVariant,
+                        fontSize: 19,
+                        height: 1.35,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 28),
+            SizedBox(
+              width: double.infinity,
+              height: 76,
+              child: OutlinedButton.icon(
+                onPressed: _syncing
+                    ? null
+                    : () => _synchronize(force: true, showFeedback: true),
+                icon: Icon(
+                  _syncing ? Icons.hourglass_top_rounded : Icons.refresh_rounded,
+                  size: 34,
+                ),
+                label: Text(
+                  _syncing ? 'Revisando contenido…' : 'Buscar actualizaciones',
+                ),
+                style: OutlinedButton.styleFrom(
+                  textStyle: const TextStyle(
+                    fontSize: 23,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
             ),
           ],
         ),

@@ -62,19 +62,27 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
   Widget build(BuildContext context) {
     if (_controller.loading) {
       return const Card(
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: LinearProgressIndicator(),
+        key: Key('settings_pwa_card'),
+        margin: EdgeInsets.zero,
+        child: SizedBox(
+          height: 190,
+          child: Padding(
+            padding: EdgeInsets.all(32),
+            child: Center(child: LinearProgressIndicator()),
+          ),
         ),
       );
     }
 
     final status = _controller.status;
     final presentation = _presentation(status);
+    final colors = Theme.of(context).colorScheme;
 
     return Card(
+      key: const Key('settings_pwa_card'),
+      margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -82,33 +90,39 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 52,
-                  height: 52,
+                  width: 88,
+                  height: 88,
                   decoration: BoxDecoration(
-                    color: presentation.color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(16),
+                    color: presentation.color.withValues(alpha: 0.13),
+                    borderRadius: BorderRadius.circular(26),
                   ),
-                  child: Icon(presentation.icon, color: presentation.color),
+                  child: Icon(
+                    presentation.icon,
+                    color: presentation.color,
+                    size: 48,
+                  ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 24),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         presentation.title,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontSize: 34,
+                              height: 1.08,
+                              fontWeight: FontWeight.w900,
                             ),
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 14),
                       Text(
                         presentation.message,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: colors.onSurfaceVariant,
+                              fontSize: 23,
                               height: 1.4,
+                              fontWeight: FontWeight.w500,
                             ),
                       ),
                     ],
@@ -117,24 +131,39 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
               ],
             ),
             if (status.needsManualInstall) ...[
-              const SizedBox(height: 14),
+              const SizedBox(height: 24),
               const _ManualInstallInstructions(),
             ],
             if (status.canPromptInstall || status.updateAvailable) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 28),
               SizedBox(
                 width: double.infinity,
+                height: 76,
                 child: status.updateAvailable
                     ? FilledButton.icon(
-                        onPressed:
-                            _controller.busy ? null : _activateUpdate,
-                        icon: const Icon(Icons.system_update_alt),
+                        onPressed: _controller.busy ? null : _activateUpdate,
+                        icon: const Icon(Icons.system_update_alt, size: 34),
                         label: const Text('Aplicar actualización'),
+                        style: FilledButton.styleFrom(
+                          textStyle: const TextStyle(
+                            fontSize: 23,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
                       )
                     : FilledButton.icon(
                         onPressed: _controller.busy ? null : _install,
-                        icon: const Icon(Icons.install_mobile_outlined),
+                        icon: const Icon(
+                          Icons.install_mobile_outlined,
+                          size: 34,
+                        ),
                         label: const Text('Instalar Misión Admisión'),
+                        style: FilledButton.styleFrom(
+                          textStyle: const TextStyle(
+                            fontSize: 23,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
                       ),
               ),
             ],
@@ -180,7 +209,8 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
         icon: Icons.verified_outlined,
         color: Colors.green,
         title: 'Aplicación instalada',
-        message: 'Puedes abrirla desde tu pantalla de inicio y usar el contenido guardado sin conexión.',
+        message:
+            'Puedes abrirla desde tu pantalla de inicio y usar el contenido guardado sin conexión.',
       );
     }
 
@@ -189,7 +219,8 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
         icon: Icons.install_mobile_outlined,
         color: Colors.blue,
         title: 'Instala Misión Admisión',
-        message: 'Agrégala como aplicación para abrirla más rápido y mejorar la experiencia offline.',
+        message:
+            'Agrégala como aplicación para abrirla más rápido y mejorar la experiencia offline.',
       );
     }
 
@@ -198,7 +229,8 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
         icon: Icons.add_to_home_screen_outlined,
         color: Colors.blue,
         title: 'Agrégala a tu pantalla de inicio',
-        message: 'En iPhone o iPad la instalación se realiza desde el menú Compartir de Safari.',
+        message:
+            'En iPhone o iPad la instalación se realiza desde el menú Compartir de Safari.',
       );
     }
 
@@ -207,7 +239,8 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
         icon: Icons.offline_bolt_outlined,
         color: Colors.green,
         title: 'Modo offline preparado',
-        message: 'Después de esta primera carga podrás volver a abrir la aplicación aunque pierdas la conexión.',
+        message:
+            'Después de esta primera carga podrás volver a abrir la aplicación aunque pierdas la conexión.',
       );
     }
 
@@ -216,7 +249,8 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
         icon: Icons.downloading_outlined,
         color: Colors.blueGrey,
         title: 'Preparando uso sin conexión',
-        message: 'La aplicación está guardando los archivos esenciales en este dispositivo.',
+        message:
+            'La aplicación está guardando los archivos esenciales en este dispositivo.',
       );
     }
 
@@ -224,7 +258,8 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
       icon: Icons.language_outlined,
       color: Colors.blueGrey,
       title: 'Disponible desde el navegador',
-      message: 'Puedes usar Misión Admisión normalmente. La instalación depende de las funciones de tu navegador.',
+      message:
+          'Puedes usar Misión Admisión normalmente. La instalación depende de las funciones de tu navegador.',
     );
   }
 }
@@ -236,16 +271,21 @@ class _ManualInstallInstructions extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(26),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
       ),
-      child: const Text(
+      child: Text(
         '1. Abre esta página en Safari.\n'
         '2. Pulsa Compartir.\n'
         '3. Elige “Agregar a pantalla de inicio”.\n'
         '4. Abre Misión Admisión desde su nuevo icono.',
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              fontSize: 22,
+              height: 1.55,
+              fontWeight: FontWeight.w600,
+            ),
       ),
     );
   }

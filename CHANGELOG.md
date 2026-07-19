@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.10.10+36 — 2026-07-18
+
+- El modal de configuración ahora ocupa todo el ancho del celular y el 94 % de la altura útil.
+- Cabecera, botón de cierre, textos, iconos y tarjetas usan la misma escala amplia de Inicio.
+- Instalación, notificaciones y contenido se presentan en cards verticales con acciones táctiles grandes.
+- Las herramientas técnicas permanecen plegadas, pero sus botones ya son cómodos en celular.
+- La actualización de contenido deja de depender de un botón circular pequeño y usa una acción de ancho completo.
+
 ## 0.10.9+35 — 2026-07-18
 
 - Inicio deja de intentar caber en una sola vista y adopta una escala móvil deliberadamente grande.

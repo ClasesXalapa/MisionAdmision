@@ -111,19 +111,27 @@ class _NotificationReminderCardState
   Widget build(BuildContext context) {
     if (_controller.loading) {
       return const Card(
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: LinearProgressIndicator(),
+        key: Key('settings_notification_card'),
+        margin: EdgeInsets.zero,
+        child: SizedBox(
+          height: 190,
+          child: Padding(
+            padding: EdgeInsets.all(32),
+            child: Center(child: LinearProgressIndicator()),
+          ),
         ),
       );
     }
 
     final status = _controller.status;
     final presentation = _presentation(status);
+    final colors = Theme.of(context).colorScheme;
 
     return Card(
+      key: const Key('settings_notification_card'),
+      margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -131,33 +139,39 @@ class _NotificationReminderCardState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 52,
-                  height: 52,
+                  width: 88,
+                  height: 88,
                   decoration: BoxDecoration(
-                    color: presentation.color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(16),
+                    color: presentation.color.withValues(alpha: 0.13),
+                    borderRadius: BorderRadius.circular(26),
                   ),
-                  child: Icon(presentation.icon, color: presentation.color),
+                  child: Icon(
+                    presentation.icon,
+                    color: presentation.color,
+                    size: 48,
+                  ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 24),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         presentation.title,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontSize: 34,
+                              height: 1.08,
+                              fontWeight: FontWeight.w900,
                             ),
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 14),
                       Text(
                         presentation.message,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: colors.onSurfaceVariant,
+                              fontSize: 23,
                               height: 1.4,
+                              fontWeight: FontWeight.w500,
                             ),
                       ),
                     ],
@@ -166,78 +180,160 @@ class _NotificationReminderCardState
               ],
             ),
             if (status.registrationAvailable) ...[
-              const SizedBox(height: 12),
-              Text(
-                _registrationSummary(status),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+              const SizedBox(height: 22),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 22,
+                  vertical: 18,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  _registrationSummary(status),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colors.onSurfaceVariant,
+                        fontSize: 19,
+                        height: 1.35,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
               ),
             ],
             if (status.errorMessage != null) ...[
-              const SizedBox(height: 12),
-              Text(
-                status.errorMessage!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              const SizedBox(height: 22),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                  color: colors.errorContainer,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  status.errorMessage!,
+                  style: TextStyle(
+                    color: colors.onErrorContainer,
+                    fontSize: 21,
+                    height: 1.4,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ],
             if (status.configured && status.supported) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 28),
               if (status.enabled)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    OutlinedButton.icon(
-                      onPressed: _controller.busy
-                          ? null
-                          : () => setState(
-                                () => _showTechnicalTools =
-                                    !_showTechnicalTools,
-                              ),
-                      icon: Icon(
-                        _showTechnicalTools
-                            ? Icons.expand_less_rounded
-                            : Icons.build_outlined,
+                    SizedBox(
+                      height: 76,
+                      child: OutlinedButton.icon(
+                        onPressed: _controller.busy
+                            ? null
+                            : () => setState(
+                                  () => _showTechnicalTools =
+                                      !_showTechnicalTools,
+                                ),
+                        icon: Icon(
+                          _showTechnicalTools
+                              ? Icons.expand_less_rounded
+                              : Icons.build_outlined,
+                          size: 32,
+                        ),
+                        label: const Text('Herramientas técnicas'),
+                        style: OutlinedButton.styleFrom(
+                          textStyle: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
                       ),
-                      label: const Text('Herramientas técnicas'),
                     ),
                     if (_showTechnicalTools) ...[
-                      const SizedBox(height: 12),
-                      OutlinedButton.icon(
-                        onPressed: _controller.busy ? null : _test,
-                        icon: const Icon(
-                          Icons.notifications_active_outlined,
+                      const SizedBox(height: 18),
+                      SizedBox(
+                        height: 70,
+                        child: OutlinedButton.icon(
+                          onPressed: _controller.busy ? null : _test,
+                          icon: const Icon(
+                            Icons.notifications_active_outlined,
+                            size: 30,
+                          ),
+                          label: const Text('Enviar prueba local'),
+                          style: OutlinedButton.styleFrom(
+                            textStyle: const TextStyle(
+                              fontSize: 21,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
                         ),
-                        label: const Text('Enviar prueba local'),
                       ),
-                      const SizedBox(height: 10),
-                      OutlinedButton.icon(
-                        onPressed:
-                            _controller.busy ? null : _refreshRegistration,
-                        icon: const Icon(Icons.build_outlined),
-                        label: const Text('Reparar notificaciones'),
+                      const SizedBox(height: 14),
+                      SizedBox(
+                        height: 70,
+                        child: OutlinedButton.icon(
+                          onPressed:
+                              _controller.busy ? null : _refreshRegistration,
+                          icon: const Icon(Icons.build_outlined, size: 30),
+                          label: const Text('Reparar notificaciones'),
+                          style: OutlinedButton.styleFrom(
+                            textStyle: const TextStyle(
+                              fontSize: 21,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 10),
-                      OutlinedButton.icon(
-                        onPressed: _controller.busy ? null : _copyTestingId,
-                        icon: const Icon(Icons.copy_outlined),
-                        label: const Text('Copiar ID de prueba'),
+                      const SizedBox(height: 14),
+                      SizedBox(
+                        height: 70,
+                        child: OutlinedButton.icon(
+                          onPressed:
+                              _controller.busy ? null : _copyTestingId,
+                          icon: const Icon(Icons.copy_outlined, size: 30),
+                          label: const Text('Copiar ID de prueba'),
+                          style: OutlinedButton.styleFrom(
+                            textStyle: const TextStyle(
+                              fontSize: 21,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
-                    const SizedBox(height: 4),
-                    TextButton(
-                      onPressed: _controller.busy ? null : _disable,
-                      child: const Text('Desactivar notificaciones'),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 64,
+                      child: TextButton(
+                        onPressed: _controller.busy ? null : _disable,
+                        style: TextButton.styleFrom(
+                          textStyle: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        child: const Text('Desactivar notificaciones'),
+                      ),
                     ),
                   ],
                 )
               else if (status.canEnable)
                 SizedBox(
                   width: double.infinity,
+                  height: 76,
                   child: FilledButton.icon(
                     onPressed: _controller.busy ? null : _enable,
-                    icon: const Icon(Icons.notifications_outlined),
+                    icon: const Icon(Icons.notifications_outlined, size: 34),
                     label: const Text('Activar notificaciones'),
+                    style: FilledButton.styleFrom(
+                      textStyle: const TextStyle(
+                        fontSize: 23,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                   ),
                 ),
             ],
