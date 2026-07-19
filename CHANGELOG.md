@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.10.12+38 — 2026-07-19
+
+### Recursos: escala móvil grande real
+
+- La sección Recursos ya no depende únicamente de la detección de plataforma: activa la composición grande en cualquier viewport de hasta 960 px.
+- Título, descripción, buscador y selector de materia aumentados de forma considerable.
+- Los tipos de recurso se muestran en una cuadrícula táctil de dos columnas en lugar de chips horizontales pequeños.
+- Las cards usan iconos, títulos, descripciones, etiquetas y acciones mucho más grandes.
+- Cada recurso ocupa una sección vertical amplia y el desplazamiento largo es parte normal de la experiencia.
+- Se conserva intacta la lógica de búsqueda, filtrado, apertura y seguimiento local.
+
 ## 0.10.11+37 — 2026-07-18
 
 - La pantalla de Recursos adopta la misma escala grande y desplazable de Inicio.
