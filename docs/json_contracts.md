@@ -1,4 +1,4 @@
-# Contratos JSON — v0.10.10
+# Contratos JSON — v0.10.11
 
 El índice, retos, recursos y rangos utilizan `schema_version: 1`. El banco de preguntas utiliza `schema_version: 2`; la aplicación conserva compatibilidad de lectura con bancos de preguntas de esquema 1.
 
