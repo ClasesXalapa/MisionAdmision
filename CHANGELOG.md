@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.10.13+39 — 19 de julio de 2026
+
+- Recursos fuerza siempre la composición móvil grande, sin depender de breakpoints o de la plataforma reportada por el navegador.
+- Los filtros por tipo ocupan una fila completa y tienen controles táctiles de 150 px.
+- Búsqueda, selector, cards, títulos, descripciones y botones aumentan nuevamente de escala.
+- Las cards de recursos tienen un contenido mínimo de 920 px y acciones de hasta 142 px.
+- Se añade `build_guard.js` para limpiar únicamente la caché del código al cambiar de versión y recargar una vez antes de iniciar Flutter.
+
 ## 0.10.12+38 — 2026-07-19
 
 ### Recursos: escala móvil grande real

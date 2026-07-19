@@ -93,6 +93,65 @@ void main() {
     // de renderizado en la barra inferior o en las cards de Inicio.
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('recursos usa la composición móvil grande', (tester) async {
+    tester.view
+      ..physicalSize = const Size(720, 1600)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          jsonKeyValueStoreProvider.overrideWithValue(MemoryJsonStore()),
+          remoteTextClientProvider.overrideWithValue(
+            const _OfflineRemoteTextClient(),
+          ),
+        ],
+        child: const MissionAdmissionApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Recursos').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Biblioteca de estudio'), findsOneWidget);
+    final title = tester.widget<Text>(find.text('Biblioteca de estudio'));
+    expect(title.style?.fontSize, greaterThanOrEqualTo(80));
+
+    final resourcesList = find.byKey(const Key('resources_list'));
+    expect(resourcesList, findsOneWidget);
+    final resourcesScrollable = find.descendant(
+      of: resourcesList,
+      matching: find.byType(Scrollable),
+    ).first;
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('resource_type_filter_all')),
+      500,
+      scrollable: resourcesScrollable,
+    );
+    final allFilter = find.byKey(const Key('resource_type_filter_all'));
+    final filterSize = tester.getSize(allFilter);
+    final scaffoldWidth = tester.getSize(find.byType(Scaffold).first).width;
+    expect(filterSize.width, greaterThan(scaffoldWidth - 140));
+    expect(filterSize.height, greaterThanOrEqualTo(150));
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('resource_card_card_video_algebra_001')),
+      700,
+      scrollable: resourcesScrollable,
+    );
+    final firstCard = find.byKey(
+      const Key('resource_card_card_video_algebra_001'),
+    );
+    expect(firstCard, findsOneWidget);
+    expect(tester.getSize(firstCard).height, greaterThanOrEqualTo(920));
+    expect(tester.takeException(), isNull);
+  });
+
 }
 
 class _OfflineRemoteTextClient implements RemoteTextClient {

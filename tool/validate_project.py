@@ -56,6 +56,7 @@ def main() -> int:
         "pwa_bridge.js",
         "pwa_bridge_bootstrap.js",
         "flutter_bootstrap.js",
+        "build_guard.js",
     }
     loaded_web_files = {
         "firebase_config.js",
@@ -63,6 +64,7 @@ def main() -> int:
         "notification_state_store.js",
         "pwa_bridge_bootstrap.js",
         "flutter_bootstrap.js",
+        "build_guard.js",
     }
     for name in sorted(required_web_files):
         if not (ROOT / "web" / name).is_file():

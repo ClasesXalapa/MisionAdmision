@@ -25,6 +25,7 @@ REQUIRED_FILES = {
     "offline.html",
     "manifest.json",
     "flutter_bootstrap.js",
+    "build_guard.js",
     "main.dart.js",
     "pwa_bridge.js",
     "pwa_bridge_bootstrap.js",

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mision_admision/app/dependencies.dart';
-import 'package:mision_admision/app/responsive.dart';
 import 'package:mision_admision/domain/models/resource_card.dart';
 import 'package:mision_admision/domain/models/resource_type.dart';
 import 'package:mision_admision/features/navigation/presentation/app_bottom_navigation.dart';
@@ -9,9 +8,11 @@ import 'package:mision_admision/features/resources/application/resource_controll
 import 'package:mision_admision/features/resources/application/resource_state.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-bool _useLargeMobileResourcesLayout(BuildContext context) {
-  return isHandsetLayout(context) || MediaQuery.sizeOf(context).width <= 960;
-}
+// Recursos se diseña deliberadamente como una experiencia móvil grande.
+// No depende de breakpoints ni de la plataforma reportada por el navegador:
+// varios WebView/PWA Android informan métricas de escritorio y activaban la
+// composición compacta. Mantener este valor fijo garantiza controles grandes.
+bool _useLargeMobileResourcesLayout(BuildContext _) => true;
 
 class ResourcesScreen extends ConsumerStatefulWidget {
   const ResourcesScreen({super.key});
@@ -74,12 +75,12 @@ class _ResourcesScreenState extends ConsumerState<ResourcesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: largeMobile ? 154 : null,
+        toolbarHeight: largeMobile ? 176 : null,
         titleSpacing: largeMobile ? 18 : null,
         title: Text(
           'Recursos',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontSize: largeMobile ? 48 : null,
+                fontSize: largeMobile ? 58 : null,
                 height: 1.05,
               ),
         ),
@@ -159,35 +160,35 @@ class _ResourceContent extends StatelessWidget {
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: EdgeInsets.fromLTRB(
         largeMobile ? 12 : 30,
-        largeMobile ? 42 : 18,
+        largeMobile ? 52 : 18,
         largeMobile ? 12 : 30,
         largeMobile ? 180 : 34,
       ),
       children: [
         ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: largeMobile ? 610 : 760),
+          constraints: BoxConstraints(maxWidth: largeMobile ? 600 : 760),
           child: Text(
             'Biblioteca de estudio',
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  fontSize: largeMobile ? 72 : null,
+                  fontSize: largeMobile ? 80 : null,
                   height: 1.02,
                   letterSpacing: largeMobile ? -1.3 : null,
                 ),
           ),
         ),
-        SizedBox(height: largeMobile ? 28 : 10),
+        SizedBox(height: largeMobile ? 34 : 10),
         ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: largeMobile ? 560 : 760),
+          constraints: BoxConstraints(maxWidth: largeMobile ? 540 : 760),
           child: Text(
             'Encuentra videos, guías y simulacros para reforzar cada tema.',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontSize: largeMobile ? 36 : null,
+                  fontSize: largeMobile ? 44 : null,
                   height: 1.38,
                 ),
           ),
         ),
-        SizedBox(height: largeMobile ? 58 : 22),
+        SizedBox(height: largeMobile ? 68 : 22),
         _Filters(
           state: state,
           searchController: searchController,
@@ -197,7 +198,7 @@ class _ResourceContent extends StatelessWidget {
           onTypeSelected: onTypeSelected,
           onTagSelected: onTagSelected,
         ),
-        SizedBox(height: largeMobile ? 62 : 26),
+        SizedBox(height: largeMobile ? 76 : 26),
         _ResultsHeader(
           count: resources.length,
           filtersActive: filtersActive,
@@ -207,13 +208,13 @@ class _ResourceContent extends StatelessWidget {
             onClearSearch();
           },
         ),
-        SizedBox(height: largeMobile ? 42 : 16),
+        SizedBox(height: largeMobile ? 50 : 16),
         if (resources.isEmpty)
           const _EmptyResources()
         else
           ...resources.map(
             (resource) => Padding(
-              padding: EdgeInsets.only(bottom: largeMobile ? 54 : 20),
+              padding: EdgeInsets.only(bottom: largeMobile ? 68 : 20),
               child: _ResourceTile(
                 key: Key('resource_card_${resource.id}'),
                 resource: resource,
@@ -253,51 +254,52 @@ class _Filters extends StatelessWidget {
     final largeMobile = _useLargeMobileResourcesLayout(context);
 
     return Card(
+      key: const Key('resources_filters_card'),
       child: Padding(
-        padding: EdgeInsets.all(largeMobile ? 42 : 22),
+        padding: EdgeInsets.all(largeMobile ? 52 : 22),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Busca un recurso',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: largeMobile ? 48 : null,
+                    fontSize: largeMobile ? 58 : null,
                     height: 1.08,
                   ),
             ),
-            SizedBox(height: largeMobile ? 30 : 12),
+            SizedBox(height: largeMobile ? 36 : 12),
             SizedBox(
-              height: largeMobile ? 138 : null,
+              height: largeMobile ? 156 : null,
               child: TextField(
                 key: const Key('resources_search_field'),
                 controller: searchController,
                 onChanged: onSearchChanged,
                 textInputAction: TextInputAction.search,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontSize: largeMobile ? 36 : null,
+                      fontSize: largeMobile ? 44 : null,
                       height: 1.2,
                     ),
                 decoration: InputDecoration(
                   hintText: 'Tema, materia o tipo',
                   hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        fontSize: largeMobile ? 34 : null,
+                        fontSize: largeMobile ? 38 : null,
                       ),
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: largeMobile ? 34 : 18,
-                    vertical: largeMobile ? 34 : 20,
+                    horizontal: largeMobile ? 38 : 18,
+                    vertical: largeMobile ? 38 : 20,
                   ),
                   prefixIconConstraints: BoxConstraints(
-                    minWidth: largeMobile ? 94 : 48,
-                    minHeight: largeMobile ? 94 : 48,
+                    minWidth: largeMobile ? 104 : 48,
+                    minHeight: largeMobile ? 104 : 48,
                   ),
                   suffixIconConstraints: BoxConstraints(
-                    minWidth: largeMobile ? 94 : 48,
-                    minHeight: largeMobile ? 94 : 48,
+                    minWidth: largeMobile ? 104 : 48,
+                    minHeight: largeMobile ? 104 : 48,
                   ),
                   prefixIcon: Icon(
                     Icons.search_rounded,
-                    size: largeMobile ? 54 : 30,
+                    size: largeMobile ? 60 : 30,
                   ),
                   suffixIcon: hasSearch
                       ? IconButton(
@@ -305,28 +307,26 @@ class _Filters extends StatelessWidget {
                           onPressed: onClearSearch,
                           icon: Icon(
                             Icons.close_rounded,
-                            size: largeMobile ? 50 : 28,
+                            size: largeMobile ? 56 : 28,
                           ),
                         )
                       : null,
                 ),
               ),
             ),
-            SizedBox(height: largeMobile ? 54 : 22),
+            SizedBox(height: largeMobile ? 64 : 22),
             Text(
               'Tipo de recurso',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontSize: largeMobile ? 40 : null,
+                    fontSize: largeMobile ? 44 : null,
                     height: 1.1,
                   ),
             ),
-            SizedBox(height: largeMobile ? 30 : 12),
+            SizedBox(height: largeMobile ? 36 : 12),
             LayoutBuilder(
               builder: (context, constraints) {
-                final gap = largeMobile ? 20.0 : 10.0;
-                final buttonWidth = largeMobile
-                    ? (constraints.maxWidth - gap) / 2
-                    : null;
+                final gap = largeMobile ? 24.0 : 10.0;
+                final buttonWidth = largeMobile ? constraints.maxWidth : null;
 
                 return Wrap(
                   key: const Key('resources_type_filters'),
@@ -334,6 +334,7 @@ class _Filters extends StatelessWidget {
                   runSpacing: gap,
                   children: [
                     _TypeFilterButton(
+                      key: const Key('resource_type_filter_all'),
                       width: buttonWidth,
                       label: 'Todos',
                       icon: Icons.grid_view_rounded,
@@ -352,44 +353,44 @@ class _Filters extends StatelessWidget {
                 );
               },
             ),
-            SizedBox(height: largeMobile ? 58 : 22),
+            SizedBox(height: largeMobile ? 68 : 22),
             Text(
               'Materia o etiqueta',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontSize: largeMobile ? 40 : null,
+                    fontSize: largeMobile ? 44 : null,
                     height: 1.1,
                   ),
             ),
-            SizedBox(height: largeMobile ? 30 : 12),
+            SizedBox(height: largeMobile ? 36 : 12),
             SizedBox(
-              height: largeMobile ? 138 : null,
+              height: largeMobile ? 156 : null,
               child: DropdownButtonFormField<String>(
                 key: ValueKey(state.selectedTag ?? '__all__'),
                 initialValue: state.selectedTag ?? '__all__',
                 isExpanded: true,
-                itemHeight: largeMobile ? 82 : null,
-                menuMaxHeight: largeMobile ? 640 : null,
+                itemHeight: largeMobile ? 100 : null,
+                menuMaxHeight: largeMobile ? 720 : null,
                 icon: Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  size: largeMobile ? 54 : 30,
+                  size: largeMobile ? 60 : 30,
                 ),
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: largeMobile ? 34 : 18,
-                    vertical: largeMobile ? 32 : 20,
+                    horizontal: largeMobile ? 38 : 18,
+                    vertical: largeMobile ? 40 : 20,
                   ),
                   prefixIconConstraints: BoxConstraints(
-                    minWidth: largeMobile ? 94 : 48,
-                    minHeight: largeMobile ? 94 : 48,
+                    minWidth: largeMobile ? 104 : 48,
+                    minHeight: largeMobile ? 104 : 48,
                   ),
                   prefixIcon: Icon(
                     Icons.sell_outlined,
-                    size: largeMobile ? 52 : 28,
+                    size: largeMobile ? 60 : 28,
                   ),
                 ),
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: largeMobile ? 35 : null,
+                      fontSize: largeMobile ? 40 : null,
                       height: 1.2,
                     ),
                 items: [
@@ -417,6 +418,7 @@ class _Filters extends StatelessWidget {
 
 class _TypeFilterButton extends StatelessWidget {
   const _TypeFilterButton({
+    super.key,
     required this.width,
     required this.label,
     required this.icon,
@@ -454,7 +456,7 @@ class _TypeFilterButton extends StatelessWidget {
             onTap: onTap,
             borderRadius: BorderRadius.circular(largeMobile ? 28 : 24),
             child: Container(
-              constraints: BoxConstraints(minHeight: largeMobile ? 124 : 54),
+              constraints: BoxConstraints(minHeight: largeMobile ? 150 : 54),
               padding: EdgeInsets.symmetric(
                 horizontal: largeMobile ? 22 : 16,
                 vertical: largeMobile ? 24 : 12,
@@ -475,7 +477,7 @@ class _TypeFilterButton extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           color: foreground,
-                          fontSize: largeMobile ? 29 : 16.5,
+                          fontSize: largeMobile ? 34 : 16.5,
                           height: 1.1,
                         ),
                   ),
@@ -508,7 +510,7 @@ class _ResultsHeader extends StatelessWidget {
     final countText = Text(
       '$count ${count == 1 ? 'recurso disponible' : 'recursos disponibles'}',
       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontSize: largeMobile ? 46 : null,
+            fontSize: largeMobile ? 52 : null,
             height: 1.12,
           ),
     );
@@ -600,8 +602,8 @@ class _ResourceTile extends StatelessWidget {
               ),
             ),
           Container(
-            constraints: BoxConstraints(minHeight: largeMobile ? 780 : 0),
-            padding: EdgeInsets.all(largeMobile ? 44 : 24),
+            constraints: BoxConstraints(minHeight: largeMobile ? 920 : 0),
+            padding: EdgeInsets.all(largeMobile ? 54 : 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -610,55 +612,55 @@ class _ResourceTile extends StatelessWidget {
                   viewed: viewed,
                   completed: completed,
                 ),
-                SizedBox(height: largeMobile ? 42 : 20),
+                SizedBox(height: largeMobile ? 50 : 20),
                 ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: largeMobile ? 570 : 760),
+                  constraints: BoxConstraints(maxWidth: largeMobile ? 540 : 760),
                   child: Text(
                     resource.description,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontSize: largeMobile ? 35 : null,
+                          fontSize: largeMobile ? 40 : null,
                           height: 1.42,
                         ),
                   ),
                 ),
-                SizedBox(height: largeMobile ? 42 : 18),
+                SizedBox(height: largeMobile ? 52 : 18),
                 Wrap(
-                  spacing: largeMobile ? 16 : 10,
-                  runSpacing: largeMobile ? 16 : 10,
+                  spacing: largeMobile ? 20 : 10,
+                  runSpacing: largeMobile ? 20 : 10,
                   children: resource.tags
                       .map((tag) => _TagPill(label: _readableTag(tag)))
                       .toList(growable: false),
                 ),
-                SizedBox(height: largeMobile ? 54 : 26),
+                SizedBox(height: largeMobile ? 64 : 26),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
                     style: FilledButton.styleFrom(
-                      minimumSize: Size.fromHeight(largeMobile ? 120 : 62),
+                      minimumSize: Size.fromHeight(largeMobile ? 142 : 62),
                       padding: EdgeInsets.symmetric(
-                        horizontal: largeMobile ? 30 : 22,
-                        vertical: largeMobile ? 28 : 17,
+                        horizontal: largeMobile ? 36 : 22,
+                        vertical: largeMobile ? 34 : 17,
                       ),
                       textStyle: TextStyle(
-                        fontSize: largeMobile ? 34 : 17,
+                        fontSize: largeMobile ? 38 : 17,
                         fontWeight: FontWeight.w900,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
-                          largeMobile ? 28 : 16,
+                          largeMobile ? 32 : 16,
                         ),
                       ),
                     ),
                     onPressed: onOpen,
                     icon: Icon(
                       Icons.open_in_new_rounded,
-                      size: largeMobile ? 48 : 27,
+                      size: largeMobile ? 56 : 27,
                     ),
                     label: Text(_openLabelFor(resource.type)),
                   ),
                 ),
-                SizedBox(height: largeMobile ? 26 : 12),
+                SizedBox(height: largeMobile ? 32 : 12),
                 _CompletionAction(
                   completed: completed,
                   onTap: onToggleCompleted,
@@ -692,7 +694,7 @@ class _ResourceHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _ResourceTypeIcon(type: resource.type),
-        SizedBox(width: largeMobile ? 30 : 16),
+        SizedBox(width: largeMobile ? 36 : 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -706,18 +708,18 @@ class _ResourceHeader extends StatelessWidget {
                     resource.type.label.toUpperCase(),
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
                           color: colors.primary,
-                          fontSize: largeMobile ? 27 : 15,
+                          fontSize: largeMobile ? 30 : 15,
                           letterSpacing: 0.5,
                         ),
                   ),
                   _StatusBadge(completed: completed, viewed: viewed),
                 ],
               ),
-              SizedBox(height: largeMobile ? 18 : 8),
+              SizedBox(height: largeMobile ? 22 : 8),
               Text(
                 resource.title,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontSize: largeMobile ? 48 : 25,
+                      fontSize: largeMobile ? 54 : 25,
                       height: 1.12,
                     ),
               ),
@@ -776,7 +778,7 @@ class _CompletionAction extends StatelessWidget {
                   completed
                       ? Icons.check_circle_rounded
                       : Icons.radio_button_unchecked_rounded,
-                  size: largeMobile ? 48 : 27,
+                  size: largeMobile ? 56 : 27,
                   color: foreground,
                 ),
                 SizedBox(width: largeMobile ? 18 : 10),
@@ -872,7 +874,7 @@ class _ResourceCover extends StatelessWidget {
     final largeMobile = _useLargeMobileResourcesLayout(context);
 
     return Container(
-      padding: EdgeInsets.all(largeMobile ? 42 : 22),
+      padding: EdgeInsets.all(largeMobile ? 52 : 22),
       decoration: BoxDecoration(
         color: colors.primaryContainer.withValues(alpha: 0.72),
       ),
@@ -996,11 +998,11 @@ class _ResourceError extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontSize: largeMobile ? 34 : null,
+                    fontSize: largeMobile ? 38 : null,
                     height: 1.4,
                   ),
             ),
-            SizedBox(height: largeMobile ? 42 : 20),
+            SizedBox(height: largeMobile ? 50 : 20),
             SizedBox(
               width: double.infinity,
               height: largeMobile ? 112 : null,
@@ -1044,7 +1046,7 @@ class _EmptyResources extends StatelessWidget {
               'No encontramos recursos',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: largeMobile ? 46 : null,
+                    fontSize: largeMobile ? 52 : null,
                   ),
             ),
             SizedBox(height: largeMobile ? 22 : 8),
@@ -1053,7 +1055,7 @@ class _EmptyResources extends StatelessWidget {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontSize: largeMobile ? 34 : null,
+                    fontSize: largeMobile ? 38 : null,
                     height: 1.4,
                   ),
             ),
