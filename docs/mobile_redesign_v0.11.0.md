@@ -1,5 +1,7 @@
 # Rediseño móvil v0.11.0
 
+> **Documento histórico:** la escala móvil de esta entrega fue sustituida por `v0.11.1+42`. Consulta `README_ESCALA_MOVIL_v0.11.1.md`.
+
 ## Objetivo
 
 Transformar Misión Admisión en una experiencia móvil más profesional, juvenil y eficiente sin modificar la lógica de dominio, el almacenamiento local, los contratos JSON, la sincronización, Firebase o la PWA.

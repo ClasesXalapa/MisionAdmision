@@ -17,11 +17,7 @@ class MissionAdmissionApp extends ConsumerWidget {
       highContrastTheme: buildHighContrastLightTheme(),
       themeMode: ThemeMode.light,
       builder: (context, child) {
-        final media = MediaQuery.of(context);
-        return MediaQuery(
-          data: media.copyWith(
-            textScaler: TextScaler.linear(resolvedTextScale(context)),
-          ),
+        return HandsetViewport(
           child: child ?? const SizedBox.shrink(),
         );
       },

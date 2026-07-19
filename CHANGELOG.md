@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.11.1+42 — 19 de julio de 2026
+
+- Corrige la escala real en PWA Android cuando el teléfono reporta un viewport ancho de 720 px.
+- Añade `HandsetViewport`, que normaliza teléfonos altos a 430 px lógicos y escala en conjunto texto, iconos, espacios y áreas táctiles.
+- Elimina la compensación aislada de tipografía 1.24 que no aumentaba la geometría de la interfaz.
+- Aumenta ligeramente la tipografía base, los botones, campos y la navegación inferior.
+- Fuerza la card de pregunta a ocupar todo el ancho disponible.
+- Amplía las opciones de respuesta y recupera en Recursos un botón completo para marcar elementos como completados.
+- Añade `viewport-fit=cover` e `interactive-widget=resizes-content` al viewport Web.
+- Actualiza app, build y revisión PWA a `0.11.1+42`.
+
 ## 0.11.0+41 — 19 de julio de 2026
 
 - Rediseño visual integral mobile-first con una nueva identidad índigo, violeta y turquesa.

@@ -1,5 +1,7 @@
 # Entrega de rediseño móvil — v0.11.0+41
 
+> **Documento histórico:** la escala móvil de esta entrega fue sustituida por `v0.11.1+42`. Consulta `README_ESCALA_MOVIL_v0.11.1.md`.
+
 Esta versión cambia de forma integral la presentación móvil de Misión Admisión sin alterar su arquitectura funcional.
 
 ## Pantallas rediseñadas

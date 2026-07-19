@@ -202,6 +202,7 @@ class _QuestionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         color: AppPalette.surface,
         borderRadius: BorderRadius.circular(AppRadii.large),
@@ -629,17 +630,17 @@ class _AnswerTile extends StatelessWidget {
             onTap: onTap,
             borderRadius: BorderRadius.circular(AppRadii.medium),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 78),
+              constraints: const BoxConstraints(minHeight: 88),
               child: Padding(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
                         Container(
-                          width: 44,
-                          height: 44,
+                          width: 48,
+                          height: 48,
                           decoration: BoxDecoration(
                             color: selected ? colors.primary : AppPalette.surfaceSoft,
                             borderRadius: BorderRadius.circular(14),
@@ -654,7 +655,7 @@ class _AnswerTile extends StatelessWidget {
                                 ),
                           ),
                         ),
-                        const SizedBox(width: 13),
+                        const SizedBox(width: 15),
                         Expanded(
                           child: Text(
                             hasText ? text : 'Opción ${option.label}',

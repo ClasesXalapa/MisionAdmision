@@ -59,7 +59,7 @@ class AppBottomNavigation extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: SizedBox(
-            height: 82,
+            height: 88,
             child: Row(
               children: List.generate(_items.length, (index) {
                 final item = _items[index];
@@ -75,7 +75,7 @@ class AppBottomNavigation extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 4,
-                          vertical: 8,
+                          vertical: 9,
                         ),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 180),
@@ -84,19 +84,19 @@ class AppBottomNavigation extends StatelessWidget {
                             color: selected
                                 ? AppPalette.primarySoft
                                 : Colors.transparent,
-                            borderRadius: BorderRadius.circular(18),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
                                 selected ? item.selectedIcon : item.icon,
-                                size: selected ? 27 : 25,
+                                size: selected ? 30 : 27,
                                 color: selected
                                     ? colors.primary
                                     : colors.onSurfaceVariant,
                               ),
-                              const SizedBox(height: 5),
+                              const SizedBox(height: 6),
                               Text(
                                 item.label,
                                 maxLines: 1,

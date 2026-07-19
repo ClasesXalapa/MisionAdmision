@@ -559,31 +559,31 @@ class _ResourceTile extends StatelessWidget {
                   ),
                 ],
                 const SizedBox(height: 18),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: onOpen,
-                        icon: const Icon(Icons.open_in_new_rounded),
-                        label: Text(_actionLabel(resource.type)),
-                      ),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: onOpen,
+                    icon: const Icon(Icons.open_in_new_rounded),
+                    label: Text(_actionLabel(resource.type)),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: onToggleCompleted,
+                    icon: Icon(
+                      completed
+                          ? Icons.check_circle_rounded
+                          : Icons.radio_button_unchecked_rounded,
+                      color: completed ? AppPalette.success : null,
                     ),
-                    const SizedBox(width: 10),
-                    Tooltip(
-                      message: completed
-                          ? 'Marcar como pendiente'
+                    label: Text(
+                      completed
+                          ? 'Completado · marcar pendiente'
                           : 'Marcar como completado',
-                      child: IconButton.outlined(
-                        onPressed: onToggleCompleted,
-                        icon: Icon(
-                          completed
-                              ? Icons.check_circle_rounded
-                              : Icons.radio_button_unchecked_rounded,
-                          color: completed ? AppPalette.success : null,
-                        ),
-                      ),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),

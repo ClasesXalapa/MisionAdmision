@@ -70,6 +70,7 @@ void main() {
     expect(examTopLeft.dy, greaterThan(resourcesTopLeft.dy));
     expect((examTopLeft.dx - resourcesTopLeft.dx).abs(), lessThan(1));
     final scaffoldWidth = tester.getSize(find.byType(Scaffold).first).width;
+    expect(scaffoldWidth, inInclusiveRange(420, 440));
     expect(resourcesSize.width, greaterThan(scaffoldWidth - 36));
     expect(examSize.width, greaterThan(scaffoldWidth - 36));
     expect(resourcesSize.height, inInclusiveRange(90, 260));
@@ -80,7 +81,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('recursos usa la composición móvil compacta', (tester) async {
+  testWidgets('recursos usa la composición móvil normalizada', (tester) async {
     tester.view
       ..physicalSize = const Size(720, 1600)
       ..devicePixelRatio = 1;
@@ -122,6 +123,7 @@ void main() {
     final allFilter = find.byKey(const Key('resource_type_filter_all'));
     final filterSize = tester.getSize(allFilter);
     final scaffoldWidth = tester.getSize(find.byType(Scaffold).first).width;
+    expect(scaffoldWidth, inInclusiveRange(420, 440));
     expect(filterSize.width, lessThan(scaffoldWidth * 0.45));
     expect(filterSize.height, inInclusiveRange(40, 64));
 

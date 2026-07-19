@@ -67,31 +67,31 @@ ThemeData _baseTheme(ColorScheme colorScheme) {
   final baseTextTheme = baseTheme.textTheme;
   final textTheme = baseTextTheme.copyWith(
     displaySmall: baseTextTheme.displaySmall?.copyWith(
-      fontSize: 36,
+      fontSize: 38,
       height: 1.04,
       fontWeight: FontWeight.w900,
       letterSpacing: -1.1,
     ),
     headlineLarge: baseTextTheme.headlineLarge?.copyWith(
-      fontSize: 31,
+      fontSize: 33,
       height: 1.08,
       fontWeight: FontWeight.w900,
       letterSpacing: -0.75,
     ),
     headlineMedium: baseTextTheme.headlineMedium?.copyWith(
-      fontSize: 27,
+      fontSize: 29,
       height: 1.12,
       fontWeight: FontWeight.w800,
       letterSpacing: -0.5,
     ),
     headlineSmall: baseTextTheme.headlineSmall?.copyWith(
-      fontSize: 23,
+      fontSize: 24,
       height: 1.18,
       fontWeight: FontWeight.w800,
       letterSpacing: -0.25,
     ),
     titleLarge: baseTextTheme.titleLarge?.copyWith(
-      fontSize: 21,
+      fontSize: 22,
       height: 1.2,
       fontWeight: FontWeight.w800,
     ),
@@ -106,41 +106,41 @@ ThemeData _baseTheme(ColorScheme colorScheme) {
       fontWeight: FontWeight.w700,
     ),
     bodyLarge: baseTextTheme.bodyLarge?.copyWith(
-      fontSize: 17,
-      height: 1.45,
+      fontSize: 17.5,
+      height: 1.43,
       fontWeight: FontWeight.w400,
     ),
     bodyMedium: baseTextTheme.bodyMedium?.copyWith(
-      fontSize: 15.5,
+      fontSize: 16,
       height: 1.42,
       fontWeight: FontWeight.w400,
     ),
     bodySmall: baseTextTheme.bodySmall?.copyWith(
-      fontSize: 14,
+      fontSize: 14.5,
       height: 1.38,
       fontWeight: FontWeight.w400,
     ),
     labelLarge: baseTextTheme.labelLarge?.copyWith(
-      fontSize: 16,
+      fontSize: 16.5,
       fontWeight: FontWeight.w800,
       letterSpacing: 0,
     ),
     labelMedium: baseTextTheme.labelMedium?.copyWith(
-      fontSize: 14,
+      fontSize: 14.5,
       fontWeight: FontWeight.w700,
       letterSpacing: 0,
     ),
     labelSmall: baseTextTheme.labelSmall?.copyWith(
-      fontSize: 12.5,
+      fontSize: 13.5,
       fontWeight: FontWeight.w700,
       letterSpacing: 0.1,
     ),
   );
 
-  const minimumButtonSize = Size(0, 56);
-  const buttonPadding = EdgeInsets.symmetric(horizontal: 20, vertical: 15);
+  const minimumButtonSize = Size(0, 60);
+  const buttonPadding = EdgeInsets.symmetric(horizontal: 22, vertical: 17);
   const buttonTextStyle = TextStyle(
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: FontWeight.w800,
   );
 
@@ -155,7 +155,7 @@ ThemeData _baseTheme(ColorScheme colorScheme) {
       centerTitle: false,
       elevation: 0,
       scrolledUnderElevation: 0,
-      toolbarHeight: 68,
+      toolbarHeight: 72,
       backgroundColor: AppPalette.background,
       foregroundColor: AppPalette.ink,
       surfaceTintColor: Colors.transparent,
@@ -210,14 +210,14 @@ ThemeData _baseTheme(ColorScheme colorScheme) {
     ),
     iconButtonTheme: IconButtonThemeData(
       style: IconButton.styleFrom(
-        minimumSize: const Size(48, 48),
-        iconSize: 25,
+        minimumSize: const Size(52, 52),
+        iconSize: 27,
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: colorScheme.surface,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 19, vertical: 19),
       labelStyle: textTheme.bodyMedium,
       hintStyle: textTheme.bodyMedium?.copyWith(
         color: colorScheme.onSurfaceVariant,
@@ -275,7 +275,7 @@ ThemeData _baseTheme(ColorScheme colorScheme) {
     progressIndicatorTheme: ProgressIndicatorThemeData(
       color: colorScheme.primary,
       linearTrackColor: AppPalette.primarySoft,
-      linearMinHeight: 8,
+      linearMinHeight: 9,
       borderRadius: BorderRadius.circular(999),
     ),
     focusColor: colorScheme.primary.withValues(alpha: 0.16),
