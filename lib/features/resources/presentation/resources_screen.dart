@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mision_admision/app/dependencies.dart';
+import 'package:mision_admision/app/responsive.dart';
 import 'package:mision_admision/domain/models/resource_card.dart';
 import 'package:mision_admision/domain/models/resource_type.dart';
 import 'package:mision_admision/features/navigation/presentation/app_bottom_navigation.dart';

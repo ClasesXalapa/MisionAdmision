@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.10.13+40 — 19 de julio de 2026
+
+- Hotfix de compilación en Recursos: se restaura la importación de `app/responsive.dart`.
+- La llamada a `fullWidthCentered()` vuelve a resolverse correctamente durante `flutter analyze` y la compilación.
+- No se modifica el diseño ni la lógica funcional de Recursos.
+
 ## 0.10.13+39 — 19 de julio de 2026
 
 - Recursos fuerza siempre la composición móvil grande, sin depender de breakpoints o de la plataforma reportada por el navegador.
