@@ -66,7 +66,7 @@ self.addEventListener('install', (event) => {
         'manifest.json',
         'flutter_bootstrap.js',
         'main.dart.js',
-        'pwa_bridge.js',
+        'pwa_bridge_bootstrap.js',
         'firebase_config.js',
         'notification_state_store.js',
         'notifications_bridge.js',
@@ -139,7 +139,14 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (APP_SHELL_SET.has(relativePath)) {
-    event.respondWith(cacheFirst(request, APP_CACHE));
+    // El código JavaScript debe comprobar la red antes que la caché. De otro
+    // modo una PWA instalada puede conservar main.dart.js de una versión
+    // anterior aunque index.html ya se haya actualizado.
+    if (relativePath.endsWith('.js')) {
+      event.respondWith(networkFirstAppAsset(request));
+    } else {
+      event.respondWith(cacheFirst(request, APP_CACHE));
+    }
     return;
   }
 
@@ -158,6 +165,19 @@ async function networkFirstNavigation(request) {
     return (await caches.match(scopedUrl('index.html'))) ||
       (await caches.match(scopedUrl('offline.html'))) ||
       Response.error();
+  }
+}
+
+async function networkFirstAppAsset(request) {
+  try {
+    const response = await fetch(request, {cache: 'reload'});
+    if (response.ok) {
+      const cache = await caches.open(APP_CACHE);
+      await cache.put(request, response.clone());
+    }
+    return response;
+  } catch (_) {
+    return (await caches.match(request, {ignoreSearch: true})) || Response.error();
   }
 }
 

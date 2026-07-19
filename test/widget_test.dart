@@ -42,10 +42,6 @@ void main() {
     expect(find.text('Aplicación instalada'), findsNothing);
     expect(find.text('Copiar ID de prueba'), findsNothing);
 
-    // Las claves son estables aunque el texto cambie entre comenzar,
-    // continuar o repetir según el progreso local del alumno.
-    expect(find.byKey(const Key('home_daily_challenge_action')), findsOneWidget);
-
     expect(find.text('Racha actual'), findsOneWidget);
     expect(find.text('Mejor racha'), findsOneWidget);
     expect(find.text('Escudos'), findsOneWidget);
@@ -57,9 +53,18 @@ void main() {
     final scrollPosition = tester.state<ScrollableState>(scrollable).position;
     expect(scrollPosition.maxScrollExtent, greaterThan(0));
 
+    // La pantalla está diseñada para desplazarse: el reto y las acciones
+    // inferiores pueden estar fuera del primer viewport sin dejar de existir.
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('home_daily_challenge_action')),
+      500,
+      scrollable: scrollable,
+    );
+    expect(find.byKey(const Key('home_daily_challenge_action')), findsOneWidget);
+
     await tester.scrollUntilVisible(
       find.byKey(const Key('home_exam_action')),
-      350,
+      500,
       scrollable: scrollable,
     );
 
@@ -81,8 +86,8 @@ void main() {
     final scaffoldWidth = tester.getSize(find.byType(Scaffold).first).width;
     expect(resourcesSize.width, greaterThan(scaffoldWidth - 36));
     expect(examSize.width, greaterThan(scaffoldWidth - 36));
-    expect(resourcesSize.height, greaterThanOrEqualTo(236));
-    expect(examSize.height, greaterThanOrEqualTo(236));
+    expect(resourcesSize.height, greaterThanOrEqualTo(500));
+    expect(examSize.height, greaterThanOrEqualTo(500));
 
     // El escalado móvil no debe producir desbordamientos ni otras excepciones
     // de renderizado en la barra inferior o en las cards de Inicio.

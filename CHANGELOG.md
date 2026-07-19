@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.10.9+35 — 2026-07-18
+
+- Inicio deja de intentar caber en una sola vista y adopta una escala móvil deliberadamente grande.
+- Se duplicó aproximadamente la altura útil de progreso, reto diario, accesos principales y navegación inferior.
+- Los textos principales usan líneas más estrechas para permitir tipografías grandes y lectura cómoda.
+- Mejor racha, escudos y retos permanecen en filas completas de gran altura.
+- Biblioteca de recursos y Examen libre usan cards verticales de al menos 500 px lógicos.
+- La PWA actualiza JavaScript con estrategia network-first para evitar conservar una interfaz anterior.
+- Se añadió `pwa_bridge_bootstrap.js` para migrar instalaciones atrapadas en una caché antigua y recargar al cambiar el controlador.
+
 ## 0.10.8+34 — 2026-07-18
 
 - La pantalla de Inicio deja de intentar concentrar todo el contenido en una sola vista y adopta desplazamiento vertical como comportamiento normal.

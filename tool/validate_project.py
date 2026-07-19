@@ -54,13 +54,14 @@ def main() -> int:
         "backup_bridge.js",
         "diagnostics_bridge.js",
         "pwa_bridge.js",
+        "pwa_bridge_bootstrap.js",
         "flutter_bootstrap.js",
     }
     loaded_web_files = {
         "firebase_config.js",
         "notifications_bridge.js",
         "notification_state_store.js",
-        "pwa_bridge.js",
+        "pwa_bridge_bootstrap.js",
         "flutter_bootstrap.js",
     }
     for name in sorted(required_web_files):
@@ -73,6 +74,22 @@ def main() -> int:
         if not script_pattern.search(index_html):
             errors.append(f"web/index.html no carga {name}.")
 
+    pwa_bridge = (ROOT / "web/pwa_bridge.js").read_text(encoding="utf-8")
+    pwa_bootstrap = (ROOT / "web/pwa_bridge_bootstrap.js").read_text(
+        encoding="utf-8"
+    )
+    if pwa_bridge != pwa_bootstrap:
+        errors.append(
+            "pwa_bridge.js y pwa_bridge_bootstrap.js deben mantenerse idénticos."
+        )
+
+    service_worker = (ROOT / "web/app_service_worker.js").read_text(
+        encoding="utf-8"
+    )
+    if "networkFirstAppAsset" not in service_worker:
+        errors.append(
+            "El service worker debe actualizar JavaScript antes de usar la caché."
+        )
 
     flutter_bootstrap = (ROOT / "web/flutter_bootstrap.js").read_text(encoding="utf-8")
     for token in ("{{flutter_js}}", "{{flutter_build_config}}", "_flutter.loader.load()"):

@@ -48,7 +48,7 @@ class AppBottomNavigation extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 136,
+          height: 186,
           child: Row(
             children: List.generate(_items.length, (index) {
               final item = _items[index];
@@ -60,31 +60,34 @@ class AppBottomNavigation extends StatelessWidget {
                   selected: selected,
                   label: item.label,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 12,
+                    ),
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: BorderRadius.circular(28),
                       onTap: selected ? null : () => context.go(item.route),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 180),
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
                           color: selected
                               ? colors.primaryContainer
                               : Colors.transparent,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(26),
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
                               selected ? item.selectedIcon : item.icon,
-                              size: selected ? 54 : 50,
+                              size: selected ? 70 : 64,
                               color: selected
                                   ? colors.primary
                                   : colors.onSurfaceVariant,
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 14),
                             Text(
                               item.label,
                               maxLines: 1,
@@ -93,11 +96,11 @@ class AppBottomNavigation extends StatelessWidget {
                                 color: selected
                                     ? colors.primary
                                     : colors.onSurfaceVariant,
-                                fontSize: 20,
+                                fontSize: 25,
                                 height: 1,
                                 fontWeight: selected
                                     ? FontWeight.w900
-                                    : FontWeight.w700,
+                                    : FontWeight.w800,
                               ),
                             ),
                           ],

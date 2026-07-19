@@ -21,6 +21,7 @@ class PreparePwaTest(unittest.TestCase):
                 "flutter_bootstrap.js",
                 "main.dart.js",
                 "pwa_bridge.js",
+                "pwa_bridge_bootstrap.js",
                 "firebase_config.js",
                 "notifications_bridge.js",
                 "notification_state_store.js",
