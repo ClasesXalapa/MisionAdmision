@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mision_admision/app/dependencies.dart';
+import 'package:mision_admision/app/responsive.dart';
 import 'package:mision_admision/features/notifications/application/notification_controller.dart';
 import 'package:mision_admision/platform/notifications/notification_service.dart';
 
@@ -109,15 +110,16 @@ class _NotificationReminderCardState
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     if (_controller.loading) {
-      return const Card(
-        key: Key('settings_notification_card'),
+      return Card(
+        key: const Key('settings_notification_card'),
         margin: EdgeInsets.zero,
         child: SizedBox(
-          height: 124,
+          height: responsive.heightValue(0.12, minimum: 120, maximum: 190),
           child: Padding(
-            padding: EdgeInsets.all(18),
-            child: Center(child: LinearProgressIndicator()),
+            padding: EdgeInsets.all(responsive.cardPadding),
+            child: const Center(child: LinearProgressIndicator()),
           ),
         ),
       );
@@ -131,7 +133,7 @@ class _NotificationReminderCardState
       key: const Key('settings_notification_card'),
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: EdgeInsets.all(responsive.cardPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -139,19 +141,19 @@ class _NotificationReminderCardState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 58,
-                  height: 58,
+                  width: responsive.iconBadgeSize * 1.08,
+                  height: responsive.iconBadgeSize * 1.08,
                   decoration: BoxDecoration(
                     color: presentation.color.withValues(alpha: 0.13),
-                    borderRadius: BorderRadius.circular(17),
+                    borderRadius: BorderRadius.circular(responsive.mediumRadius),
                   ),
                   child: Icon(
                     presentation.icon,
                     color: presentation.color,
-                    size: 31,
+                    size: responsive.iconSize * 1.08,
                   ),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: responsive.itemGap),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,7 +165,7 @@ class _NotificationReminderCardState
                               fontWeight: FontWeight.w800,
                             ),
                       ),
-                      const SizedBox(height: 7),
+                      SizedBox(height: responsive.compactGap * 0.75),
                       Text(
                         presentation.message,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -178,16 +180,16 @@ class _NotificationReminderCardState
               ],
             ),
             if (status.registrationAvailable) ...[
-              const SizedBox(height: 14),
+              SizedBox(height: responsive.itemGap),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 11,
+                padding: responsive.symmetricInsets(
+                  horizontalFraction: 0.03,
+                  verticalFraction: 0.022,
                 ),
                 decoration: BoxDecoration(
                   color: colors.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(responsive.smallRadius),
                 ),
                 child: Text(
                   _registrationSummary(status),
@@ -200,33 +202,32 @@ class _NotificationReminderCardState
               ),
             ],
             if (status.errorMessage != null) ...[
-              const SizedBox(height: 14),
+              SizedBox(height: responsive.itemGap),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(22),
+                padding: EdgeInsets.all(responsive.cardPadding),
                 decoration: BoxDecoration(
                   color: colors.errorContainer,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(responsive.smallRadius),
                 ),
                 child: Text(
                   status.errorMessage!,
-                  style: TextStyle(
-                    color: colors.onErrorContainer,
-                    fontSize: 21,
-                    height: 1.4,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: colors.onErrorContainer,
+                        height: 1.4,
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
               ),
             ],
             if (status.configured && status.supported) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: responsive.itemGap),
               if (status.enabled)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     SizedBox(
-                      height: 58,
+                      height: responsive.controlHeight,
                       child: OutlinedButton.icon(
                         onPressed: _controller.busy
                             ? null
@@ -238,7 +239,7 @@ class _NotificationReminderCardState
                           _showTechnicalTools
                               ? Icons.expand_less_rounded
                               : Icons.build_outlined,
-                          size: 32,
+                          size: responsive.iconSize,
                         ),
                         label: const Text('Herramientas técnicas'),
                         style: OutlinedButton.styleFrom(
@@ -249,14 +250,14 @@ class _NotificationReminderCardState
                       ),
                     ),
                     if (_showTechnicalTools) ...[
-                      const SizedBox(height: 18),
+                      SizedBox(height: responsive.itemGap),
                       SizedBox(
-                        height: 70,
+                        height: responsive.controlHeight,
                         child: OutlinedButton.icon(
                           onPressed: _controller.busy ? null : _test,
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.notifications_active_outlined,
-                            size: 30,
+                            size: responsive.iconSize,
                           ),
                           label: const Text('Enviar prueba local'),
                           style: OutlinedButton.styleFrom(
@@ -266,13 +267,16 @@ class _NotificationReminderCardState
                           ),
                         ),
                       ),
-                      const SizedBox(height: 7),
+                      SizedBox(height: responsive.compactGap * 0.75),
                       SizedBox(
-                        height: 70,
+                        height: responsive.controlHeight,
                         child: OutlinedButton.icon(
                           onPressed:
                               _controller.busy ? null : _refreshRegistration,
-                          icon: const Icon(Icons.build_outlined, size: 30),
+                          icon: Icon(
+                            Icons.build_outlined,
+                            size: responsive.iconSize,
+                          ),
                           label: const Text('Reparar notificaciones'),
                           style: OutlinedButton.styleFrom(
                             textStyle: const TextStyle(
@@ -281,13 +285,16 @@ class _NotificationReminderCardState
                           ),
                         ),
                       ),
-                      const SizedBox(height: 7),
+                      SizedBox(height: responsive.compactGap * 0.75),
                       SizedBox(
-                        height: 70,
+                        height: responsive.controlHeight,
                         child: OutlinedButton.icon(
                           onPressed:
                               _controller.busy ? null : _copyTestingId,
-                          icon: const Icon(Icons.copy_outlined, size: 30),
+                          icon: Icon(
+                            Icons.copy_outlined,
+                            size: responsive.iconSize,
+                          ),
                           label: const Text('Copiar ID de prueba'),
                           style: OutlinedButton.styleFrom(
                             textStyle: const TextStyle(
@@ -297,9 +304,9 @@ class _NotificationReminderCardState
                         ),
                       ),
                     ],
-                    const SizedBox(height: 12),
+                    SizedBox(height: responsive.itemGap),
                     SizedBox(
-                      height: 64,
+                      height: responsive.controlHeight,
                       child: TextButton(
                         onPressed: _controller.busy ? null : _disable,
                         style: TextButton.styleFrom(
@@ -315,10 +322,13 @@ class _NotificationReminderCardState
               else if (status.canEnable)
                 SizedBox(
                   width: double.infinity,
-                  height: 58,
+                  height: responsive.controlHeight,
                   child: FilledButton.icon(
                     onPressed: _controller.busy ? null : _enable,
-                    icon: const Icon(Icons.notifications_outlined, size: 34),
+                    icon: Icon(
+                      Icons.notifications_outlined,
+                      size: responsive.iconSize,
+                    ),
                     label: const Text('Activar notificaciones'),
                     style: FilledButton.styleFrom(
                       textStyle: const TextStyle(fontWeight: FontWeight.w800),

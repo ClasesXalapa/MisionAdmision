@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mision_admision/app/design_system.dart';
+import 'package:mision_admision/app/responsive.dart';
 
 class AppBottomNavigation extends StatelessWidget {
   const AppBottomNavigation({
@@ -40,6 +41,7 @@ class AppBottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final responsive = context.responsive;
 
     return Material(
       key: const Key('app_bottom_navigation'),
@@ -59,7 +61,7 @@ class AppBottomNavigation extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: SizedBox(
-            height: 88,
+            height: responsive.bottomNavigationHeight,
             child: Row(
               children: List.generate(_items.length, (index) {
                 final item = _items[index];
@@ -73,9 +75,9 @@ class AppBottomNavigation extends StatelessWidget {
                     child: InkWell(
                       onTap: selected ? null : () => context.go(item.route),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 9,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: responsive.value(0.008, minimum: 3, maximum: 7),
+                          vertical: responsive.value(0.018, minimum: 7, maximum: 13),
                         ),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 180),
@@ -84,19 +86,21 @@ class AppBottomNavigation extends StatelessWidget {
                             color: selected
                                 ? AppPalette.primarySoft
                                 : Colors.transparent,
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(responsive.mediumRadius),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
                                 selected ? item.selectedIcon : item.icon,
-                                size: selected ? 30 : 27,
+                                size: selected
+                                    ? responsive.iconSize * 1.12
+                                    : responsive.iconSize,
                                 color: selected
                                     ? colors.primary
                                     : colors.onSurfaceVariant,
                               ),
-                              const SizedBox(height: 6),
+                              SizedBox(height: responsive.compactGap * 0.7),
                               Text(
                                 item.label,
                                 maxLines: 1,

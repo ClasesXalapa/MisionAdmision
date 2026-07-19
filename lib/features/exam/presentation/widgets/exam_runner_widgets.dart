@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mision_admision/app/design_system.dart';
+import 'package:mision_admision/app/responsive.dart';
 import 'package:mision_admision/domain/models/answer_option.dart';
 import 'package:mision_admision/domain/models/exam.dart';
 import 'package:mision_admision/domain/models/exam_result.dart';
@@ -15,18 +16,21 @@ class ExamLoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(responsive.cardPadding),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(
-              width: 54,
-              height: 54,
-              child: CircularProgressIndicator(strokeWidth: 5),
+            SizedBox(
+              width: responsive.iconBadgeSize,
+              height: responsive.iconBadgeSize,
+              child: CircularProgressIndicator(
+                strokeWidth: responsive.progressThickness * 0.55,
+              ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: responsive.itemGap * 1.3),
             Text(
               message,
               textAlign: TextAlign.center,
@@ -51,43 +55,44 @@ class ExamErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(responsive.pagePadding),
         child: Card(
           child: Padding(
-            padding: const EdgeInsets.all(28),
+            padding: EdgeInsets.all(responsive.cardPadding * 1.2),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   Icons.error_outline_rounded,
-                  size: 72,
+                  size: responsive.iconBadgeSize * 1.25,
                   color: Theme.of(context).colorScheme.error,
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: responsive.itemGap * 1.2),
                 Text(
                   'No pudimos abrir esta actividad',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: responsive.itemGap),
                 Text(
                   message,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
-                const SizedBox(height: 26),
+                SizedBox(height: responsive.sectionGap * 0.8),
                 SizedBox(
                   width: double.infinity,
-                  height: 72,
+                  height: responsive.controlHeight,
                   child: FilledButton.icon(
                     onPressed: onRetry,
-                    icon: const Icon(Icons.refresh_rounded, size: 30),
-                    label: const Text(
-                      'Intentar de nuevo',
-                      style: TextStyle(fontSize: 20),
+                    icon: Icon(
+                      Icons.refresh_rounded,
+                      size: responsive.iconSize,
                     ),
+                    label: const Text('Intentar de nuevo'),
                   ),
                 ),
               ],
@@ -128,28 +133,32 @@ class ExamQuestionView extends StatelessWidget {
     final isFirst = currentIndex == 0;
     final isLast = currentIndex == exam.questions.length - 1;
     final allAnswered = answers.length == exam.questions.length;
+    final responsive = context.responsive;
 
     return Stack(
       children: [
         ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.fromLTRB(
-            16,
-            8,
-            16,
-            isLast && !allAnswered ? 154 : 124,
+            responsive.pagePadding,
+            responsive.compactGap,
+            responsive.pagePadding,
+            responsive.bottomNavigationHeight +
+                (isLast && !allAnswered
+                    ? responsive.sectionGap * 1.6
+                    : responsive.sectionGap),
           ),
           children: [
             if (banner != null) ...[
               banner!,
-              const SizedBox(height: 12),
+              SizedBox(height: responsive.itemGap),
             ],
             _ProgressHeader(
               currentIndex: currentIndex,
               total: exam.questions.length,
               answered: answers.length,
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: responsive.itemGap),
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 220),
               switchInCurve: Curves.easeOutCubic,
@@ -158,12 +167,12 @@ class ExamQuestionView extends StatelessWidget {
                 question: question,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: responsive.sectionGap * 0.72),
             Text(
               'Elige una respuesta',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 11),
+            SizedBox(height: responsive.itemGap),
             for (final option in AnswerOption.values) ...[
               _AnswerTile(
                 option: option,
@@ -172,7 +181,8 @@ class ExamQuestionView extends StatelessWidget {
                 selected: selected == option,
                 onTap: () => onAnswer(option),
               ),
-              if (option != AnswerOption.d) const SizedBox(height: 10),
+              if (option != AnswerOption.d)
+                SizedBox(height: responsive.itemGap),
             ],
           ],
         ),
@@ -201,21 +211,22 @@ class _QuestionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppPalette.surface,
-        borderRadius: BorderRadius.circular(AppRadii.large),
+        borderRadius: BorderRadius.circular(responsive.largeRadius),
         border: Border.all(color: AppPalette.outline),
         boxShadow: AppShadows.soft,
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(19, 18, 19, 21),
+        padding: EdgeInsets.all(responsive.cardPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _QuestionMetadata(question: question),
-            const SizedBox(height: 16),
+            SizedBox(height: responsive.itemGap),
             Text(
               question.statement,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -223,11 +234,11 @@ class _QuestionCard extends StatelessWidget {
                   ),
             ),
             if (question.imageUrl != null) ...[
-              const SizedBox(height: 18),
+              SizedBox(height: responsive.itemGap),
               _QuestionImage(
                 url: question.imageUrl!,
                 semanticsLabel: 'Imagen de la pregunta',
-                maxHeight: 360,
+                maxHeight: responsive.heightValue(0.34, minimum: 280, maximum: 520),
               ),
             ],
           ],
@@ -251,11 +262,12 @@ class _ProgressHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final responsive = context.responsive;
     return Container(
-      padding: const EdgeInsets.all(15),
+      padding: EdgeInsets.all(responsive.cardPadding * 0.86),
       decoration: BoxDecoration(
         color: AppPalette.surface,
-        borderRadius: BorderRadius.circular(AppRadii.medium),
+        borderRadius: BorderRadius.circular(responsive.mediumRadius),
         border: Border.all(color: AppPalette.outline),
       ),
       child: Column(
@@ -263,11 +275,11 @@ class _ProgressHeader extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 38,
-                height: 38,
+                width: responsive.iconBadgeSize * 0.86,
+                height: responsive.iconBadgeSize * 0.86,
                 decoration: BoxDecoration(
                   color: AppPalette.primarySoft,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(responsive.smallRadius),
                 ),
                 alignment: Alignment.center,
                 child: Text(
@@ -277,7 +289,7 @@ class _ProgressHeader extends StatelessWidget {
                       ),
                 ),
               ),
-              const SizedBox(width: 11),
+              SizedBox(width: responsive.itemGap),
               Expanded(
                 child: Text(
                   'Pregunta ${currentIndex + 1} de $total',
@@ -285,10 +297,13 @@ class _ProgressHeader extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: EdgeInsets.symmetric(
+                  horizontal: responsive.value(0.022, minimum: 9, maximum: 16),
+                  vertical: responsive.value(0.013, minimum: 5, maximum: 10),
+                ),
                 decoration: BoxDecoration(
                   color: AppPalette.surfaceSoft,
-                  borderRadius: BorderRadius.circular(999),
+                  borderRadius: BorderRadius.circular(responsive.largeRadius),
                 ),
                 child: Text(
                   '$answered respondidas',
@@ -299,10 +314,10 @@ class _ProgressHeader extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: responsive.itemGap),
           LinearProgressIndicator(
             value: (currentIndex + 1) / total,
-            minHeight: 8,
+            minHeight: responsive.progressThickness,
             borderRadius: BorderRadius.circular(999),
             backgroundColor: AppPalette.primarySoft,
           ),
@@ -332,6 +347,7 @@ class _QuestionActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final responsive = context.responsive;
     return Material(
       elevation: 0,
       color: colors.surface,
@@ -350,7 +366,12 @@ class _QuestionActionBar extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+            padding: EdgeInsets.fromLTRB(
+              responsive.pagePadding,
+              responsive.compactGap,
+              responsive.pagePadding,
+              responsive.itemGap,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -359,15 +380,27 @@ class _QuestionActionBar extends StatelessWidget {
                     Expanded(
                       flex: 4,
                       child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: Size(0, responsive.controlHeight),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: responsive.compactGap,
+                          ),
+                        ),
                         onPressed: isFirst ? null : onPrevious,
                         icon: const Icon(Icons.arrow_back_rounded),
                         label: const Text('Anterior'),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: responsive.compactGap),
                     Expanded(
                       flex: 6,
                       child: FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                          minimumSize: Size(0, responsive.controlHeight),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: responsive.compactGap,
+                          ),
+                        ),
                         onPressed: isLast
                             ? (allAnswered ? onFinish : null)
                             : onNext,
@@ -382,7 +415,7 @@ class _QuestionActionBar extends StatelessWidget {
                   ],
                 ),
                 if (isLast && !allAnswered) ...[
-                  const SizedBox(height: 7),
+                  SizedBox(height: responsive.compactGap * 0.7),
                   Text(
                     'Responde todas las preguntas para finalizar.',
                     textAlign: TextAlign.center,
@@ -424,20 +457,19 @@ class ExamResultView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     final percent = result.total == 0
         ? 0
         : ((result.correct / result.total) * 100).round();
 
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 620),
-          child: Container(
-            width: double.infinity,
+        padding: EdgeInsets.all(responsive.pagePadding),
+        child: Container(
+          width: double.infinity,
             decoration: BoxDecoration(
               color: AppPalette.surface,
-              borderRadius: BorderRadius.circular(AppRadii.hero),
+              borderRadius: BorderRadius.circular(responsive.heroRadius),
               border: Border.all(color: AppPalette.outline),
               boxShadow: AppShadows.soft,
             ),
@@ -446,15 +478,18 @@ class ExamResultView extends StatelessWidget {
               children: [
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 26),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: responsive.cardPadding,
+                    vertical: responsive.sectionGap * 0.8,
+                  ),
                   decoration: const BoxDecoration(
                     gradient: AppPalette.heroGradient,
                   ),
                   child: Column(
                     children: [
                       Container(
-                        width: 104,
-                        height: 104,
+                        width: responsive.iconBadgeSize * 1.9,
+                        height: responsive.iconBadgeSize * 1.9,
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
@@ -471,7 +506,7 @@ class ExamResultView extends StatelessWidget {
                               ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: responsive.itemGap),
                       Text(
                         title,
                         textAlign: TextAlign.center,
@@ -480,7 +515,7 @@ class ExamResultView extends StatelessWidget {
                             ),
                       ),
                       if (message != null) ...[
-                        const SizedBox(height: 8),
+                        SizedBox(height: responsive.compactGap),
                         Text(
                           message!,
                           textAlign: TextAlign.center,
@@ -493,7 +528,7 @@ class ExamResultView extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(responsive.cardPadding),
                   child: Column(
                     children: [
                       Row(
@@ -507,7 +542,7 @@ class ExamResultView extends StatelessWidget {
                               foreground: AppPalette.ink,
                             ),
                           ),
-                          const SizedBox(width: 9),
+                          SizedBox(width: responsive.compactGap * 0.8),
                           Expanded(
                             child: _ResultMetric(
                               label: 'Correctas',
@@ -517,7 +552,7 @@ class ExamResultView extends StatelessWidget {
                               foreground: AppPalette.success,
                             ),
                           ),
-                          const SizedBox(width: 9),
+                          SizedBox(width: responsive.compactGap * 0.8),
                           Expanded(
                             child: _ResultMetric(
                               label: 'Incorrectas',
@@ -530,10 +565,10 @@ class ExamResultView extends StatelessWidget {
                         ],
                       ),
                       if (extraContent != null) ...[
-                        const SizedBox(height: 18),
+                        SizedBox(height: responsive.itemGap),
                         extraContent!,
                       ],
-                      const SizedBox(height: 20),
+                      SizedBox(height: responsive.sectionGap * 0.72),
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton(
@@ -542,7 +577,7 @@ class ExamResultView extends StatelessWidget {
                         ),
                       ),
                       if (secondaryLabel != null && onSecondary != null) ...[
-                        const SizedBox(height: 8),
+                        SizedBox(height: responsive.compactGap),
                         SizedBox(
                           width: double.infinity,
                           child: TextButton(
@@ -558,7 +593,6 @@ class ExamResultView extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
   }
 }
@@ -570,16 +604,23 @@ class _QuestionMetadata extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Wrap(
-      spacing: 9,
-      runSpacing: 9,
+      spacing: responsive.compactGap,
+      runSpacing: responsive.compactGap,
       children: [
         Chip(
-          avatar: const Icon(Icons.school_outlined, size: 21),
+          avatar: Icon(
+            Icons.school_outlined,
+            size: responsive.iconSize * 0.72,
+          ),
           label: Text(_readableLabel(question.category)),
         ),
         Chip(
-          avatar: const Icon(Icons.signal_cellular_alt_rounded, size: 21),
+          avatar: Icon(
+            Icons.signal_cellular_alt_rounded,
+            size: responsive.iconSize * 0.72,
+          ),
           label: Text(_readableLabel(question.difficulty.jsonValue)),
         ),
       ],
@@ -605,6 +646,7 @@ class _AnswerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final responsive = context.responsive;
     final hasText = text.trim().isNotEmpty;
     final semanticsContent = hasText ? text : 'inciso con imagen';
 
@@ -617,7 +659,7 @@ class _AnswerTile extends StatelessWidget {
         curve: Curves.easeOutCubic,
         decoration: BoxDecoration(
           color: selected ? AppPalette.primarySoft : AppPalette.surface,
-          borderRadius: BorderRadius.circular(AppRadii.medium),
+          borderRadius: BorderRadius.circular(responsive.mediumRadius),
           border: Border.all(
             color: selected ? colors.primary : AppPalette.outline,
             width: selected ? 2 : 1,
@@ -628,22 +670,25 @@ class _AnswerTile extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: onTap,
-            borderRadius: BorderRadius.circular(AppRadii.medium),
+            borderRadius: BorderRadius.circular(responsive.mediumRadius),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 88),
+              constraints: BoxConstraints(minHeight: responsive.optionHeight),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
+                padding: responsive.symmetricInsets(
+                  horizontalFraction: 0.038,
+                  verticalFraction: 0.033,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
                         Container(
-                          width: 48,
-                          height: 48,
+                          width: responsive.iconBadgeSize,
+                          height: responsive.iconBadgeSize,
                           decoration: BoxDecoration(
                             color: selected ? colors.primary : AppPalette.surfaceSoft,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(responsive.smallRadius),
                           ),
                           alignment: Alignment.center,
                           child: Text(
@@ -655,7 +700,7 @@ class _AnswerTile extends StatelessWidget {
                                 ),
                           ),
                         ),
-                        const SizedBox(width: 15),
+                        SizedBox(width: responsive.itemGap),
                         Expanded(
                           child: Text(
                             hasText ? text : 'Opción ${option.label}',
@@ -667,21 +712,21 @@ class _AnswerTile extends StatelessWidget {
                           ),
                         ),
                         if (selected) ...[
-                          const SizedBox(width: 8),
+                          SizedBox(width: responsive.compactGap),
                           Icon(
                             Icons.check_circle_rounded,
-                            size: 26,
+                            size: responsive.iconSize,
                             color: colors.primary,
                           ),
                         ],
                       ],
                     ),
                     if (imageUrl != null) ...[
-                      const SizedBox(height: 14),
+                      SizedBox(height: responsive.itemGap),
                       _QuestionImage(
                         url: imageUrl!,
                         semanticsLabel: 'Imagen de la opción ${option.label}',
-                        maxHeight: 300,
+                        maxHeight: responsive.heightValue(0.3, minimum: 250, maximum: 460),
                       ),
                     ],
                   ],
@@ -708,12 +753,13 @@ class _QuestionImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Semantics(
       image: true,
       label: semanticsLabel,
       child: Material(
         color: const Color(0xFFF2F4F9),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.mediumRadius),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () => _showImageViewer(context, url, semanticsLabel),
@@ -723,7 +769,7 @@ class _QuestionImage extends StatelessWidget {
                 width: double.infinity,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    minHeight: 180,
+                    minHeight: responsive.heightValue(0.18, minimum: 170, maximum: 280),
                     maxHeight: maxHeight,
                   ),
                   child: Image.network(
@@ -733,7 +779,7 @@ class _QuestionImage extends StatelessWidget {
                     loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) return child;
                     return SizedBox(
-                      height: 220,
+                      height: responsive.heightValue(0.22, minimum: 200, maximum: 320),
                       child: Center(
                         child: CircularProgressIndicator(
                           value: loadingProgress.expectedTotalBytes == null
@@ -745,24 +791,26 @@ class _QuestionImage extends StatelessWidget {
                     );
                     },
                     errorBuilder: (context, error, stackTrace) {
-                      return const _ImageError(height: 220);
+                      return _ImageError(
+                        height: responsive.heightValue(0.22, minimum: 200, maximum: 320),
+                      );
                     },
                   ),
                 ),
               ),
               Positioned(
-                right: 10,
-                bottom: 10,
+                right: responsive.compactGap,
+                bottom: responsive.compactGap,
                 child: Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(responsive.compactGap * 0.8),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.68),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.zoom_in_rounded,
                     color: Colors.white,
-                    size: 28,
+                    size: responsive.iconSize,
                   ),
                 ),
               ),
@@ -783,8 +831,9 @@ Future<void> _showImageViewer(
     context: context,
     barrierColor: Colors.black.withValues(alpha: 0.92),
     builder: (dialogContext) {
+      final responsive = dialogContext.responsive;
       return Dialog(
-        insetPadding: const EdgeInsets.all(12),
+        insetPadding: EdgeInsets.all(responsive.compactGap),
         backgroundColor: Colors.black,
         child: SizedBox(
           width: double.infinity,
@@ -803,8 +852,12 @@ Future<void> _showImageViewer(
                         url,
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
-                          return const _ImageError(
-                            height: 260,
+                          return _ImageError(
+                            height: responsive.heightValue(
+                              0.26,
+                              minimum: 230,
+                              maximum: 390,
+                            ),
                             dark: true,
                           );
                         },
@@ -814,8 +867,8 @@ Future<void> _showImageViewer(
                 ),
               ),
               Positioned(
-                top: 10,
-                right: 10,
+                top: responsive.compactGap,
+                right: responsive.compactGap,
                 child: IconButton.filled(
                   tooltip: 'Cerrar imagen',
                   onPressed: () => Navigator.of(dialogContext).pop(),
@@ -851,16 +904,20 @@ class _ResultMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 17),
+      padding: EdgeInsets.symmetric(
+        horizontal: responsive.compactGap * 0.8,
+        vertical: responsive.itemGap,
+      ),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(responsive.mediumRadius),
       ),
       child: Column(
         children: [
-          Icon(icon, color: foreground, size: 30),
-          const SizedBox(height: 7),
+          Icon(icon, color: foreground, size: responsive.iconSize),
+          SizedBox(height: responsive.compactGap * 0.7),
           Text(
             '$value',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -868,7 +925,7 @@ class _ResultMetric extends StatelessWidget {
                   fontWeight: FontWeight.w900,
                 ),
           ),
-          const SizedBox(height: 3),
+          SizedBox(height: responsive.compactGap * 0.35),
           Text(
             label,
             textAlign: TextAlign.center,

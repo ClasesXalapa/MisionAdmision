@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mision_admision/app/dependencies.dart';
 import 'package:mision_admision/app/design_system.dart';
+import 'package:mision_admision/app/responsive.dart';
 import 'package:mision_admision/core/time/local_date.dart';
 import 'package:mision_admision/domain/models/learner_progress.dart';
 import 'package:mision_admision/domain/models/rank.dart';
@@ -27,29 +28,37 @@ class HomeScreen extends ConsumerWidget {
       constraints: BoxConstraints(maxWidth: screenSize.width),
       builder: (sheetContext) {
         final colors = Theme.of(sheetContext).colorScheme;
+        final responsive = sheetContext.responsive;
         return FractionallySizedBox(
-          heightFactor: 0.92,
+          heightFactor: 0.95,
           widthFactor: 1,
           child: Material(
             key: const Key('app_settings_sheet'),
             color: colors.surface,
             clipBehavior: Clip.antiAlias,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(responsive.heroRadius),
+              ),
             ),
             child: Column(
               children: [
-                const SizedBox(height: 10),
+                SizedBox(height: responsive.compactGap),
                 Container(
-                  width: 54,
-                  height: 5,
+                  width: responsive.widthValue(0.1, minimum: 48, maximum: 76),
+                  height: responsive.value(0.01, minimum: 4, maximum: 7),
                   decoration: BoxDecoration(
                     color: colors.outlineVariant,
                     borderRadius: BorderRadius.circular(99),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 18, 14, 16),
+                  padding: EdgeInsets.fromLTRB(
+                    responsive.pagePadding,
+                    responsive.itemGap,
+                    responsive.pagePadding,
+                    responsive.itemGap,
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -61,7 +70,7 @@ class HomeScreen extends ConsumerWidget {
                               'Configuración',
                               style: Theme.of(sheetContext).textTheme.headlineMedium,
                             ),
-                            const SizedBox(height: 6),
+                            SizedBox(height: responsive.compactGap * 0.65),
                             Text(
                               'Instalación, recordatorios y contenido guardado.',
                               style: Theme.of(sheetContext)
@@ -72,7 +81,7 @@ class HomeScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: responsive.itemGap),
                       IconButton.filledTonal(
                         tooltip: 'Cerrar',
                         onPressed: () => Navigator.of(sheetContext).pop(),
@@ -82,17 +91,22 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ),
                 Divider(height: 1, color: colors.outlineVariant),
-                const Expanded(
+                Expanded(
                   child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(16, 18, 16, 36),
+                    padding: EdgeInsets.fromLTRB(
+                      responsive.pagePadding,
+                      responsive.itemGap,
+                      responsive.pagePadding,
+                      responsive.sectionGap,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        PwaStatusCard(),
-                        SizedBox(height: 14),
-                        NotificationReminderCard(),
-                        SizedBox(height: 14),
-                        ContentSyncCard(),
+                        const PwaStatusCard(),
+                        SizedBox(height: responsive.itemGap),
+                        const NotificationReminderCard(),
+                        SizedBox(height: responsive.itemGap),
+                        const ContentSyncCard(),
                       ],
                     ),
                   ),
@@ -114,6 +128,7 @@ class HomeScreen extends ConsumerWidget {
     final currentAttempt = pendingAttempt.asData?.value;
     final hasPendingAttempt = currentAttempt?.dateKey == today;
     final completedToday = progress.asData?.value.lastCompletedDateKey == today;
+    final responsive = context.responsive;
 
     return Scaffold(
       appBar: AppBar(
@@ -121,19 +136,19 @@ class HomeScreen extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 38,
-              height: 38,
+              width: responsive.iconBadgeSize * 0.82,
+              height: responsive.iconBadgeSize * 0.82,
               decoration: BoxDecoration(
                 gradient: AppPalette.heroGradient,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(responsive.smallRadius),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.school_rounded,
                 color: Colors.white,
-                size: 22,
+                size: responsive.iconSize * 0.88,
               ),
             ),
-            const SizedBox(width: 11),
+            SizedBox(width: responsive.itemGap),
             const Flexible(
               child: Text(
                 'Misión Admisión',
@@ -145,7 +160,7 @@ class HomeScreen extends ConsumerWidget {
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 12),
+            padding: EdgeInsets.only(right: responsive.pagePadding * 0.7),
             child: IconButton.filledTonal(
               tooltip: 'Configuración',
               onPressed: () => _openAppSettings(context),
@@ -166,7 +181,12 @@ class HomeScreen extends ConsumerWidget {
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 30),
+            padding: EdgeInsets.fromLTRB(
+              responsive.pagePadding,
+              responsive.compactGap,
+              responsive.pagePadding,
+              responsive.sectionGap,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -187,7 +207,7 @@ class HomeScreen extends ConsumerWidget {
                   loading: () => const _ProgressLoading(),
                   error: (error, stackTrace) => const _ProgressError(),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: responsive.itemGap),
                 progress.when(
                   data: (value) => _ProgressSummary(
                     progress: value,
@@ -197,7 +217,7 @@ class HomeScreen extends ConsumerWidget {
                   loading: () => const SizedBox.shrink(),
                   error: (error, stackTrace) => const SizedBox.shrink(),
                 ),
-                const SizedBox(height: 22),
+                SizedBox(height: responsive.sectionGap * 0.72),
                 _DailyChallengeCard(
                   hasPendingAttempt: hasPendingAttempt,
                   completedToday: completedToday,
@@ -208,12 +228,12 @@ class HomeScreen extends ConsumerWidget {
                       : 10,
                   onPressed: () => context.go('/daily'),
                 ),
-                const SizedBox(height: 26),
+                SizedBox(height: responsive.sectionGap),
                 const AppSectionHeading(
                   title: 'Sigue practicando',
                   subtitle: 'Elige cómo quieres avanzar hoy.',
                 ),
-                const SizedBox(height: 14),
+                SizedBox(height: responsive.itemGap),
                 _QuickActions(
                   onResources: () => context.go('/resources'),
                   onExam: () => context.go('/exam'),
@@ -241,23 +261,24 @@ class _MissionHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final streakUnit = progress.currentStreak == 1 ? 'día' : 'días';
+    final responsive = context.responsive;
 
     return Container(
       key: const Key('home_progress_card'),
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         gradient: AppPalette.heroGradient,
-        borderRadius: BorderRadius.circular(AppRadii.hero),
+        borderRadius: BorderRadius.circular(responsive.heroRadius),
         boxShadow: AppShadows.raised,
       ),
       child: Stack(
         children: [
           Positioned(
-            right: -42,
-            top: -54,
+            right: -responsive.value(0.08, minimum: 30, maximum: 60),
+            top: -responsive.value(0.1, minimum: 40, maximum: 75),
             child: Container(
-              width: 170,
-              height: 170,
+              width: responsive.widthValue(0.32, minimum: 145, maximum: 230),
+              height: responsive.widthValue(0.32, minimum: 145, maximum: 230),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
@@ -265,11 +286,11 @@ class _MissionHero extends StatelessWidget {
             ),
           ),
           Positioned(
-            right: 44,
-            bottom: -62,
+            right: responsive.widthValue(0.08, minimum: 30, maximum: 58),
+            bottom: -responsive.value(0.11, minimum: 45, maximum: 80),
             child: Container(
-              width: 138,
-              height: 138,
+              width: responsive.widthValue(0.26, minimum: 120, maximum: 190),
+              height: responsive.widthValue(0.26, minimum: 120, maximum: 190),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.07),
                 shape: BoxShape.circle,
@@ -277,20 +298,20 @@ class _MissionHero extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(22),
+            padding: EdgeInsets.all(responsive.cardPadding),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 11,
-                        vertical: 7,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: responsive.value(0.025, minimum: 10, maximum: 18),
+                        vertical: responsive.value(0.015, minimum: 6, maximum: 11),
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(999),
+                        borderRadius: BorderRadius.circular(responsive.largeRadius),
                       ),
                       child: Text(
                         rank?.name ?? 'Primer paso',
@@ -302,24 +323,24 @@ class _MissionHero extends StatelessWidget {
                     const Spacer(),
                     if (completedToday)
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 7,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: responsive.value(0.024, minimum: 9, maximum: 17),
+                          vertical: responsive.value(0.015, minimum: 6, maximum: 11),
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(999),
+                          borderRadius: BorderRadius.circular(responsive.largeRadius),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.check_circle_rounded,
                               color: AppPalette.success,
-                              size: 18,
+                              size: responsive.iconSize * 0.65,
                             ),
-                            SizedBox(width: 5),
-                            Text(
+                            SizedBox(width: responsive.compactGap * 0.55),
+                            const Text(
                               'Completado',
                               style: TextStyle(
                                 color: AppPalette.success,
@@ -331,14 +352,14 @@ class _MissionHero extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: 28),
+                SizedBox(height: responsive.sectionGap),
                 Text(
                   'Tu misión de hoy',
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                         color: Colors.white,
                       ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: responsive.compactGap),
                 Text(
                   completedToday
                       ? 'Misión cumplida. Tu racha está protegida.'
@@ -347,24 +368,24 @@ class _MissionHero extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.84),
                       ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: responsive.itemGap * 1.4),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Container(
-                      width: 58,
-                      height: 58,
+                      width: responsive.iconBadgeSize * 1.15,
+                      height: responsive.iconBadgeSize * 1.15,
                       decoration: BoxDecoration(
                         color: AppPalette.amberSoft,
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(responsive.mediumRadius),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.local_fire_department_rounded,
-                        color: Color(0xFFB85B00),
-                        size: 34,
+                        color: const Color(0xFFB85B00),
+                        size: responsive.iconSize * 1.25,
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    SizedBox(width: responsive.itemGap),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -405,54 +426,48 @@ class _ProgressSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: _MetricCard(
-                icon: Icons.emoji_events_rounded,
-                label: 'Mejor racha',
-                value: '${progress.bestStreak}',
-                color: AppPalette.amber,
-                background: AppPalette.amberSoft,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _MetricCard(
-                icon: Icons.shield_rounded,
-                label: 'Escudos',
-                value: '${progress.shields}',
-                color: AppPalette.teal,
-                background: AppPalette.tealSoft,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _MetricCard(
-                icon: Icons.task_alt_rounded,
-                label: 'Retos',
-                value: '${progress.totalDailyChallengesCompleted}',
-                color: AppPalette.primary,
-                background: AppPalette.primarySoft,
-              ),
-            ),
-          ],
+        _MetricCard(
+          icon: Icons.emoji_events_rounded,
+          label: 'Mejor racha',
+          value: '${progress.bestStreak}',
+          color: AppPalette.amber,
+          background: AppPalette.amberSoft,
+        ),
+        SizedBox(height: responsive.compactGap),
+        _MetricCard(
+          icon: Icons.shield_rounded,
+          label: 'Escudos',
+          value: '${progress.shields}',
+          color: AppPalette.teal,
+          background: AppPalette.tealSoft,
+        ),
+        SizedBox(height: responsive.compactGap),
+        _MetricCard(
+          icon: Icons.task_alt_rounded,
+          label: 'Retos',
+          value: '${progress.totalDailyChallengesCompleted}',
+          color: AppPalette.primary,
+          background: AppPalette.primarySoft,
         ),
         if (shieldUsedToday) ...[
-          const SizedBox(height: 12),
+          SizedBox(height: responsive.itemGap),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+            padding: responsive.symmetricInsets(
+              horizontalFraction: 0.034,
+              verticalFraction: 0.026,
+            ),
             decoration: BoxDecoration(
               color: AppPalette.tealSoft,
-              borderRadius: BorderRadius.circular(AppRadii.medium),
+              borderRadius: BorderRadius.circular(responsive.mediumRadius),
             ),
             child: Row(
               children: [
                 const Icon(Icons.shield_rounded, color: AppPalette.teal),
-                const SizedBox(width: 10),
+                SizedBox(width: responsive.compactGap),
                 Expanded(
                   child: Text(
                     progress.lastShieldUseCount == 1
@@ -490,35 +505,43 @@ class _MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Semantics(
       label: '$label: $value',
       child: Container(
-        padding: const EdgeInsets.fromLTRB(12, 13, 12, 12),
+        padding: responsive.symmetricInsets(
+          horizontalFraction: 0.034,
+          verticalFraction: 0.03,
+        ),
         decoration: BoxDecoration(
           color: AppPalette.surface,
-          borderRadius: BorderRadius.circular(AppRadii.medium),
+          borderRadius: BorderRadius.circular(responsive.mediumRadius),
           border: Border.all(color: AppPalette.outline),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
             AppIconBadge(
               icon: icon,
               foreground: color,
               background: background,
-              size: 38,
-              iconSize: 21,
-              radius: 12,
+              size: responsive.iconBadgeSize,
+              iconSize: responsive.iconSize,
+              radius: responsive.mediumRadius,
             ),
-            const SizedBox(height: 10),
-            Text(value, style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 2),
+            SizedBox(width: responsive.itemGap),
+            Expanded(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ),
+            SizedBox(width: responsive.itemGap),
             Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+              value,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: color,
                   ),
             ),
           ],
@@ -533,9 +556,10 @@ class _ProgressLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Card(
+    final responsive = context.responsive;
+    return Card(
       child: SizedBox(
-        height: 230,
+        height: responsive.heightValue(0.22, minimum: 210, maximum: 330),
         child: Center(child: CircularProgressIndicator()),
       ),
     );
@@ -547,10 +571,11 @@ class _ProgressError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Card(
+    final responsive = context.responsive;
+    return Card(
       child: Padding(
-        padding: EdgeInsets.all(22),
-        child: Text('No fue posible leer el progreso local.'),
+        padding: EdgeInsets.all(responsive.cardPadding),
+        child: const Text('No fue posible leer el progreso local.'),
       ),
     );
   }
@@ -576,6 +601,7 @@ class _DailyChallengeCard extends StatelessWidget {
     final safeTotal = totalQuestions <= 0 ? 10 : totalQuestions;
     final safeAnswered = answeredQuestions.clamp(0, safeTotal).toInt();
     final progressValue = safeAnswered / safeTotal;
+    final responsive = context.responsive;
     final label = hasPendingAttempt
         ? 'Continuar reto'
         : completedToday
@@ -587,22 +613,22 @@ class _DailyChallengeCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         gradient: AppPalette.challengeGradient,
-        borderRadius: BorderRadius.circular(AppRadii.large),
+        borderRadius: BorderRadius.circular(responsive.largeRadius),
         boxShadow: AppShadows.soft,
       ),
       child: Stack(
         children: [
           Positioned(
-            right: -30,
-            top: -28,
+            right: -responsive.value(0.06, minimum: 24, maximum: 48),
+            top: -responsive.value(0.055, minimum: 22, maximum: 42),
             child: Icon(
               Icons.local_fire_department_rounded,
-              size: 150,
+              size: responsive.widthValue(0.29, minimum: 130, maximum: 210),
               color: Colors.white.withValues(alpha: 0.06),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(responsive.cardPadding),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -612,11 +638,8 @@ class _DailyChallengeCard extends StatelessWidget {
                       icon: Icons.bolt_rounded,
                       foreground: AppPalette.primaryDark,
                       background: Colors.white,
-                      size: 46,
-                      iconSize: 26,
-                      radius: 14,
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: responsive.itemGap),
                     Expanded(
                       child: Text(
                         'RETO DE HOY',
@@ -633,7 +656,7 @@ class _DailyChallengeCard extends StatelessWidget {
                       ),
                   ],
                 ),
-                const SizedBox(height: 18),
+                SizedBox(height: responsive.itemGap),
                 Text(
                   hasPendingAttempt
                       ? 'Continúa donde te quedaste'
@@ -644,7 +667,7 @@ class _DailyChallengeCard extends StatelessWidget {
                         color: Colors.white,
                       ),
                 ),
-                const SizedBox(height: 7),
+                SizedBox(height: responsive.compactGap * 0.75),
                 Text(
                   hasPendingAttempt
                       ? 'Tu avance está guardado en este dispositivo.'
@@ -656,7 +679,7 @@ class _DailyChallengeCard extends StatelessWidget {
                       ),
                 ),
                 if (hasPendingAttempt) ...[
-                  const SizedBox(height: 18),
+                  SizedBox(height: responsive.itemGap),
                   Row(
                     children: [
                       Text(
@@ -674,16 +697,16 @@ class _DailyChallengeCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: responsive.compactGap),
                   LinearProgressIndicator(
                     value: progressValue,
-                    minHeight: 8,
+                    minHeight: responsive.progressThickness,
                     color: const Color(0xFF8CF0D5),
                     backgroundColor: Colors.white.withValues(alpha: 0.16),
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ],
-                const SizedBox(height: 20),
+                SizedBox(height: responsive.itemGap * 1.2),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
@@ -721,6 +744,7 @@ class _QuickActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Column(
       children: [
         _QuickActionTile(
@@ -733,7 +757,7 @@ class _QuickActions extends StatelessWidget {
           accentSoft: AppPalette.tealSoft,
           onPressed: onResources,
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: responsive.itemGap),
         _QuickActionTile(
           actionKey: const Key('home_exam_action'),
           icon: Icons.quiz_rounded,
@@ -772,24 +796,25 @@ class _QuickActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         key: actionKey,
         onTap: onPressed,
         child: Padding(
-          padding: const EdgeInsets.all(18),
+          padding: EdgeInsets.all(responsive.cardPadding),
           child: Row(
             children: [
               AppIconBadge(
                 icon: icon,
                 foreground: accent,
                 background: accentSoft,
-                size: 64,
-                iconSize: 33,
-                radius: 19,
+                size: responsive.iconBadgeSize * 1.16,
+                iconSize: responsive.iconSize * 1.14,
+                radius: responsive.mediumRadius,
               ),
-              const SizedBox(width: 15),
+              SizedBox(width: responsive.itemGap),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -801,9 +826,9 @@ class _QuickActionTile extends StatelessWidget {
                             letterSpacing: 0.7,
                           ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: responsive.compactGap * 0.5),
                     Text(title, style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 5),
+                    SizedBox(height: responsive.compactGap * 0.6),
                     Text(
                       description,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -813,10 +838,10 @@ class _QuickActionTile extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: responsive.compactGap),
               Container(
-                width: 42,
-                height: 42,
+                width: responsive.iconBadgeSize * 0.9,
+                height: responsive.iconBadgeSize * 0.9,
                 decoration: BoxDecoration(
                   color: accentSoft,
                   shape: BoxShape.circle,

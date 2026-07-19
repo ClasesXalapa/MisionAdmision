@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mision_admision/app/responsive.dart';
 
 abstract final class AppPalette {
   static const background = Color(0xFFF5F6FC);
@@ -69,30 +70,36 @@ class AppIconBadge extends StatelessWidget {
     required this.icon,
     this.foreground = AppPalette.primary,
     this.background = AppPalette.primarySoft,
-    this.size = 52,
-    this.iconSize = 27,
-    this.radius = 16,
+    this.size,
+    this.iconSize,
+    this.radius,
     super.key,
   });
 
   final IconData icon;
   final Color foreground;
   final Color background;
-  final double size;
-  final double iconSize;
-  final double radius;
+  final double? size;
+  final double? iconSize;
+  final double? radius;
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
+    final resolvedSize = size ?? responsive.iconBadgeSize;
+    final resolvedIconSize =
+        iconSize ?? (resolvedSize * 0.54).clamp(24, double.infinity).toDouble();
+    final resolvedRadius = radius ?? responsive.mediumRadius;
+
     return Container(
-      width: size,
-      height: size,
+      width: resolvedSize,
+      height: resolvedSize,
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(radius),
+        borderRadius: BorderRadius.circular(resolvedRadius),
       ),
       alignment: Alignment.center,
-      child: Icon(icon, size: iconSize, color: foreground),
+      child: Icon(icon, size: resolvedIconSize, color: foreground),
     );
   }
 }
@@ -121,7 +128,7 @@ class AppSectionHeading extends StatelessWidget {
             children: [
               Text(title, style: Theme.of(context).textTheme.headlineSmall),
               if (subtitle != null) ...[
-                const SizedBox(height: 5),
+                SizedBox(height: context.responsive.compactGap * 0.55),
                 Text(
                   subtitle!,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -133,7 +140,7 @@ class AppSectionHeading extends StatelessWidget {
           ),
         ),
         if (trailing != null) ...[
-          const SizedBox(width: 12),
+          SizedBox(width: context.responsive.itemGap),
           trailing!,
         ],
       ],

@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.11.3+46 — 19 de julio de 2026
+
+- Elimina la normalización del viewport a anchos simulados de 375, 390 o 430 px.
+- Sustituye los breakpoints móviles por un sistema visual fluido calculado desde las dimensiones reales de `MediaQuery`.
+- Centraliza proporciones de tipografía, espaciado, paddings, alturas táctiles, iconos, radios, AppBar y navegación en `AppResponsive`.
+- Aplica un tema responsive después de que `MaterialApp` conoce el viewport, incluyendo botones, campos, chips, cards y barras de progreso.
+- Adapta Inicio, Configuración, Reto de hoy, Recursos y Examen libre al mismo sistema proporcional.
+- Mantiene únicamente cotas mínimas de accesibilidad; no representan tamaños ni modelos de teléfono.
+- Usa el ancho completo en retrato y reserva el límite de lectura para ventanas apaisadas o de escritorio.
+- Actualiza las pruebas para comprobar el ancho real de 540 y 720 px, sin esperar un viewport transformado.
+- Actualiza app, build y revisión PWA a `0.11.3+46`.
+
+## 0.11.2+45 — 19 de julio de 2026
+
+- Ajusta la aplicación a las capturas reales de teléfonos que reportan 540 px como ancho lógico: el viewport móvil se normaliza ahora a 375 px desde 480 px de ancho.
+- Aumenta de forma coordinada tipografía, botones, campos, AppBar, navegación inferior, tarjetas, iconos y espacios táctiles.
+- Refuerza la legibilidad de Inicio y Configuración sin regresar a las dimensiones extremas de la serie 0.10.x.
+- Amplía pregunta, metadatos, opciones y controles inferiores en Reto de hoy y Examen libre.
+- Aumenta títulos, descripciones, filtros, etiquetas y acciones de Recursos para reducir la cantidad de contenido visible simultáneamente.
+- Añade cobertura del viewport 540x1200 en la prueba principal y actualiza las expectativas al ancho lógico móvil de 375 px.
+- Actualiza app, build y revisión PWA a `0.11.2+45`.
+
 ## 0.11.1+44 — 19 de julio de 2026
 
 ### Hotfix de construcción completa en Inicio

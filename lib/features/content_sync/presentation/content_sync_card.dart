@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mision_admision/app/dependencies.dart';
+import 'package:mision_admision/app/responsive.dart';
 import 'package:mision_admision/domain/models/content_cache_metadata.dart';
 import 'package:mision_admision/domain/models/content_sync_report.dart';
 import 'package:mision_admision/features/content_sync/application/content_sync_providers.dart';
@@ -90,12 +91,13 @@ class _ContentSyncCardState extends ConsumerState<ContentSyncCard> {
     final metadata = _lastReport?.metadata ?? metadataAsync.asData?.value;
     final presentation = _presentation(metadata);
     final colors = Theme.of(context).colorScheme;
+    final responsive = context.responsive;
 
     return Card(
       key: const Key('settings_content_card'),
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: EdgeInsets.all(responsive.cardPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -103,24 +105,26 @@ class _ContentSyncCardState extends ConsumerState<ContentSyncCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 58,
-                  height: 58,
+                  width: responsive.iconBadgeSize * 1.08,
+                  height: responsive.iconBadgeSize * 1.08,
                   decoration: BoxDecoration(
                     color: presentation.color.withValues(alpha: 0.13),
-                    borderRadius: BorderRadius.circular(17),
+                    borderRadius: BorderRadius.circular(responsive.mediumRadius),
                   ),
                   child: _syncing
-                      ? const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: CircularProgressIndicator(strokeWidth: 4),
+                      ? Padding(
+                          padding: EdgeInsets.all(responsive.compactGap * 1.4),
+                          child: CircularProgressIndicator(
+                            strokeWidth: responsive.progressThickness * 0.5,
+                          ),
                         )
                       : Icon(
                           presentation.icon,
                           color: presentation.color,
-                          size: 31,
+                          size: responsive.iconSize * 1.08,
                         ),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: responsive.itemGap),
                 Expanded(
                   child: Text(
                     _syncing ? 'Buscando contenido nuevo' : presentation.title,
@@ -132,7 +136,7 @@ class _ContentSyncCardState extends ConsumerState<ContentSyncCard> {
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: responsive.itemGap),
             Text(
               _syncing
                   ? 'Puedes seguir usando la aplicación mientras termina la revisión.'
@@ -144,16 +148,16 @@ class _ContentSyncCardState extends ConsumerState<ContentSyncCard> {
                   ),
             ),
             if (!_syncing && metadata?.lastSuccessAt != null) ...[
-              const SizedBox(height: 14),
+              SizedBox(height: responsive.itemGap),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 11,
+                padding: responsive.symmetricInsets(
+                  horizontalFraction: 0.03,
+                  verticalFraction: 0.022,
                 ),
                 decoration: BoxDecoration(
                   color: colors.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(responsive.smallRadius),
                 ),
                 child: Text(
                   'Última actualización válida: ${_formatDate(metadata!.lastSuccessAt!)}',
@@ -165,17 +169,17 @@ class _ContentSyncCardState extends ConsumerState<ContentSyncCard> {
                 ),
               ),
             ],
-            const SizedBox(height: 16),
+            SizedBox(height: responsive.itemGap),
             SizedBox(
               width: double.infinity,
-              height: 58,
+              height: responsive.controlHeight,
               child: OutlinedButton.icon(
                 onPressed: _syncing
                     ? null
                     : () => _synchronize(force: true, showFeedback: true),
                 icon: Icon(
                   _syncing ? Icons.hourglass_top_rounded : Icons.refresh_rounded,
-                  size: 24,
+                  size: responsive.iconSize,
                 ),
                 label: Text(
                   _syncing ? 'Revisando contenido…' : 'Buscar actualizaciones',

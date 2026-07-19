@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mision_admision/app/dependencies.dart';
+import 'package:mision_admision/app/responsive.dart';
 import 'package:mision_admision/features/pwa/application/pwa_controller.dart';
 import 'package:mision_admision/platform/pwa/pwa_service.dart';
 
@@ -60,15 +61,16 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     if (_controller.loading) {
-      return const Card(
-        key: Key('settings_pwa_card'),
+      return Card(
+        key: const Key('settings_pwa_card'),
         margin: EdgeInsets.zero,
         child: SizedBox(
-          height: 124,
+          height: responsive.heightValue(0.12, minimum: 120, maximum: 190),
           child: Padding(
-            padding: EdgeInsets.all(18),
-            child: Center(child: LinearProgressIndicator()),
+            padding: EdgeInsets.all(responsive.cardPadding),
+            child: const Center(child: LinearProgressIndicator()),
           ),
         ),
       );
@@ -82,7 +84,7 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
       key: const Key('settings_pwa_card'),
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: EdgeInsets.all(responsive.cardPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -90,19 +92,19 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 58,
-                  height: 58,
+                  width: responsive.iconBadgeSize * 1.08,
+                  height: responsive.iconBadgeSize * 1.08,
                   decoration: BoxDecoration(
                     color: presentation.color.withValues(alpha: 0.13),
-                    borderRadius: BorderRadius.circular(17),
+                    borderRadius: BorderRadius.circular(responsive.mediumRadius),
                   ),
                   child: Icon(
                     presentation.icon,
                     color: presentation.color,
-                    size: 31,
+                    size: responsive.iconSize * 1.08,
                   ),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: responsive.itemGap),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +116,7 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
                               fontWeight: FontWeight.w800,
                             ),
                       ),
-                      const SizedBox(height: 7),
+                      SizedBox(height: responsive.compactGap * 0.75),
                       Text(
                         presentation.message,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -129,18 +131,21 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
               ],
             ),
             if (status.needsManualInstall) ...[
-              const SizedBox(height: 24),
+              SizedBox(height: responsive.sectionGap * 0.72),
               const _ManualInstallInstructions(),
             ],
             if (status.canPromptInstall || status.updateAvailable) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: responsive.itemGap),
               SizedBox(
                 width: double.infinity,
-                height: 58,
+                height: responsive.controlHeight,
                 child: status.updateAvailable
                     ? FilledButton.icon(
                         onPressed: _controller.busy ? null : _activateUpdate,
-                        icon: const Icon(Icons.system_update_alt, size: 34),
+                        icon: Icon(
+                          Icons.system_update_alt,
+                          size: responsive.iconSize,
+                        ),
                         label: const Text('Aplicar actualización'),
                         style: FilledButton.styleFrom(
                           textStyle: const TextStyle(
@@ -150,9 +155,9 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
                       )
                     : FilledButton.icon(
                         onPressed: _controller.busy ? null : _install,
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.install_mobile_outlined,
-                          size: 24,
+                          size: responsive.iconSize,
                         ),
                         label: const Text('Instalar Misión Admisión'),
                         style: FilledButton.styleFrom(
@@ -265,12 +270,13 @@ class _ManualInstallInstructions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(26),
+      padding: EdgeInsets.all(responsive.cardPadding),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(responsive.largeRadius),
       ),
       child: Text(
         '1. Abre esta página en Safari.\n'
@@ -278,7 +284,6 @@ class _ManualInstallInstructions extends StatelessWidget {
         '3. Elige “Agregar a pantalla de inicio”.\n'
         '4. Abre Misión Admisión desde su nuevo icono.',
         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontSize: 22,
               height: 1.55,
               fontWeight: FontWeight.w600,
             ),

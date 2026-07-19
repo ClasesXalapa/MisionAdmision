@@ -9,10 +9,10 @@ import 'helpers/memory_json_store.dart';
 
 void main() {
   testWidgets('muestra la pantalla inicial', (tester) async {
-    // Reproduce el tipo de viewport ancho que algunos navegadores Android
-    // reportan para una PWA, en lugar de depender del tamaño de prueba 800x600.
+    // Reproduce una captura real de 540x1200. La app debe usar el ancho
+    // disponible directamente y calcular la geometría mediante proporciones.
     tester.view
-      ..physicalSize = const Size(720, 1600)
+      ..physicalSize = const Size(540, 1200)
       ..devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -60,8 +60,8 @@ void main() {
     expect(resourcesFinder, findsOneWidget);
     expect(examFinder, findsOneWidget);
 
-    // En Inicio ambas acciones deben ser compactas, ocupar una fila completa y
-    // permanecer apiladas cuando el navegador móvil reporta 720 px de ancho.
+    // En Inicio ambas acciones deben ocupar el ancho útil y permanecer
+    // apiladas, sin simular un viewport de otro tamaño.
     final resourcesTopLeft = tester.getTopLeft(resourcesFinder);
     final examTopLeft = tester.getTopLeft(examFinder);
     final resourcesSize = tester.getSize(resourcesFinder);
@@ -70,18 +70,20 @@ void main() {
     expect(examTopLeft.dy, greaterThan(resourcesTopLeft.dy));
     expect((examTopLeft.dx - resourcesTopLeft.dx).abs(), lessThan(1));
     final scaffoldWidth = tester.getSize(find.byType(Scaffold).first).width;
-    expect(scaffoldWidth, inInclusiveRange(420, 440));
-    expect(resourcesSize.width, greaterThan(scaffoldWidth - 36));
-    expect(examSize.width, greaterThan(scaffoldWidth - 36));
-    expect(resourcesSize.height, inInclusiveRange(90, 260));
-    expect(examSize.height, inInclusiveRange(90, 260));
+    expect(scaffoldWidth, closeTo(540, 1));
+    final heroTitle = tester.widget<Text>(find.text('Tu misión de hoy'));
+    expect(heroTitle.style?.fontSize, closeTo(scaffoldWidth * 0.065, 0.2));
+    expect(resourcesSize.width, greaterThan(scaffoldWidth * 0.88));
+    expect(examSize.width, greaterThan(scaffoldWidth * 0.88));
+    expect(resourcesSize.height, greaterThan(scaffoldWidth * 0.18));
+    expect(examSize.height, greaterThan(scaffoldWidth * 0.18));
 
     // El escalado móvil no debe producir desbordamientos ni otras excepciones
     // de renderizado en la barra inferior o en las cards de Inicio.
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('recursos usa la composición móvil normalizada', (tester) async {
+  testWidgets('recursos usa proporciones del viewport real', (tester) async {
     tester.view
       ..physicalSize = const Size(720, 1600)
       ..devicePixelRatio = 1;
@@ -106,7 +108,6 @@ void main() {
 
     expect(find.text('Biblioteca de estudio'), findsOneWidget);
     final title = tester.widget<Text>(find.text('Biblioteca de estudio'));
-    expect(title.style?.fontSize, lessThanOrEqualTo(32));
 
     final resourcesList = find.byKey(const Key('resources_list'));
     expect(resourcesList, findsOneWidget);
@@ -123,9 +124,11 @@ void main() {
     final allFilter = find.byKey(const Key('resource_type_filter_all'));
     final filterSize = tester.getSize(allFilter);
     final scaffoldWidth = tester.getSize(find.byType(Scaffold).first).width;
-    expect(scaffoldWidth, inInclusiveRange(420, 440));
+    expect(scaffoldWidth, closeTo(720, 1));
+    expect(title.style?.fontSize, closeTo(scaffoldWidth * 0.057, 0.2));
     expect(filterSize.width, lessThan(scaffoldWidth * 0.45));
-    expect(filterSize.height, inInclusiveRange(40, 64));
+    expect(filterSize.height, greaterThan(scaffoldWidth * 0.07));
+    expect(filterSize.height, lessThan(scaffoldWidth * 0.14));
 
     await tester.scrollUntilVisible(
       find.byKey(const Key('resource_card_card_video_algebra_001')),
@@ -136,7 +139,7 @@ void main() {
       const Key('resource_card_card_video_algebra_001'),
     );
     expect(firstCard, findsOneWidget);
-    expect(tester.getSize(firstCard).height, inInclusiveRange(220, 620));
+    expect(tester.getSize(firstCard).height, greaterThan(scaffoldWidth * 0.45));
     expect(tester.takeException(), isNull);
   });
 

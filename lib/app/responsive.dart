@@ -1,124 +1,132 @@
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// Reglas visuales de Misión Admisión.
+/// Métricas fluidas para la interfaz de Misión Admisión.
 ///
-/// Algunos WebView/PWA Android entregan a Flutter el ancho físico del teléfono
-/// (por ejemplo 720 px) como si fuera ancho lógico. En ese escenario una UI
-/// diseñada para 390–430 px se comprime visualmente y todo parece demasiado
-/// pequeño, aunque los `fontSize` sean correctos.
-///
-/// [HandsetViewport] normaliza únicamente esos viewports altos y anchos a una
-/// superficie lógica de teléfono. De esta forma se escalan juntos texto,
-/// iconos, espacios y áreas táctiles; no se intenta compensar solo la fuente.
-const double _phoneDesignWidth = 430;
-const double _widePhoneThreshold = 560;
-const double _maximumNormalizedPhoneWidth = 1000;
-const double _minimumPhoneAspectRatio = 1.65;
+/// La interfaz no se adapta simulando un teléfono de ancho fijo ni mediante
+/// breakpoints asociados a modelos concretos. Cada valor visual parte de una
+/// proporción del área disponible y solo se limita con cotas de accesibilidad
+/// para evitar controles ilegibles en ventanas muy pequeñas o exagerados en
+/// escritorio.
+@immutable
+class AppResponsive {
+  const AppResponsive._({required this.size});
 
-bool isHandsetLayout(BuildContext context) {
-  final media = MediaQuery.of(context);
-  final platform = defaultTargetPlatform;
-  final mobilePlatform = platform == TargetPlatform.android ||
-      platform == TargetPlatform.iOS;
-
-  return mobilePlatform || media.size.shortestSide < 760;
-}
-
-bool shouldNormalizeHandsetViewport(BuildContext context) {
-  final media = MediaQuery.of(context);
-  if (!isHandsetLayout(context) || media.size.height <= 0) return false;
-
-  final width = media.size.width;
-  final aspectRatio = media.size.height / width;
-  return width >= _widePhoneThreshold &&
-      width <= _maximumNormalizedPhoneWidth &&
-      aspectRatio >= _minimumPhoneAspectRatio;
-}
-
-double appHorizontalPadding(BuildContext context) {
-  return isHandsetLayout(context) ? 16 : 28;
-}
-
-/// Conserva la preferencia de accesibilidad del usuario.
-///
-/// La compensación por viewports Android anchos ya la realiza
-/// [HandsetViewport], por lo que no se vuelve a multiplicar la tipografía.
-double resolvedTextScale(BuildContext context) {
-  final media = MediaQuery.of(context);
-  final current = media.textScaler.scale(16) / 16;
-  if (!isHandsetLayout(context)) return current;
-  return math.max(current, 1.04);
-}
-
-class HandsetViewport extends StatelessWidget {
-  const HandsetViewport({required this.child, super.key});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
+  factory AppResponsive.of(BuildContext context) {
     final media = MediaQuery.of(context);
-    final textScale = resolvedTextScale(context);
+    return AppResponsive._(size: media.size);
+  }
 
-    if (!shouldNormalizeHandsetViewport(context)) {
-      return MediaQuery(
-        data: media.copyWith(textScaler: TextScaler.linear(textScale)),
-        child: child,
-      );
-    }
+  final Size size;
 
-    final scale = media.size.width / _phoneDesignWidth;
-    final normalizedHeight = media.size.height / scale;
-    final normalizedMedia = media.copyWith(
-      size: Size(_phoneDesignWidth, normalizedHeight),
-      padding: _scaledInsets(media.padding, scale),
-      viewPadding: _scaledInsets(media.viewPadding, scale),
-      viewInsets: _scaledInsets(media.viewInsets, scale),
-      systemGestureInsets: _scaledInsets(media.systemGestureInsets, scale),
-      textScaler: TextScaler.linear(textScale),
-    );
+  double get width => size.width;
+  double get height => size.height;
 
-    return ClipRect(
-      child: FittedBox(
-        fit: BoxFit.fill,
-        alignment: Alignment.topLeft,
-        child: SizedBox(
-          width: _phoneDesignWidth,
-          height: normalizedHeight,
-          child: MediaQuery(
-            data: normalizedMedia,
-            child: child,
-          ),
-        ),
+  /// Base visual proporcional. En retrato coincide con el ancho disponible;
+  /// en ventanas apaisadas se limita por la altura para que la UI no crezca
+  /// como si fuera una pantalla móvil extremadamente ancha.
+  double get visualBasis {
+    if (height >= width) return width;
+    return math.min(width, height * 0.78);
+  }
+
+  double value(
+    double fraction, {
+    double minimum = 0,
+    double maximum = double.infinity,
+  }) {
+    return (visualBasis * fraction).clamp(minimum, maximum).toDouble();
+  }
+
+  double widthValue(
+    double fraction, {
+    double minimum = 0,
+    double maximum = double.infinity,
+  }) {
+    return (width * fraction).clamp(minimum, maximum).toDouble();
+  }
+
+  double heightValue(
+    double fraction, {
+    double minimum = 0,
+    double maximum = double.infinity,
+  }) {
+    return (height * fraction).clamp(minimum, maximum).toDouble();
+  }
+
+  double font(
+    double fraction, {
+    required double minimum,
+    double maximum = double.infinity,
+  }) {
+    return value(fraction, minimum: minimum, maximum: maximum);
+  }
+
+  double get pagePadding => value(0.042, minimum: 16);
+  double get compactGap => value(0.022, minimum: 8);
+  double get itemGap => value(0.032, minimum: 12);
+  double get sectionGap => value(0.052, minimum: 20);
+  double get cardPadding => value(0.046, minimum: 18);
+  double get controlHeight => value(0.132, minimum: 56);
+  double get optionHeight => value(0.155, minimum: 68);
+  double get iconSize => value(0.058, minimum: 24);
+  double get iconBadgeSize => value(0.112, minimum: 48);
+  double get appBarHeight => value(0.145, minimum: 68);
+  double get bottomNavigationHeight =>
+      value(0.18, minimum: 84);
+  double get smallRadius => value(0.027, minimum: 11);
+  double get mediumRadius => value(0.042, minimum: 16);
+  double get largeRadius => value(0.055, minimum: 21);
+  double get heroRadius => value(0.067, minimum: 25);
+  double get progressThickness => value(0.018, minimum: 7);
+
+  EdgeInsets get pageInsets => EdgeInsets.symmetric(horizontal: pagePadding);
+
+  EdgeInsets symmetricInsets({
+    double horizontalFraction = 0.042,
+    double verticalFraction = 0.028,
+    double minimumHorizontal = 12,
+    double maximumHorizontal = double.infinity,
+    double minimumVertical = 8,
+    double maximumVertical = double.infinity,
+  }) {
+    return EdgeInsets.symmetric(
+      horizontal: value(
+        horizontalFraction,
+        minimum: minimumHorizontal,
+        maximum: maximumHorizontal,
+      ),
+      vertical: value(
+        verticalFraction,
+        minimum: minimumVertical,
+        maximum: maximumVertical,
       ),
     );
   }
 }
 
-EdgeInsets _scaledInsets(EdgeInsets value, double scale) {
-  return EdgeInsets.fromLTRB(
-    value.left / scale,
-    value.top / scale,
-    value.right / scale,
-    value.bottom / scale,
-  );
+extension AppResponsiveBuildContext on BuildContext {
+  AppResponsive get responsive => AppResponsive.of(this);
 }
 
-Widget fullWidthCentered({
-  required Widget child,
-  double maxWidth = 920,
-}) {
-  return Center(
-    child: ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: maxWidth),
-      child: SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: child,
-      ),
-    ),
+Widget fullWidthCentered({required Widget child}) {
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final portrait = constraints.maxHeight >= constraints.maxWidth;
+      final resolvedWidth = portrait
+          ? constraints.maxWidth
+          : math.min(
+              constraints.maxWidth * 0.88,
+              constraints.maxHeight * 1.25,
+            );
+      return Center(
+        child: SizedBox(
+          width: resolvedWidth,
+          height: constraints.maxHeight,
+          child: child,
+        ),
+      );
+    },
   );
 }

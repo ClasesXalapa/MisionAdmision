@@ -75,7 +75,6 @@ class _ResourcesScreenState extends ConsumerState<ResourcesScreen> {
       bottomNavigationBar: const AppBottomNavigation(selectedIndex: 2),
       body: SafeArea(
         child: fullWidthCentered(
-          maxWidth: 820,
           child: switch (state.phase) {
             ResourcePhase.loading => const _ResourceLoading(),
             ResourcePhase.failure => _ResourceError(
@@ -125,6 +124,7 @@ class _ResourceContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     final normalizedQuery = query.trim().toLowerCase();
     final resources = state.filteredResources.where((resource) {
       if (normalizedQuery.isEmpty) return true;
@@ -144,10 +144,15 @@ class _ResourceContent extends StatelessWidget {
     return ListView(
       key: const Key('resources_list'),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+      padding: EdgeInsets.fromLTRB(
+        responsive.pagePadding,
+        responsive.compactGap,
+        responsive.pagePadding,
+        responsive.sectionGap,
+      ),
       children: [
         const _ResourcesHero(),
-        const SizedBox(height: 18),
+        SizedBox(height: responsive.itemGap),
         _Filters(
           state: state,
           searchController: searchController,
@@ -157,7 +162,7 @@ class _ResourceContent extends StatelessWidget {
           onTypeSelected: onTypeSelected,
           onTagSelected: onTagSelected,
         ),
-        const SizedBox(height: 22),
+        SizedBox(height: responsive.sectionGap * 0.72),
         _ResultsHeader(
           count: resources.length,
           filtersActive: filtersActive,
@@ -167,13 +172,13 @@ class _ResourceContent extends StatelessWidget {
             onClearSearch();
           },
         ),
-        const SizedBox(height: 13),
+        SizedBox(height: responsive.itemGap),
         if (resources.isEmpty)
           const _EmptyResources()
         else
           ...resources.map(
             (resource) => Padding(
-              padding: const EdgeInsets.only(bottom: 14),
+              padding: EdgeInsets.only(bottom: responsive.itemGap),
               child: _ResourceTile(
                 key: Key('resource_card_${resource.id}'),
                 resource: resource,
@@ -194,52 +199,50 @@ class _ResourcesHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         gradient: AppPalette.resourceGradient,
-        borderRadius: BorderRadius.circular(AppRadii.hero),
+        borderRadius: BorderRadius.circular(responsive.heroRadius),
         boxShadow: AppShadows.soft,
       ),
       child: Stack(
         children: [
           Positioned(
-            right: -24,
-            bottom: -30,
+            right: -responsive.value(0.05, minimum: 20, maximum: 40),
+            bottom: -responsive.value(0.06, minimum: 24, maximum: 48),
             child: Icon(
               Icons.auto_stories_rounded,
-              size: 150,
+              size: responsive.widthValue(0.3, minimum: 135, maximum: 220),
               color: Colors.white.withValues(alpha: 0.09),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(22),
+            padding: EdgeInsets.all(responsive.cardPadding),
             child: Row(
               children: [
                 const AppIconBadge(
                   icon: Icons.explore_rounded,
                   foreground: Color(0xFF087267),
                   background: Colors.white,
-                  size: 58,
-                  iconSize: 31,
-                  radius: 18,
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: responsive.itemGap),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Biblioteca de estudio',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                               color: Colors.white,
                             ),
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: responsive.compactGap * 0.65),
                       Text(
                         'Encuentra el recurso ideal para reforzar cada tema.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.84),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Colors.white.withValues(alpha: 0.86),
                             ),
                       ),
                     ],
@@ -275,10 +278,11 @@ class _Filters extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Card(
       key: const Key('resources_filters_card'),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(responsive.cardPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -299,14 +303,14 @@ class _Filters extends StatelessWidget {
                     : null,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: responsive.itemGap),
             Text(
               'Tipo de recurso',
               style: Theme.of(context).textTheme.titleSmall,
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: responsive.compactGap),
             SizedBox(
-              height: 48,
+              height: responsive.controlHeight,
               child: ListView(
                 key: const Key('resources_type_filters'),
                 scrollDirection: Axis.horizontal,
@@ -318,7 +322,7 @@ class _Filters extends StatelessWidget {
                     selected: state.selectedType == null,
                     onTap: () => onTypeSelected(null),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: responsive.compactGap),
                   for (final type in ResourceType.values) ...[
                     _TypeFilterButton(
                       label: type.label,
@@ -326,12 +330,12 @@ class _Filters extends StatelessWidget {
                       selected: state.selectedType == type,
                       onTap: () => onTypeSelected(type),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: responsive.compactGap),
                   ],
                 ],
               ),
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: responsive.itemGap),
             DropdownButtonFormField<String>(
               key: ValueKey(state.selectedTag ?? '__all__'),
               initialValue: state.selectedTag ?? '__all__',
@@ -380,6 +384,7 @@ class _TypeFilterButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final responsive = context.responsive;
     return Material(
       color: selected ? colors.primary : colors.surface,
       shape: StadiumBorder(
@@ -391,16 +396,19 @@ class _TypeFilterButton extends StatelessWidget {
         onTap: onTap,
         customBorder: const StadiumBorder(),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: EdgeInsets.symmetric(
+            horizontal: responsive.value(0.034, minimum: 13, maximum: 24),
+            vertical: responsive.value(0.023, minimum: 9, maximum: 17),
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 icon,
-                size: 20,
+                size: responsive.iconSize * 0.78,
                 color: selected ? colors.onPrimary : colors.onSurfaceVariant,
               ),
-              const SizedBox(width: 7),
+              SizedBox(width: responsive.compactGap * 0.75),
               Text(
                 label,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -429,6 +437,7 @@ class _ResultsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Row(
       children: [
         Expanded(
@@ -440,7 +449,10 @@ class _ResultsHeader extends StatelessWidget {
         if (filtersActive)
           TextButton.icon(
             onPressed: onClear,
-            icon: const Icon(Icons.filter_alt_off_rounded, size: 20),
+            icon: Icon(
+              Icons.filter_alt_off_rounded,
+              size: responsive.iconSize * 0.75,
+            ),
             label: const Text('Limpiar'),
           ),
       ],
@@ -468,6 +480,7 @@ class _ResourceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = _accentFor(resource.type);
     final accentSoft = _softAccentFor(resource.type);
+    final responsive = context.responsive;
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -476,7 +489,7 @@ class _ResourceTile extends StatelessWidget {
         children: [
           if (resource.imageUrl != null)
             SizedBox(
-              height: 150,
+              height: responsive.heightValue(0.2, minimum: 170, maximum: 290),
               child: Image.network(
                 resource.imageUrl.toString(),
                 fit: BoxFit.cover,
@@ -488,7 +501,7 @@ class _ResourceTile extends StatelessWidget {
               ),
             ),
           Padding(
-            padding: const EdgeInsets.all(18),
+            padding: EdgeInsets.all(responsive.cardPadding),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -499,11 +512,11 @@ class _ResourceTile extends StatelessWidget {
                       icon: _iconFor(resource.type),
                       foreground: accent,
                       background: accentSoft,
-                      size: 54,
-                      iconSize: 28,
-                      radius: 16,
+                      size: responsive.iconBadgeSize * 1.05,
+                      iconSize: responsive.iconSize,
+                      radius: responsive.mediumRadius,
                     ),
-                    const SizedBox(width: 13),
+                    SizedBox(width: responsive.itemGap),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -528,7 +541,7 @@ class _ResourceTile extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 5),
+                          SizedBox(height: responsive.compactGap * 0.55),
                           Text(
                             resource.title,
                             style: Theme.of(context).textTheme.titleLarge,
@@ -538,27 +551,27 @@ class _ResourceTile extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                SizedBox(height: responsive.itemGap),
                 Text(
                   resource.description,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
                 if (resource.tags.isNotEmpty) ...[
-                  const SizedBox(height: 14),
+                  SizedBox(height: responsive.itemGap),
                   Wrap(
-                    spacing: 7,
-                    runSpacing: 7,
+                    spacing: responsive.compactGap * 0.8,
+                    runSpacing: responsive.compactGap * 0.8,
                     children: resource.tags
                         .take(4)
                         .map((tag) => _TagPill(label: _readableTag(tag)))
                         .toList(growable: false),
                   ),
                 ],
-                const SizedBox(height: 18),
+                SizedBox(height: responsive.sectionGap * 0.65),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
@@ -567,7 +580,7 @@ class _ResourceTile extends StatelessWidget {
                     label: Text(_actionLabel(resource.type)),
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: responsive.compactGap),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
@@ -607,10 +620,15 @@ class _ResourceCover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Container(
       color: accentSoft,
       alignment: Alignment.center,
-      child: Icon(_iconFor(type), size: 62, color: accent),
+      child: Icon(
+        _iconFor(type),
+        size: responsive.iconBadgeSize,
+        color: accent,
+      ),
     );
   }
 }
@@ -622,11 +640,15 @@ class _TagPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(
+        horizontal: responsive.value(0.024, minimum: 9, maximum: 17),
+        vertical: responsive.value(0.015, minimum: 6, maximum: 11),
+      ),
       decoration: BoxDecoration(
         color: AppPalette.surfaceSoft,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(responsive.largeRadius),
       ),
       child: Text(
         label,
@@ -648,6 +670,7 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!completed && !viewed) return const SizedBox.shrink();
 
+    final responsive = context.responsive;
     final background = completed
         ? AppPalette.successSoft
         : Theme.of(context).colorScheme.surfaceContainerHighest;
@@ -656,20 +679,23 @@ class _StatusBadge extends StatelessWidget {
         : Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      padding: EdgeInsets.symmetric(
+        horizontal: responsive.value(0.02, minimum: 8, maximum: 14),
+        vertical: responsive.value(0.012, minimum: 5, maximum: 9),
+      ),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(responsive.largeRadius),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             completed ? Icons.check_circle_rounded : Icons.visibility_outlined,
-            size: 16,
+            size: responsive.iconSize * 0.58,
             color: foreground,
           ),
-          const SizedBox(width: 5),
+          SizedBox(width: responsive.compactGap * 0.55),
           Text(
             completed ? 'Listo' : 'Visto',
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -687,22 +713,21 @@ class _EmptyResources extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(28),
+        padding: EdgeInsets.all(responsive.cardPadding * 1.2),
         child: Column(
           children: [
             const AppIconBadge(
               icon: Icons.search_off_rounded,
-              size: 64,
-              iconSize: 34,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: responsive.itemGap),
             Text(
               'No encontramos recursos',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 7),
+            SizedBox(height: responsive.compactGap * 0.75),
             Text(
               'Prueba con otra búsqueda o cambia los filtros.',
               textAlign: TextAlign.center,
@@ -734,12 +759,13 @@ class _ResourceError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(responsive.pagePadding),
         child: Card(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(responsive.cardPadding),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -747,22 +773,20 @@ class _ResourceError extends StatelessWidget {
                   icon: Icons.cloud_off_rounded,
                   foreground: AppPalette.coral,
                   background: Color(0xFFFFE7E7),
-                  size: 66,
-                  iconSize: 36,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: responsive.itemGap),
                 Text(
                   'No pudimos cargar los recursos',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: responsive.compactGap),
                 Text(
                   message,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: responsive.sectionGap * 0.65),
                 FilledButton.icon(
                   onPressed: onRetry,
                   icon: const Icon(Icons.refresh_rounded),

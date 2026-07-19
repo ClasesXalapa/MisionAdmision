@@ -119,8 +119,8 @@ class _DailyChallengeScreenState extends ConsumerState<DailyChallengeScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          toolbarHeight: 68,
-          leadingWidth: 60,
+          toolbarHeight: context.responsive.appBarHeight,
+          leadingWidth: context.responsive.controlHeight,
           leading: IconButton(
             tooltip: 'Volver al inicio',
             onPressed: _requestExit,
@@ -130,7 +130,6 @@ class _DailyChallengeScreenState extends ConsumerState<DailyChallengeScreen> {
         ),
         body: SafeArea(
           child: fullWidthCentered(
-            maxWidth: 820,
             child: switch (state.phase) {
                 DailyChallengePhase.loading => const ExamLoadingView(
                     message: 'Preparando el reto de hoy...',
@@ -199,6 +198,7 @@ class _ChallengeBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     final automatic = kind == ExamKind.dailyAutomatic;
     final text = wasResumed
         ? 'Retomaste tu avance. Todo quedó guardado.'
@@ -209,9 +209,9 @@ class _ChallengeBanner extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: AppPalette.challengeGradient,
-        borderRadius: BorderRadius.circular(AppRadii.medium),
+        borderRadius: BorderRadius.circular(responsive.mediumRadius),
       ),
-      padding: const EdgeInsets.all(15),
+      padding: EdgeInsets.all(responsive.cardPadding * 0.86),
       child: Row(
         children: [
           AppIconBadge(
@@ -220,11 +220,11 @@ class _ChallengeBanner extends StatelessWidget {
                 : Icons.local_fire_department_rounded,
             foreground: AppPalette.primaryDark,
             background: Colors.white,
-            size: 44,
-            iconSize: 24,
-            radius: 13,
+            size: responsive.iconBadgeSize,
+            iconSize: responsive.iconSize,
+            radius: responsive.mediumRadius,
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: responsive.itemGap),
           Expanded(
             child: Text(
               text,
@@ -259,21 +259,22 @@ class _DailyResultExtra extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = context.responsive;
     return Column(
       children: [
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(17),
+          padding: EdgeInsets.all(responsive.cardPadding * 0.82),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(17),
+            borderRadius: BorderRadius.circular(responsive.mediumRadius),
           ),
           child: Column(
             children: [
               Row(
                 children: [
                   const Icon(Icons.local_fire_department_rounded),
-                  const SizedBox(width: 11),
+                  SizedBox(width: responsive.itemGap),
                   Expanded(
                     child: Text(
                       'Racha actual: $currentStreak días · Mejor: $bestStreak días',
@@ -282,11 +283,11 @@ class _DailyResultExtra extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: responsive.compactGap),
               Row(
                 children: [
                   const Icon(Icons.shield_rounded),
-                  const SizedBox(width: 11),
+                  SizedBox(width: responsive.itemGap),
                   Expanded(
                     child: Text(
                       shieldEarned
@@ -301,7 +302,7 @@ class _DailyResultExtra extends StatelessWidget {
           ),
         ),
         if (resource != null) ...[
-          const SizedBox(height: 12),
+          SizedBox(height: responsive.itemGap),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(

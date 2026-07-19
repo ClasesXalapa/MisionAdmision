@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mision_admision/app/responsive.dart';
 import 'package:mision_admision/app/router.dart';
 import 'package:mision_admision/app/theme.dart';
 
@@ -17,7 +16,8 @@ class MissionAdmissionApp extends ConsumerWidget {
       highContrastTheme: buildHighContrastLightTheme(),
       themeMode: ThemeMode.light,
       builder: (context, child) {
-        return HandsetViewport(
+        return Theme(
+          data: buildResponsiveTheme(context, Theme.of(context)),
           child: child ?? const SizedBox.shrink(),
         );
       },

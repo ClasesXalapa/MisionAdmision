@@ -87,8 +87,8 @@ class _ExamScreenState extends ConsumerState<ExamScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          toolbarHeight: 68,
-          leadingWidth: 60,
+          toolbarHeight: context.responsive.appBarHeight,
+          leadingWidth: context.responsive.controlHeight,
           leading: IconButton(
             tooltip: 'Volver al inicio',
             onPressed: _requestExit,
@@ -98,7 +98,6 @@ class _ExamScreenState extends ConsumerState<ExamScreen> {
         ),
         body: SafeArea(
           child: fullWidthCentered(
-            maxWidth: 820,
             child: switch (state.phase) {
                 ExamPhase.loading => const ExamLoadingView(),
                 ExamPhase.failure => ExamErrorView(
