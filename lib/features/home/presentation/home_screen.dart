@@ -118,6 +118,7 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 38,
@@ -133,7 +134,13 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 11),
-            const Text('Misión Admisión'),
+            const Flexible(
+              child: Text(
+                'Misión Admisión',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
         actions: [

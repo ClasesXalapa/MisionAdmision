@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const RELEASE = '42';
+  const RELEASE = '43';
   const STORAGE_KEY = 'mision_admision.web_release.v1';
 
   window.missionAdmissionBuildReady = (async () => {

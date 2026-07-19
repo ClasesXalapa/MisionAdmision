@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.11.1+43 — 19 de julio de 2026
+
+### Corrección
+
+- Corrige el desbordamiento horizontal de 62 px en el encabezado de Inicio cuando la PWA normaliza un viewport Android de 720 px a 430 px lógicos.
+- El nombre `Misión Admisión` ahora usa espacio flexible, una sola línea y elipsis únicamente cuando el ancho disponible sea excepcionalmente reducido.
+- Conserva sin cambios la escala móvil, la composición visual y la lógica de la entrega `0.11.1+42`.
+- Actualiza el build y la revisión PWA a `0.11.1+43`.
+
 ## 0.11.1+42 — 19 de julio de 2026
 
 - Corrige la escala real en PWA Android cuando el teléfono reporta un viewport ancho de 720 px.
