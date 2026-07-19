@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.10.11+37 — 2026-07-18
+
+- La pantalla de Recursos adopta la misma escala grande y desplazable de Inicio.
+- La cabecera, descripción, buscador, filtros y selector de materia aumentan su tamaño y altura táctil.
+- Cada card de recurso usa una altura mínima amplia, icono de 118 px, título de 42 px y descripción completa de 30 px.
+- Las acciones para abrir y completar recursos crecen a 106 px y 98 px, respectivamente.
+- Las imágenes de portada usan una proporción 4:3 en celulares para aprovechar mejor la pantalla.
+- Se conservan sin cambios la búsqueda, los filtros, la apertura externa y el seguimiento local.
+
 ## 0.10.10+36 — 2026-07-18
 
 - El modal de configuración ahora ocupa todo el ancho del celular y el 94 % de la altura útil.

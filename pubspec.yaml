@@ -1,7 +1,7 @@
 name: mision_admision
 description: PWA educativa para aspirantes al EXANI-II.
 publish_to: none
-version: 0.10.10+36
+version: 0.10.11+37
 
 environment:
   sdk: ^3.10.0
