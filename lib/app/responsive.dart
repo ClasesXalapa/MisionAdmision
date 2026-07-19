@@ -19,7 +19,7 @@ bool isHandsetLayout(BuildContext context) {
 }
 
 double appHorizontalPadding(BuildContext context) {
-  return isHandsetLayout(context) ? 22 : 30;
+  return isHandsetLayout(context) ? 16 : 28;
 }
 
 /// Asegura una escala legible en teléfonos sin reducir la preferencia de

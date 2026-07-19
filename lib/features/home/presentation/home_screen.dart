@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mision_admision/app/dependencies.dart';
+import 'package:mision_admision/app/design_system.dart';
 import 'package:mision_admision/core/time/local_date.dart';
 import 'package:mision_admision/domain/models/learner_progress.dart';
 import 'package:mision_admision/domain/models/rank.dart';
@@ -22,33 +23,33 @@ class HomeScreen extends ConsumerWidget {
       useSafeArea: true,
       showDragHandle: false,
       backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withValues(alpha: 0.58),
+      barrierColor: AppPalette.ink.withValues(alpha: 0.62),
       constraints: BoxConstraints(maxWidth: screenSize.width),
       builder: (sheetContext) {
         final colors = Theme.of(sheetContext).colorScheme;
         return FractionallySizedBox(
-          heightFactor: 0.94,
+          heightFactor: 0.92,
           widthFactor: 1,
           child: Material(
             key: const Key('app_settings_sheet'),
             color: colors.surface,
             clipBehavior: Clip.antiAlias,
             shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(42)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
             ),
             child: Column(
               children: [
-                const SizedBox(height: 18),
+                const SizedBox(height: 10),
                 Container(
-                  width: 92,
-                  height: 9,
+                  width: 54,
+                  height: 5,
                   decoration: BoxDecoration(
                     color: colors.outlineVariant,
                     borderRadius: BorderRadius.circular(99),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(28, 26, 22, 24),
+                  padding: const EdgeInsets.fromLTRB(20, 18, 14, 16),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -58,59 +59,39 @@ class HomeScreen extends ConsumerWidget {
                           children: [
                             Text(
                               'Configuración',
+                              style: Theme.of(sheetContext).textTheme.headlineMedium,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Instalación, recordatorios y contenido guardado.',
                               style: Theme.of(sheetContext)
                                   .textTheme
-                                  .headlineMedium
-                                  ?.copyWith(
-                                    fontSize: 44,
-                                    height: 1.05,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                            ),
-                            const SizedBox(height: 14),
-                            FractionallySizedBox(
-                              widthFactor: 0.9,
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Administra la instalación, los recordatorios y el contenido guardado.',
-                                style: Theme.of(sheetContext)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(
-                                      color: colors.onSurfaceVariant,
-                                      fontSize: 24,
-                                      height: 1.35,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                              ),
+                                  .bodyMedium
+                                  ?.copyWith(color: colors.onSurfaceVariant),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 18),
-                      SizedBox(
-                        width: 74,
-                        height: 74,
-                        child: IconButton.filledTonal(
-                          tooltip: 'Cerrar',
-                          onPressed: () => Navigator.of(sheetContext).pop(),
-                          icon: const Icon(Icons.close_rounded, size: 38),
-                        ),
+                      const SizedBox(width: 12),
+                      IconButton.filledTonal(
+                        tooltip: 'Cerrar',
+                        onPressed: () => Navigator.of(sheetContext).pop(),
+                        icon: const Icon(Icons.close_rounded),
                       ),
                     ],
                   ),
                 ),
                 Divider(height: 1, color: colors.outlineVariant),
-                Expanded(
+                const Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 28, 20, 56),
-                    child: const Column(
+                    padding: EdgeInsets.fromLTRB(16, 18, 16, 36),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         PwaStatusCard(),
-                        SizedBox(height: 28),
+                        SizedBox(height: 14),
                         NotificationReminderCard(),
-                        SizedBox(height: 28),
+                        SizedBox(height: 14),
                         ContentSyncCard(),
                       ],
                     ),
@@ -136,18 +117,34 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 128,
-        title: const Text(
-          'Misión Admisión',
-          style: TextStyle(fontSize: 38, fontWeight: FontWeight.w900),
+        title: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                gradient: AppPalette.heroGradient,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.school_rounded,
+                color: Colors.white,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 11),
+            const Text('Misión Admisión'),
+          ],
         ),
         actions: [
-          IconButton(
-            tooltip: 'Configuración',
-            onPressed: () => _openAppSettings(context),
-            icon: const Icon(Icons.tune_rounded, size: 56),
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton.filledTonal(
+              tooltip: 'Configuración',
+              onPressed: () => _openAppSettings(context),
+              icon: const Icon(Icons.tune_rounded),
+            ),
           ),
-          const SizedBox(width: 12),
         ],
       ),
       bottomNavigationBar: const AppBottomNavigation(selectedIndex: 0),
@@ -162,10 +159,8 @@ class HomeScreen extends ConsumerWidget {
           },
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 36, 16, 150),
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 30),
             children: [
-              const _WelcomeHeader(),
-              const SizedBox(height: 54),
               progress.when(
                 data: (value) {
                   final rank = ranks.asData == null
@@ -174,18 +169,26 @@ class HomeScreen extends ConsumerWidget {
                             ranks: ranks.asData!.value,
                             bestStreak: value.bestStreak,
                           );
-                  return _ProgressSummary(
+                  return _MissionHero(
                     progress: value,
-                    completedToday: value.lastCompletedDateKey == today,
                     rank: rank,
-                    shieldUsedToday: value.lastShieldUsedDateKey == today &&
-                        value.lastShieldUseCount > 0,
+                    completedToday: completedToday,
                   );
                 },
                 loading: () => const _ProgressLoading(),
                 error: (error, stackTrace) => const _ProgressError(),
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: 16),
+              progress.when(
+                data: (value) => _ProgressSummary(
+                  progress: value,
+                  shieldUsedToday: value.lastShieldUsedDateKey == today &&
+                      value.lastShieldUseCount > 0,
+                ),
+                loading: () => const SizedBox.shrink(),
+                error: (error, stackTrace) => const SizedBox.shrink(),
+              ),
+              const SizedBox(height: 22),
               _DailyChallengeCard(
                 hasPendingAttempt: hasPendingAttempt,
                 completedToday: completedToday,
@@ -195,16 +198,12 @@ class HomeScreen extends ConsumerWidget {
                     hasPendingAttempt ? currentAttempt!.questionIds.length : 10,
                 onPressed: () => context.go('/daily'),
               ),
-              const SizedBox(height: 64),
-              Text(
-                'Sigue practicando',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontSize: 46,
-                      height: 1.05,
-                      fontWeight: FontWeight.w900,
-                    ),
+              const SizedBox(height: 26),
+              const AppSectionHeading(
+                title: 'Sigue practicando',
+                subtitle: 'Elige cómo quieres avanzar hoy.',
               ),
-              const SizedBox(height: 38),
+              const SizedBox(height: 14),
               _QuickActions(
                 onResources: () => context.go('/resources'),
                 onExam: () => context.go('/exam'),
@@ -217,46 +216,169 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-class _WelcomeHeader extends StatelessWidget {
-  const _WelcomeHeader();
+class _MissionHero extends StatelessWidget {
+  const _MissionHero({
+    required this.progress,
+    required this.rank,
+    required this.completedToday,
+  });
+
+  final LearnerProgress progress;
+  final Rank? rank;
+  final bool completedToday;
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        FractionallySizedBox(
-          widthFactor: 0.84,
-          alignment: Alignment.centerLeft,
-          child: Semantics(
-            header: true,
-            child: Text(
-              'Tu misión de hoy',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontSize: 68,
-                    height: 1,
-                    letterSpacing: -1.4,
-                    fontWeight: FontWeight.w900,
-                  ),
+    final streakUnit = progress.currentStreak == 1 ? 'día' : 'días';
+
+    return Container(
+      key: const Key('home_progress_card'),
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        gradient: AppPalette.heroGradient,
+        borderRadius: BorderRadius.circular(AppRadii.hero),
+        boxShadow: AppShadows.raised,
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -42,
+            top: -54,
+            child: Container(
+              width: 170,
+              height: 170,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 28),
-        FractionallySizedBox(
-          widthFactor: 0.76,
-          alignment: Alignment.centerLeft,
-          child: Text(
-            'Avanza un poco cada día hacia tu ingreso al EXANI-II.',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: colors.onSurfaceVariant,
-                  fontSize: 32,
-                  height: 1.35,
-                  fontWeight: FontWeight.w500,
-                ),
+          Positioned(
+            right: 44,
+            bottom: -62,
+            child: Container(
+              width: 138,
+              height: 138,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.07),
+                shape: BoxShape.circle,
+              ),
+            ),
           ),
-        ),
-      ],
+          Padding(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 11,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        rank?.name ?? 'Primer paso',
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: Colors.white,
+                            ),
+                      ),
+                    ),
+                    const Spacer(),
+                    if (completedToday)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 7,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.check_circle_rounded,
+                              color: AppPalette.success,
+                              size: 18,
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              'Completado',
+                              style: TextStyle(
+                                color: AppPalette.success,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 28),
+                Text(
+                  'Tu misión de hoy',
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                        color: Colors.white,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  completedToday
+                      ? 'Misión cumplida. Tu racha está protegida.'
+                      : 'Un paso más cerca de tu ingreso al EXANI-II.',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.84),
+                      ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      width: 58,
+                      height: 58,
+                      decoration: BoxDecoration(
+                        color: AppPalette.amberSoft,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: const Icon(
+                        Icons.local_fire_department_rounded,
+                        color: Color(0xFFB85B00),
+                        size: 34,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${progress.currentStreak} $streakUnit',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineLarge
+                              ?.copyWith(color: Colors.white),
+                        ),
+                        Text(
+                          'Racha actual',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.76),
+                              ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -264,267 +386,131 @@ class _WelcomeHeader extends StatelessWidget {
 class _ProgressSummary extends StatelessWidget {
   const _ProgressSummary({
     required this.progress,
-    required this.completedToday,
-    required this.rank,
     required this.shieldUsedToday,
   });
 
   final LearnerProgress progress;
-  final bool completedToday;
-  final Rank? rank;
   final bool shieldUsedToday;
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final nextStreak = progress.currentStreak + 1;
-    final streakUnit = progress.currentStreak == 1 ? 'día' : 'días';
-    final nextStreakUnit = nextStreak == 1 ? 'día' : 'días';
-
-    return Card(
-      key: const Key('home_progress_card'),
-      child: Padding(
-        padding: const EdgeInsets.all(44),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 112,
-                  height: 112,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFE8C9),
-                    borderRadius: BorderRadius.circular(32),
-                  ),
-                  child: const Icon(
-                    Icons.local_fire_department_rounded,
-                    size: 68,
-                    color: Color(0xFFB64A00),
-                  ),
-                ),
-                const SizedBox(width: 26),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        completedToday ? '¡Misión cumplida!' : 'Tu progreso',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontSize: 44,
-                              height: 1.04,
-                              fontWeight: FontWeight.w900,
-                            ),
-                      ),
-                      if (rank != null) ...[
-                        const SizedBox(height: 12),
-                        Text(
-                          rank!.name,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: colors.primary,
-                                fontSize: 31,
-                                height: 1.15,
-                                fontWeight: FontWeight.w900,
-                              ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                if (completedToday)
-                  Container(
-                    width: 66,
-                    height: 66,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFE3F5E8),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.check_rounded,
-                      color: Color(0xFF18733C),
-                      size: 44,
-                    ),
-                  ),
-              ],
-            ),
-            if (shieldUsedToday) ...[
-              const SizedBox(height: 38),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(32),
-                decoration: BoxDecoration(
-                  color: colors.secondaryContainer,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.shield_rounded, size: 52),
-                    const SizedBox(width: 24),
-                    Expanded(
-                      child: Text(
-                        progress.lastShieldUseCount == 1
-                            ? 'Un escudo protegió tu racha.'
-                            : '${progress.lastShieldUseCount} escudos protegieron tu racha.',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              fontSize: 28,
-                              height: 1.32,
-                              fontWeight: FontWeight.w800,
-                            ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            const SizedBox(height: 42),
-            Container(
-              width: double.infinity,
-              constraints: const BoxConstraints(minHeight: 340),
-              padding: const EdgeInsets.symmetric(horizontal: 42, vertical: 48),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF1DF),
-                borderRadius: BorderRadius.circular(32),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 126,
-                    height: 126,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFFDFC0),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.local_fire_department_rounded,
-                      color: Color(0xFFA84300),
-                      size: 78,
-                    ),
-                  ),
-                  const SizedBox(height: 34),
-                  Text(
-                    '${progress.currentStreak} $streakUnit',
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                          color: const Color(0xFF8F3900),
-                          fontSize: 76,
-                          height: 0.98,
-                          fontWeight: FontWeight.w900,
-                        ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    completedToday ? 'Racha protegida hoy' : 'Racha actual',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: const Color(0xFF8F3900),
-                          fontSize: 32,
-                          height: 1.1,
-                          fontWeight: FontWeight.w900,
-                        ),
-                  ),
-                ],
+            Expanded(
+              child: _MetricCard(
+                icon: Icons.emoji_events_rounded,
+                label: 'Mejor racha',
+                value: '${progress.bestStreak}',
+                color: AppPalette.amber,
+                background: AppPalette.amberSoft,
               ),
             ),
-            const SizedBox(height: 28),
-            _SecondaryMetric(
-              icon: Icons.emoji_events_rounded,
-              label: 'Mejor racha',
-              value: '${progress.bestStreak}',
+            const SizedBox(width: 10),
+            Expanded(
+              child: _MetricCard(
+                icon: Icons.shield_rounded,
+                label: 'Escudos',
+                value: '${progress.shields}',
+                color: AppPalette.teal,
+                background: AppPalette.tealSoft,
+              ),
             ),
-            const SizedBox(height: 22),
-            _SecondaryMetric(
-              icon: Icons.shield_rounded,
-              label: 'Escudos',
-              value: '${progress.shields}',
-            ),
-            const SizedBox(height: 22),
-            _SecondaryMetric(
-              icon: Icons.task_alt_rounded,
-              label: 'Retos',
-              value: '${progress.totalDailyChallengesCompleted}',
-            ),
-            const SizedBox(height: 44),
-            FractionallySizedBox(
-              widthFactor: 0.84,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                completedToday
-                    ? 'Tu racha está protegida por hoy. Sigue practicando a tu ritmo.'
-                    : 'Completa el reto de hoy para alcanzar una racha de $nextStreak $nextStreakUnit.',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: colors.onSurfaceVariant,
-                      fontSize: 29,
-                      height: 1.42,
-                      fontWeight: FontWeight.w500,
-                    ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _MetricCard(
+                icon: Icons.task_alt_rounded,
+                label: 'Retos',
+                value: '${progress.totalDailyChallengesCompleted}',
+                color: AppPalette.primary,
+                background: AppPalette.primarySoft,
               ),
             ),
           ],
         ),
-      ),
+        if (shieldUsedToday) ...[
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+            decoration: BoxDecoration(
+              color: AppPalette.tealSoft,
+              borderRadius: BorderRadius.circular(AppRadii.medium),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.shield_rounded, color: AppPalette.teal),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    progress.lastShieldUseCount == 1
+                        ? 'Un escudo protegió tu racha.'
+                        : '${progress.lastShieldUseCount} escudos protegieron tu racha.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: const Color(0xFF075B54),
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
 
-class _SecondaryMetric extends StatelessWidget {
-  const _SecondaryMetric({
+class _MetricCard extends StatelessWidget {
+  const _MetricCard({
     required this.icon,
     required this.label,
     required this.value,
+    required this.color,
+    required this.background,
   });
 
   final IconData icon;
   final String label;
   final String value;
+  final Color color;
+  final Color background;
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return Semantics(
       label: '$label: $value',
-      child: ExcludeSemantics(
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 220),
-          padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 34),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF2F4F9),
-            borderRadius: BorderRadius.circular(28),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                child: Icon(icon, color: colors.primary, size: 58),
-              ),
-              const SizedBox(width: 30),
-              Expanded(
-                child: Text(
-                  label,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: colors.onSurfaceVariant,
-                        fontSize: 32,
-                        height: 1.12,
-                        fontWeight: FontWeight.w900,
-                      ),
-                ),
-              ),
-              const SizedBox(width: 20),
-              Text(
-                value,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: colors.onSurface,
-                      fontSize: 60,
-                      height: 1,
-                      fontWeight: FontWeight.w900,
-                    ),
-              ),
-            ],
-          ),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(12, 13, 12, 12),
+        decoration: BoxDecoration(
+          color: AppPalette.surface,
+          borderRadius: BorderRadius.circular(AppRadii.medium),
+          border: Border.all(color: AppPalette.outline),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppIconBadge(
+              icon: icon,
+              foreground: color,
+              background: background,
+              size: 38,
+              iconSize: 21,
+              radius: 12,
+            ),
+            const SizedBox(height: 10),
+            Text(value, style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
         ),
       ),
     );
@@ -537,9 +523,9 @@ class _ProgressLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Card(
-      child: Padding(
-        padding: EdgeInsets.all(72),
-        child: Center(child: CircularProgressIndicator(strokeWidth: 7)),
+      child: SizedBox(
+        height: 230,
+        child: Center(child: CircularProgressIndicator()),
       ),
     );
   }
@@ -552,11 +538,8 @@ class _ProgressError extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Card(
       child: Padding(
-        padding: EdgeInsets.all(52),
-        child: Text(
-          'No fue posible leer el progreso local.',
-          style: TextStyle(fontSize: 30, height: 1.35),
-        ),
+        padding: EdgeInsets.all(22),
+        child: Text('No fue posible leer el progreso local.'),
       ),
     );
   }
@@ -579,190 +562,138 @@ class _DailyChallengeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     final safeTotal = totalQuestions <= 0 ? 10 : totalQuestions;
     final safeAnswered = answeredQuestions.clamp(0, safeTotal).toInt();
     final progressValue = safeAnswered / safeTotal;
     final label = hasPendingAttempt
-        ? 'Continuar reto · $safeAnswered de $safeTotal'
+        ? 'Continuar reto'
         : completedToday
             ? 'Practicar de nuevo'
             : 'Comenzar reto';
 
-    return Card(
+    return Container(
       key: const Key('home_daily_challenge_card'),
-      color: const Color(0xFFEEF2FF),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(32),
-        side: BorderSide(
-          color: colors.primary.withValues(alpha: 0.18),
-        ),
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        gradient: AppPalette.challengeGradient,
+        borderRadius: BorderRadius.circular(AppRadii.large),
+        boxShadow: AppShadows.soft,
       ),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 760),
-        child: Padding(
-          padding: const EdgeInsets.all(44),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 112,
-                    height: 112,
-                    decoration: BoxDecoration(
-                      color: colors.primary,
-                      borderRadius: BorderRadius.circular(32),
-                    ),
-                    child: const Icon(
-                      Icons.local_fire_department_rounded,
-                      size: 68,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 26),
-                  Expanded(
-                    child: Text(
-                      'RETO DE HOY',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: colors.primary,
-                            fontSize: 29,
-                            letterSpacing: 0.8,
-                            fontWeight: FontWeight.w900,
-                          ),
-                    ),
-                  ),
-                  if (completedToday)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 15,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE0F4E5),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.check_circle_rounded,
-                            size: 32,
-                            color: Color(0xFF18733C),
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            'Completado',
-                            style: TextStyle(
-                              color: Color(0xFF18733C),
-                              fontSize: 22,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 52),
-              FractionallySizedBox(
-                widthFactor: 0.84,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  hasPendingAttempt
-                      ? 'Continúa donde te quedaste'
-                      : 'Tu misión diaria',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: colors.onSurface,
-                        fontSize: 56,
-                        height: 1.03,
-                        fontWeight: FontWeight.w900,
-                      ),
-                ),
-              ),
-              const SizedBox(height: 28),
-              FractionallySizedBox(
-                widthFactor: 0.78,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  hasPendingAttempt
-                      ? 'Tu avance está guardado. Termina antes de que concluya el día.'
-                      : completedToday
-                          ? 'Tu racha ya está protegida. Puedes repetir el reto para seguir practicando.'
-                          : 'Responde 10 preguntas y protege tu racha.',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: colors.onSurfaceVariant,
-                        fontSize: 32,
-                        height: 1.4,
-                        fontWeight: FontWeight.w500,
-                      ),
-                ),
-              ),
-              const SizedBox(height: 72),
-              if (hasPendingAttempt) ...[
+      child: Stack(
+        children: [
+          Positioned(
+            right: -30,
+            top: -28,
+            child: Icon(
+              Icons.local_fire_department_rounded,
+              size: 150,
+              color: Colors.white.withValues(alpha: 0.06),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Row(
                   children: [
-                    Text(
-                      'Tu progreso',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontSize: 29,
-                            fontWeight: FontWeight.w900,
-                          ),
+                    const AppIconBadge(
+                      icon: Icons.bolt_rounded,
+                      foreground: AppPalette.primaryDark,
+                      background: Colors.white,
+                      size: 46,
+                      iconSize: 26,
+                      radius: 14,
                     ),
-                    const Spacer(),
-                    Text(
-                      '$safeAnswered de $safeTotal',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: colors.primary,
-                            fontSize: 29,
-                            fontWeight: FontWeight.w900,
-                          ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'RETO DE HOY',
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: Colors.white.withValues(alpha: 0.82),
+                              letterSpacing: 0.8,
+                            ),
+                      ),
                     ),
+                    if (completedToday)
+                      const Icon(
+                        Icons.check_circle_rounded,
+                        color: Color(0xFF8CF0D5),
+                      ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(999),
-                  child: LinearProgressIndicator(
+                const SizedBox(height: 18),
+                Text(
+                  hasPendingAttempt
+                      ? 'Continúa donde te quedaste'
+                      : completedToday
+                          ? 'Sigue entrenando'
+                          : 'Completa 10 preguntas',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: Colors.white,
+                      ),
+                ),
+                const SizedBox(height: 7),
+                Text(
+                  hasPendingAttempt
+                      ? 'Tu avance está guardado en este dispositivo.'
+                      : completedToday
+                          ? 'La misión ya contó para tu racha de hoy.'
+                          : 'Protege tu racha y mejora un poco cada día.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.78),
+                      ),
+                ),
+                if (hasPendingAttempt) ...[
+                  const SizedBox(height: 18),
+                  Row(
+                    children: [
+                      Text(
+                        'Progreso',
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: Colors.white,
+                            ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        '$safeAnswered de $safeTotal',
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: Colors.white,
+                            ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  LinearProgressIndicator(
                     value: progressValue,
-                    minHeight: 24,
-                    backgroundColor: colors.primary.withValues(alpha: 0.13),
-                    color: colors.primary,
+                    minHeight: 8,
+                    color: const Color(0xFF8CF0D5),
+                    backgroundColor: Colors.white.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ],
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    key: const Key('home_daily_challenge_action'),
+                    onPressed: onPressed,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppPalette.primaryDark,
+                    ),
+                    icon: Icon(
+                      hasPendingAttempt
+                          ? Icons.play_circle_fill_rounded
+                          : Icons.arrow_forward_rounded,
+                    ),
+                    label: Text(label),
                   ),
                 ),
-                const SizedBox(height: 42),
               ],
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  key: const Key('home_daily_challenge_action'),
-                  onPressed: onPressed,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: colors.primary,
-                    foregroundColor: colors.onPrimary,
-                    minimumSize: const Size.fromHeight(120),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                  ),
-                  icon: Icon(
-                    hasPendingAttempt
-                        ? Icons.play_circle_fill_rounded
-                        : Icons.play_arrow_rounded,
-                    size: 50,
-                  ),
-                  label: Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 31,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -783,17 +714,23 @@ class _QuickActions extends StatelessWidget {
       children: [
         _QuickActionTile(
           actionKey: const Key('home_resources_action'),
-          icon: Icons.library_books_rounded,
+          icon: Icons.video_library_rounded,
+          eyebrow: 'APRENDE',
           title: 'Biblioteca de recursos',
-          description: 'Videos, guías y simulacros organizados por tema.',
+          description: 'Videos, guías y simulacros por tema.',
+          accent: AppPalette.teal,
+          accentSoft: AppPalette.tealSoft,
           onPressed: onResources,
         ),
-        const SizedBox(height: 42),
+        const SizedBox(height: 12),
         _QuickActionTile(
           actionKey: const Key('home_exam_action'),
           icon: Icons.quiz_rounded,
+          eyebrow: 'PONTE A PRUEBA',
           title: 'Examen libre',
-          description: 'Practica con 10 preguntas aleatorias.',
+          description: '10 preguntas aleatorias para practicar.',
+          accent: AppPalette.primary,
+          accentSoft: AppPalette.primarySoft,
           onPressed: onExam,
         ),
       ],
@@ -805,92 +742,77 @@ class _QuickActionTile extends StatelessWidget {
   const _QuickActionTile({
     required this.actionKey,
     required this.icon,
+    required this.eyebrow,
     required this.title,
     required this.description,
+    required this.accent,
+    required this.accentSoft,
     required this.onPressed,
   });
 
   final Key actionKey;
   final IconData icon;
+  final String eyebrow;
   final String title;
   final String description;
+  final Color accent;
+  final Color accentSoft;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: double.infinity,
-      child: Card(
-        margin: EdgeInsets.zero,
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          key: actionKey,
-          onTap: onPressed,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 500),
-            child: Padding(
-              padding: const EdgeInsets.all(44),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width: 148,
-                        height: 148,
-                        decoration: BoxDecoration(
-                          color: colors.primaryContainer,
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                        child: Icon(icon, color: colors.primary, size: 88),
-                      ),
-                      Container(
-                        width: 92,
-                        height: 92,
-                        decoration: BoxDecoration(
-                          color: colors.primary.withValues(alpha: 0.10),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.arrow_forward_rounded,
-                          color: colors.primary,
-                          size: 58,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 92),
-                  FractionallySizedBox(
-                    widthFactor: 0.86,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontSize: 48,
-                            height: 1.04,
-                            fontWeight: FontWeight.w900,
-                          ),
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-                  FractionallySizedBox(
-                    widthFactor: 0.76,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      description,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: colors.onSurfaceVariant,
-                            fontSize: 31,
-                            height: 1.42,
-                            fontWeight: FontWeight.w500,
-                          ),
-                    ),
-                  ),
-                ],
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        key: actionKey,
+        onTap: onPressed,
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Row(
+            children: [
+              AppIconBadge(
+                icon: icon,
+                foreground: accent,
+                background: accentSoft,
+                size: 64,
+                iconSize: 33,
+                radius: 19,
               ),
-            ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      eyebrow,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: accent,
+                            letterSpacing: 0.7,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(title, style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: 5),
+                    Text(
+                      description,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: accentSoft,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.arrow_forward_rounded, color: accent),
+              ),
+            ],
           ),
         ),
       ),

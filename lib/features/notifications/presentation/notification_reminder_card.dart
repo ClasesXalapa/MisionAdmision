@@ -114,9 +114,9 @@ class _NotificationReminderCardState
         key: Key('settings_notification_card'),
         margin: EdgeInsets.zero,
         child: SizedBox(
-          height: 190,
+          height: 124,
           child: Padding(
-            padding: EdgeInsets.all(32),
+            padding: EdgeInsets.all(18),
             child: Center(child: LinearProgressIndicator()),
           ),
         ),
@@ -131,7 +131,7 @@ class _NotificationReminderCardState
       key: const Key('settings_notification_card'),
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -139,19 +139,19 @@ class _NotificationReminderCardState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 88,
-                  height: 88,
+                  width: 58,
+                  height: 58,
                   decoration: BoxDecoration(
                     color: presentation.color.withValues(alpha: 0.13),
-                    borderRadius: BorderRadius.circular(26),
+                    borderRadius: BorderRadius.circular(17),
                   ),
                   child: Icon(
                     presentation.icon,
                     color: presentation.color,
-                    size: 48,
+                    size: 31,
                   ),
                 ),
-                const SizedBox(width: 24),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,19 +159,17 @@ class _NotificationReminderCardState
                       Text(
                         presentation.title,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontSize: 34,
-                              height: 1.08,
-                              fontWeight: FontWeight.w900,
+                              height: 1.15,
+                              fontWeight: FontWeight.w800,
                             ),
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 7),
                       Text(
                         presentation.message,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               color: colors.onSurfaceVariant,
-                              fontSize: 23,
                               height: 1.4,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w400,
                             ),
                       ),
                     ],
@@ -180,36 +178,35 @@ class _NotificationReminderCardState
               ],
             ),
             if (status.registrationAvailable) ...[
-              const SizedBox(height: 22),
+              const SizedBox(height: 14),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 22,
-                  vertical: 18,
+                  horizontal: 14,
+                  vertical: 11,
                 ),
                 decoration: BoxDecoration(
                   color: colors.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Text(
                   _registrationSummary(status),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: colors.onSurfaceVariant,
-                        fontSize: 19,
                         height: 1.35,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                       ),
                 ),
               ),
             ],
             if (status.errorMessage != null) ...[
-              const SizedBox(height: 22),
+              const SizedBox(height: 14),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
                   color: colors.errorContainer,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Text(
                   status.errorMessage!,
@@ -223,13 +220,13 @@ class _NotificationReminderCardState
               ),
             ],
             if (status.configured && status.supported) ...[
-              const SizedBox(height: 28),
+              const SizedBox(height: 16),
               if (status.enabled)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     SizedBox(
-                      height: 76,
+                      height: 58,
                       child: OutlinedButton.icon(
                         onPressed: _controller.busy
                             ? null
@@ -246,8 +243,7 @@ class _NotificationReminderCardState
                         label: const Text('Herramientas técnicas'),
                         style: OutlinedButton.styleFrom(
                           textStyle: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
@@ -265,13 +261,12 @@ class _NotificationReminderCardState
                           label: const Text('Enviar prueba local'),
                           style: OutlinedButton.styleFrom(
                             textStyle: const TextStyle(
-                              fontSize: 21,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 7),
                       SizedBox(
                         height: 70,
                         child: OutlinedButton.icon(
@@ -281,13 +276,12 @@ class _NotificationReminderCardState
                           label: const Text('Reparar notificaciones'),
                           style: OutlinedButton.styleFrom(
                             textStyle: const TextStyle(
-                              fontSize: 21,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 7),
                       SizedBox(
                         height: 70,
                         child: OutlinedButton.icon(
@@ -297,8 +291,7 @@ class _NotificationReminderCardState
                           label: const Text('Copiar ID de prueba'),
                           style: OutlinedButton.styleFrom(
                             textStyle: const TextStyle(
-                              fontSize: 21,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
@@ -311,8 +304,7 @@ class _NotificationReminderCardState
                         onPressed: _controller.busy ? null : _disable,
                         style: TextButton.styleFrom(
                           textStyle: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         child: const Text('Desactivar notificaciones'),
@@ -323,16 +315,13 @@ class _NotificationReminderCardState
               else if (status.canEnable)
                 SizedBox(
                   width: double.infinity,
-                  height: 76,
+                  height: 58,
                   child: FilledButton.icon(
                     onPressed: _controller.busy ? null : _enable,
                     icon: const Icon(Icons.notifications_outlined, size: 34),
                     label: const Text('Activar notificaciones'),
                     style: FilledButton.styleFrom(
-                      textStyle: const TextStyle(
-                        fontSize: 23,
-                        fontWeight: FontWeight.w900,
-                      ),
+                      textStyle: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                   ),
                 ),

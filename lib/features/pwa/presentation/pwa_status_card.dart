@@ -65,9 +65,9 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
         key: Key('settings_pwa_card'),
         margin: EdgeInsets.zero,
         child: SizedBox(
-          height: 190,
+          height: 124,
           child: Padding(
-            padding: EdgeInsets.all(32),
+            padding: EdgeInsets.all(18),
             child: Center(child: LinearProgressIndicator()),
           ),
         ),
@@ -82,7 +82,7 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
       key: const Key('settings_pwa_card'),
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -90,19 +90,19 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 88,
-                  height: 88,
+                  width: 58,
+                  height: 58,
                   decoration: BoxDecoration(
                     color: presentation.color.withValues(alpha: 0.13),
-                    borderRadius: BorderRadius.circular(26),
+                    borderRadius: BorderRadius.circular(17),
                   ),
                   child: Icon(
                     presentation.icon,
                     color: presentation.color,
-                    size: 48,
+                    size: 31,
                   ),
                 ),
-                const SizedBox(width: 24),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,19 +110,17 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
                       Text(
                         presentation.title,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontSize: 34,
-                              height: 1.08,
-                              fontWeight: FontWeight.w900,
+                              height: 1.15,
+                              fontWeight: FontWeight.w800,
                             ),
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 7),
                       Text(
                         presentation.message,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               color: colors.onSurfaceVariant,
-                              fontSize: 23,
                               height: 1.4,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w400,
                             ),
                       ),
                     ],
@@ -135,10 +133,10 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
               const _ManualInstallInstructions(),
             ],
             if (status.canPromptInstall || status.updateAvailable) ...[
-              const SizedBox(height: 28),
+              const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
-                height: 76,
+                height: 58,
                 child: status.updateAvailable
                     ? FilledButton.icon(
                         onPressed: _controller.busy ? null : _activateUpdate,
@@ -146,8 +144,7 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
                         label: const Text('Aplicar actualización'),
                         style: FilledButton.styleFrom(
                           textStyle: const TextStyle(
-                            fontSize: 23,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       )
@@ -155,13 +152,12 @@ class _PwaStatusCardState extends ConsumerState<PwaStatusCard> {
                         onPressed: _controller.busy ? null : _install,
                         icon: const Icon(
                           Icons.install_mobile_outlined,
-                          size: 34,
+                          size: 24,
                         ),
                         label: const Text('Instalar Misión Admisión'),
                         style: FilledButton.styleFrom(
                           textStyle: const TextStyle(
-                            fontSize: 23,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),

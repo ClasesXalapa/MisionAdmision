@@ -95,7 +95,7 @@ class _ContentSyncCardState extends ConsumerState<ContentSyncCard> {
       key: const Key('settings_content_card'),
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -103,91 +103,85 @@ class _ContentSyncCardState extends ConsumerState<ContentSyncCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 88,
-                  height: 88,
+                  width: 58,
+                  height: 58,
                   decoration: BoxDecoration(
                     color: presentation.color.withValues(alpha: 0.13),
-                    borderRadius: BorderRadius.circular(26),
+                    borderRadius: BorderRadius.circular(17),
                   ),
                   child: _syncing
                       ? const Padding(
-                          padding: EdgeInsets.all(24),
+                          padding: EdgeInsets.all(16),
                           child: CircularProgressIndicator(strokeWidth: 4),
                         )
                       : Icon(
                           presentation.icon,
                           color: presentation.color,
-                          size: 48,
+                          size: 31,
                         ),
                 ),
-                const SizedBox(width: 24),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Text(
                     _syncing ? 'Buscando contenido nuevo' : presentation.title,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontSize: 34,
-                          height: 1.08,
-                          fontWeight: FontWeight.w900,
+                          height: 1.15,
+                          fontWeight: FontWeight.w800,
                         ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 22),
+            const SizedBox(height: 14),
             Text(
               _syncing
                   ? 'Puedes seguir usando la aplicación mientras termina la revisión.'
                   : presentation.message,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: colors.onSurfaceVariant,
-                    fontSize: 23,
                     height: 1.4,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                   ),
             ),
             if (!_syncing && metadata?.lastSuccessAt != null) ...[
-              const SizedBox(height: 22),
+              const SizedBox(height: 14),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 22,
-                  vertical: 18,
+                  horizontal: 14,
+                  vertical: 11,
                 ),
                 decoration: BoxDecoration(
                   color: colors.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Text(
                   'Última actualización válida: ${_formatDate(metadata!.lastSuccessAt!)}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: colors.onSurfaceVariant,
-                        fontSize: 19,
                         height: 1.35,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                       ),
                 ),
               ),
             ],
-            const SizedBox(height: 28),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
-              height: 76,
+              height: 58,
               child: OutlinedButton.icon(
                 onPressed: _syncing
                     ? null
                     : () => _synchronize(force: true, showFeedback: true),
                 icon: Icon(
                   _syncing ? Icons.hourglass_top_rounded : Icons.refresh_rounded,
-                  size: 34,
+                  size: 24,
                 ),
                 label: Text(
                   _syncing ? 'Revisando contenido…' : 'Buscar actualizaciones',
                 ),
                 style: OutlinedButton.styleFrom(
-                  textStyle: const TextStyle(
-                    fontSize: 23,
-                    fontWeight: FontWeight.w900,
-                  ),
+                  textStyle: const TextStyle(fontWeight: FontWeight.w800),
                 ),
               ),
             ),

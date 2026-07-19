@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mision_admision/app/dependencies.dart';
+import 'package:mision_admision/app/design_system.dart';
 import 'package:mision_admision/app/responsive.dart';
 import 'package:mision_admision/domain/models/resource_card.dart';
 import 'package:mision_admision/domain/models/resource_type.dart';
@@ -8,12 +9,6 @@ import 'package:mision_admision/features/navigation/presentation/app_bottom_navi
 import 'package:mision_admision/features/resources/application/resource_controller.dart';
 import 'package:mision_admision/features/resources/application/resource_state.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-// Recursos se diseña deliberadamente como una experiencia móvil grande.
-// No depende de breakpoints ni de la plataforma reportada por el navegador:
-// varios WebView/PWA Android informan métricas de escritorio y activaban la
-// composición compacta. Mantener este valor fijo garantiza controles grandes.
-bool _useLargeMobileResourcesLayout(BuildContext _) => true;
 
 class ResourcesScreen extends ConsumerStatefulWidget {
   const ResourcesScreen({super.key});
@@ -72,26 +67,17 @@ class _ResourcesScreenState extends ConsumerState<ResourcesScreen> {
   @override
   Widget build(BuildContext context) {
     final state = _controller.state;
-    final largeMobile = _useLargeMobileResourcesLayout(context);
 
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: largeMobile ? 176 : null,
-        titleSpacing: largeMobile ? 18 : null,
-        title: Text(
-          'Recursos',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontSize: largeMobile ? 58 : null,
-                height: 1.05,
-              ),
-        ),
+        title: const Text('Recursos'),
       ),
       bottomNavigationBar: const AppBottomNavigation(selectedIndex: 2),
       body: SafeArea(
         child: fullWidthCentered(
-          maxWidth: 1040,
+          maxWidth: 820,
           child: switch (state.phase) {
-            ResourcePhase.loading => _ResourceLoading(large: largeMobile),
+            ResourcePhase.loading => const _ResourceLoading(),
             ResourcePhase.failure => _ResourceError(
                 message: state.errorMessage ?? 'Ocurrió un error.',
                 onRetry: _controller.start,
@@ -151,7 +137,6 @@ class _ResourceContent extends StatelessWidget {
       return searchable.contains(normalizedQuery);
     }).toList(growable: false);
 
-    final largeMobile = _useLargeMobileResourcesLayout(context);
     final filtersActive = state.selectedType != null ||
         state.selectedTag != null ||
         normalizedQuery.isNotEmpty;
@@ -159,37 +144,10 @@ class _ResourceContent extends StatelessWidget {
     return ListView(
       key: const Key('resources_list'),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      padding: EdgeInsets.fromLTRB(
-        largeMobile ? 12 : 30,
-        largeMobile ? 52 : 18,
-        largeMobile ? 12 : 30,
-        largeMobile ? 180 : 34,
-      ),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
       children: [
-        ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: largeMobile ? 600 : 760),
-          child: Text(
-            'Biblioteca de estudio',
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  fontSize: largeMobile ? 80 : null,
-                  height: 1.02,
-                  letterSpacing: largeMobile ? -1.3 : null,
-                ),
-          ),
-        ),
-        SizedBox(height: largeMobile ? 34 : 10),
-        ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: largeMobile ? 540 : 760),
-          child: Text(
-            'Encuentra videos, guías y simulacros para reforzar cada tema.',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontSize: largeMobile ? 44 : null,
-                  height: 1.38,
-                ),
-          ),
-        ),
-        SizedBox(height: largeMobile ? 68 : 22),
+        const _ResourcesHero(),
+        const SizedBox(height: 18),
         _Filters(
           state: state,
           searchController: searchController,
@@ -199,7 +157,7 @@ class _ResourceContent extends StatelessWidget {
           onTypeSelected: onTypeSelected,
           onTagSelected: onTagSelected,
         ),
-        SizedBox(height: largeMobile ? 76 : 26),
+        const SizedBox(height: 22),
         _ResultsHeader(
           count: resources.length,
           filtersActive: filtersActive,
@@ -209,13 +167,13 @@ class _ResourceContent extends StatelessWidget {
             onClearSearch();
           },
         ),
-        SizedBox(height: largeMobile ? 50 : 16),
+        const SizedBox(height: 13),
         if (resources.isEmpty)
           const _EmptyResources()
         else
           ...resources.map(
             (resource) => Padding(
-              padding: EdgeInsets.only(bottom: largeMobile ? 68 : 20),
+              padding: const EdgeInsets.only(bottom: 14),
               child: _ResourceTile(
                 key: Key('resource_card_${resource.id}'),
                 resource: resource,
@@ -227,6 +185,71 @@ class _ResourceContent extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+class _ResourcesHero extends StatelessWidget {
+  const _ResourcesHero();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        gradient: AppPalette.resourceGradient,
+        borderRadius: BorderRadius.circular(AppRadii.hero),
+        boxShadow: AppShadows.soft,
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -24,
+            bottom: -30,
+            child: Icon(
+              Icons.auto_stories_rounded,
+              size: 150,
+              color: Colors.white.withValues(alpha: 0.09),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(22),
+            child: Row(
+              children: [
+                const AppIconBadge(
+                  icon: Icons.explore_rounded,
+                  foreground: Color(0xFF087267),
+                  background: Colors.white,
+                  size: 58,
+                  iconSize: 31,
+                  radius: 18,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Biblioteca de estudio',
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              color: Colors.white,
+                            ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Encuentra el recurso ideal para reforzar cada tema.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Colors.white.withValues(alpha: 0.84),
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -252,163 +275,86 @@ class _Filters extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final largeMobile = _useLargeMobileResourcesLayout(context);
-
     return Card(
       key: const Key('resources_filters_card'),
       child: Padding(
-        padding: EdgeInsets.all(largeMobile ? 52 : 22),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Busca un recurso',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: largeMobile ? 58 : null,
-                    height: 1.08,
-                  ),
-            ),
-            SizedBox(height: largeMobile ? 36 : 12),
-            SizedBox(
-              height: largeMobile ? 156 : null,
-              child: TextField(
-                key: const Key('resources_search_field'),
-                controller: searchController,
-                onChanged: onSearchChanged,
-                textInputAction: TextInputAction.search,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontSize: largeMobile ? 44 : null,
-                      height: 1.2,
-                    ),
-                decoration: InputDecoration(
-                  hintText: 'Tema, materia o tipo',
-                  hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        fontSize: largeMobile ? 38 : null,
-                      ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: largeMobile ? 38 : 18,
-                    vertical: largeMobile ? 38 : 20,
-                  ),
-                  prefixIconConstraints: BoxConstraints(
-                    minWidth: largeMobile ? 104 : 48,
-                    minHeight: largeMobile ? 104 : 48,
-                  ),
-                  suffixIconConstraints: BoxConstraints(
-                    minWidth: largeMobile ? 104 : 48,
-                    minHeight: largeMobile ? 104 : 48,
-                  ),
-                  prefixIcon: Icon(
-                    Icons.search_rounded,
-                    size: largeMobile ? 60 : 30,
-                  ),
-                  suffixIcon: hasSearch
-                      ? IconButton(
-                          tooltip: 'Limpiar búsqueda',
-                          onPressed: onClearSearch,
-                          icon: Icon(
-                            Icons.close_rounded,
-                            size: largeMobile ? 56 : 28,
-                          ),
-                        )
-                      : null,
-                ),
+            TextField(
+              key: const Key('resources_search_field'),
+              controller: searchController,
+              onChanged: onSearchChanged,
+              textInputAction: TextInputAction.search,
+              decoration: InputDecoration(
+                hintText: 'Busca por tema, materia o tipo',
+                prefixIcon: const Icon(Icons.search_rounded),
+                suffixIcon: hasSearch
+                    ? IconButton(
+                        tooltip: 'Limpiar búsqueda',
+                        onPressed: onClearSearch,
+                        icon: const Icon(Icons.close_rounded),
+                      )
+                    : null,
               ),
             ),
-            SizedBox(height: largeMobile ? 64 : 22),
+            const SizedBox(height: 16),
             Text(
               'Tipo de recurso',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontSize: largeMobile ? 44 : null,
-                    height: 1.1,
-                  ),
+              style: Theme.of(context).textTheme.titleSmall,
             ),
-            SizedBox(height: largeMobile ? 36 : 12),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final gap = largeMobile ? 24.0 : 10.0;
-                final buttonWidth = largeMobile ? constraints.maxWidth : null;
-
-                return Wrap(
-                  key: const Key('resources_type_filters'),
-                  spacing: gap,
-                  runSpacing: gap,
-                  children: [
-                    _TypeFilterButton(
-                      key: const Key('resource_type_filter_all'),
-                      width: buttonWidth,
-                      label: 'Todos',
-                      icon: Icons.grid_view_rounded,
-                      selected: state.selectedType == null,
-                      onTap: () => onTypeSelected(null),
-                    ),
-                    for (final type in ResourceType.values)
-                      _TypeFilterButton(
-                        width: buttonWidth,
-                        label: type.label,
-                        icon: _iconFor(type),
-                        selected: state.selectedType == type,
-                        onTap: () => onTypeSelected(type),
-                      ),
-                  ],
-                );
-              },
-            ),
-            SizedBox(height: largeMobile ? 68 : 22),
-            Text(
-              'Materia o etiqueta',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontSize: largeMobile ? 44 : null,
-                    height: 1.1,
-                  ),
-            ),
-            SizedBox(height: largeMobile ? 36 : 12),
+            const SizedBox(height: 10),
             SizedBox(
-              height: largeMobile ? 156 : null,
-              child: DropdownButtonFormField<String>(
-                key: ValueKey(state.selectedTag ?? '__all__'),
-                initialValue: state.selectedTag ?? '__all__',
-                isExpanded: true,
-                itemHeight: largeMobile ? 100 : null,
-                menuMaxHeight: largeMobile ? 720 : null,
-                icon: Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  size: largeMobile ? 60 : 30,
-                ),
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: largeMobile ? 38 : 18,
-                    vertical: largeMobile ? 40 : 20,
+              height: 48,
+              child: ListView(
+                key: const Key('resources_type_filters'),
+                scrollDirection: Axis.horizontal,
+                children: [
+                  _TypeFilterButton(
+                    key: const Key('resource_type_filter_all'),
+                    label: 'Todos',
+                    icon: Icons.grid_view_rounded,
+                    selected: state.selectedType == null,
+                    onTap: () => onTypeSelected(null),
                   ),
-                  prefixIconConstraints: BoxConstraints(
-                    minWidth: largeMobile ? 104 : 48,
-                    minHeight: largeMobile ? 104 : 48,
-                  ),
-                  prefixIcon: Icon(
-                    Icons.sell_outlined,
-                    size: largeMobile ? 60 : 28,
-                  ),
-                ),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: largeMobile ? 40 : null,
-                      height: 1.2,
+                  const SizedBox(width: 8),
+                  for (final type in ResourceType.values) ...[
+                    _TypeFilterButton(
+                      label: type.label,
+                      icon: _iconFor(type),
+                      selected: state.selectedType == type,
+                      onTap: () => onTypeSelected(type),
                     ),
-                items: [
-                  const DropdownMenuItem<String>(
-                    value: '__all__',
-                    child: Text('Todas las materias'),
-                  ),
-                  ...state.availableTags.map(
-                    (tag) => DropdownMenuItem<String>(
-                      value: tag,
-                      child: Text(_readableTag(tag)),
-                    ),
-                  ),
+                    const SizedBox(width: 8),
+                  ],
                 ],
-                onChanged: (value) =>
-                    onTagSelected(value == '__all__' ? null : value),
               ),
+            ),
+            const SizedBox(height: 14),
+            DropdownButtonFormField<String>(
+              key: ValueKey(state.selectedTag ?? '__all__'),
+              initialValue: state.selectedTag ?? '__all__',
+              isExpanded: true,
+              icon: const Icon(Icons.keyboard_arrow_down_rounded),
+              decoration: const InputDecoration(
+                labelText: 'Materia o etiqueta',
+                prefixIcon: Icon(Icons.sell_outlined),
+              ),
+              items: [
+                const DropdownMenuItem<String>(
+                  value: '__all__',
+                  child: Text('Todas las materias'),
+                ),
+                ...state.availableTags.map(
+                  (tag) => DropdownMenuItem<String>(
+                    value: tag,
+                    child: Text(_readableTag(tag)),
+                  ),
+                ),
+              ],
+              onChanged: (value) =>
+                  onTagSelected(value == '__all__' ? null : value),
             ),
           ],
         ),
@@ -419,15 +365,13 @@ class _Filters extends StatelessWidget {
 
 class _TypeFilterButton extends StatelessWidget {
   const _TypeFilterButton({
-    super.key,
-    required this.width,
     required this.label,
     required this.icon,
     required this.selected,
     required this.onTap,
+    super.key,
   });
 
-  final double? width;
   final String label;
   final IconData icon;
   final bool selected;
@@ -436,55 +380,35 @@ class _TypeFilterButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final largeMobile = _useLargeMobileResourcesLayout(context);
-    final foreground = selected ? colors.onPrimary : colors.onSurfaceVariant;
-
-    return Semantics(
-      button: true,
-      selected: selected,
-      child: SizedBox(
-        width: width,
-        child: Material(
-          color: selected ? colors.primary : colors.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(largeMobile ? 28 : 24),
-            side: BorderSide(
-              width: largeMobile ? 2 : 1,
-              color: selected ? colors.primary : const Color(0xFFD8DDE8),
-            ),
-          ),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(largeMobile ? 28 : 24),
-            child: Container(
-              constraints: BoxConstraints(minHeight: largeMobile ? 150 : 54),
-              padding: EdgeInsets.symmetric(
-                horizontal: largeMobile ? 22 : 16,
-                vertical: largeMobile ? 24 : 12,
+    return Material(
+      color: selected ? colors.primary : colors.surface,
+      shape: StadiumBorder(
+        side: BorderSide(
+          color: selected ? colors.primary : AppPalette.outline,
+        ),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const StadiumBorder(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: selected ? colors.onPrimary : colors.onSurfaceVariant,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    size: largeMobile ? 48 : 24,
-                    color: foreground,
-                  ),
-                  SizedBox(height: largeMobile ? 14 : 8),
-                  Text(
-                    label,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: foreground,
-                          fontSize: largeMobile ? 34 : 16.5,
-                          height: 1.1,
-                        ),
-                  ),
-                ],
+              const SizedBox(width: 7),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color:
+                          selected ? colors.onPrimary : colors.onSurfaceVariant,
+                    ),
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -505,63 +429,20 @@ class _ResultsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final largeMobile = _useLargeMobileResourcesLayout(context);
-
-    final countText = Text(
-      '$count ${count == 1 ? 'recurso disponible' : 'recursos disponibles'}',
-      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontSize: largeMobile ? 52 : null,
-            height: 1.12,
-          ),
-    );
-
-    final clearButton = Material(
-      color: colors.primaryContainer,
-      borderRadius: BorderRadius.circular(largeMobile ? 28 : 24),
-      child: InkWell(
-        onTap: onClear,
-        borderRadius: BorderRadius.circular(largeMobile ? 28 : 24),
-        child: Container(
-          constraints: BoxConstraints(minHeight: largeMobile ? 86 : 0),
-          padding: EdgeInsets.symmetric(
-            horizontal: largeMobile ? 30 : 14,
-            vertical: largeMobile ? 22 : 12,
-          ),
-          child: Center(
-            child: Text(
-              'Limpiar filtros',
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: colors.primary,
-                    fontSize: largeMobile ? 29 : null,
-                  ),
-            ),
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            '$count ${count == 1 ? 'recurso' : 'recursos'}',
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
         ),
-      ),
-    );
-
-    if (largeMobile) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          countText,
-          if (filtersActive) ...[
-            const SizedBox(height: 28),
-            SizedBox(width: double.infinity, child: clearButton),
-          ],
-        ],
-      );
-    }
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(child: countText),
-        if (filtersActive) ...[
-          const SizedBox(width: 16),
-          clearButton,
-        ],
+        if (filtersActive)
+          TextButton.icon(
+            onPressed: onClear,
+            icon: const Icon(Icons.filter_alt_off_rounded, size: 20),
+            label: const Text('Limpiar'),
+          ),
       ],
     );
   }
@@ -585,86 +466,124 @@ class _ResourceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final largeMobile = _useLargeMobileResourcesLayout(context);
+    final accent = _accentFor(resource.type);
+    final accentSoft = _softAccentFor(resource.type);
 
     return Card(
       clipBehavior: Clip.antiAlias,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (resource.imageUrl != null)
-            AspectRatio(
-              aspectRatio: largeMobile ? 4 / 3 : 16 / 9,
+            SizedBox(
+              height: 150,
               child: Image.network(
                 resource.imageUrl.toString(),
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    _ResourceCover(type: resource.type),
+                errorBuilder: (context, error, stackTrace) => _ResourceCover(
+                  type: resource.type,
+                  accent: accent,
+                  accentSoft: accentSoft,
+                ),
               ),
             ),
-          Container(
-            constraints: BoxConstraints(minHeight: largeMobile ? 920 : 0),
-            padding: EdgeInsets.all(largeMobile ? 54 : 24),
+          Padding(
+            padding: const EdgeInsets.all(18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _ResourceHeader(
-                  resource: resource,
-                  viewed: viewed,
-                  completed: completed,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppIconBadge(
+                      icon: _iconFor(resource.type),
+                      foreground: accent,
+                      background: accentSoft,
+                      size: 54,
+                      iconSize: 28,
+                      radius: 16,
+                    ),
+                    const SizedBox(width: 13),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  resource.type.label.toUpperCase(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(
+                                        color: accent,
+                                        letterSpacing: 0.7,
+                                      ),
+                                ),
+                              ),
+                              _StatusBadge(
+                                completed: completed,
+                                viewed: viewed,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            resource.title,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: largeMobile ? 50 : 20),
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: largeMobile ? 540 : 760),
-                  child: Text(
-                    resource.description,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontSize: largeMobile ? 40 : null,
-                          height: 1.42,
-                        ),
+                const SizedBox(height: 14),
+                Text(
+                  resource.description,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+                if (resource.tags.isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 7,
+                    runSpacing: 7,
+                    children: resource.tags
+                        .take(4)
+                        .map((tag) => _TagPill(label: _readableTag(tag)))
+                        .toList(growable: false),
                   ),
-                ),
-                SizedBox(height: largeMobile ? 52 : 18),
-                Wrap(
-                  spacing: largeMobile ? 20 : 10,
-                  runSpacing: largeMobile ? 20 : 10,
-                  children: resource.tags
-                      .map((tag) => _TagPill(label: _readableTag(tag)))
-                      .toList(growable: false),
-                ),
-                SizedBox(height: largeMobile ? 64 : 26),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      minimumSize: Size.fromHeight(largeMobile ? 142 : 62),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: largeMobile ? 36 : 22,
-                        vertical: largeMobile ? 34 : 17,
+                ],
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: onOpen,
+                        icon: const Icon(Icons.open_in_new_rounded),
+                        label: Text(_actionLabel(resource.type)),
                       ),
-                      textStyle: TextStyle(
-                        fontSize: largeMobile ? 38 : 17,
-                        fontWeight: FontWeight.w900,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          largeMobile ? 32 : 16,
+                    ),
+                    const SizedBox(width: 10),
+                    Tooltip(
+                      message: completed
+                          ? 'Marcar como pendiente'
+                          : 'Marcar como completado',
+                      child: IconButton.outlined(
+                        onPressed: onToggleCompleted,
+                        icon: Icon(
+                          completed
+                              ? Icons.check_circle_rounded
+                              : Icons.radio_button_unchecked_rounded,
+                          color: completed ? AppPalette.success : null,
                         ),
                       ),
                     ),
-                    onPressed: onOpen,
-                    icon: Icon(
-                      Icons.open_in_new_rounded,
-                      size: largeMobile ? 56 : 27,
-                    ),
-                    label: Text(_openLabelFor(resource.type)),
-                  ),
-                ),
-                SizedBox(height: largeMobile ? 32 : 12),
-                _CompletionAction(
-                  completed: completed,
-                  onTap: onToggleCompleted,
+                  ],
                 ),
               ],
             ),
@@ -675,130 +594,23 @@ class _ResourceTile extends StatelessWidget {
   }
 }
 
-class _ResourceHeader extends StatelessWidget {
-  const _ResourceHeader({
-    required this.resource,
-    required this.viewed,
-    required this.completed,
+class _ResourceCover extends StatelessWidget {
+  const _ResourceCover({
+    required this.type,
+    required this.accent,
+    required this.accentSoft,
   });
 
-  final ResourceCard resource;
-  final bool viewed;
-  final bool completed;
+  final ResourceType type;
+  final Color accent;
+  final Color accentSoft;
 
   @override
   Widget build(BuildContext context) {
-    final largeMobile = _useLargeMobileResourcesLayout(context);
-    final colors = Theme.of(context).colorScheme;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _ResourceTypeIcon(type: resource.type),
-        SizedBox(width: largeMobile ? 36 : 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                spacing: largeMobile ? 14 : 10,
-                runSpacing: largeMobile ? 14 : 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text(
-                    resource.type.label.toUpperCase(),
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: colors.primary,
-                          fontSize: largeMobile ? 30 : 15,
-                          letterSpacing: 0.5,
-                        ),
-                  ),
-                  _StatusBadge(completed: completed, viewed: viewed),
-                ],
-              ),
-              SizedBox(height: largeMobile ? 22 : 8),
-              Text(
-                resource.title,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontSize: largeMobile ? 54 : 25,
-                      height: 1.12,
-                    ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _CompletionAction extends StatelessWidget {
-  const _CompletionAction({
-    required this.completed,
-    required this.onTap,
-  });
-
-  final bool completed;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final largeMobile = _useLargeMobileResourcesLayout(context);
-    final background = completed
-        ? const Color(0xFFE4F5E8)
-        : colors.surfaceContainerLowest;
-    final foreground =
-        completed ? const Color(0xFF18733C) : colors.onSurfaceVariant;
-    final border =
-        completed ? const Color(0xFF9FD6AE) : const Color(0xFFD8DDE8);
-
-    return Semantics(
-      button: true,
-      selected: completed,
-      child: Material(
-        color: background,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(largeMobile ? 28 : 17),
-          side: BorderSide(color: border, width: largeMobile ? 2 : 1),
-        ),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(largeMobile ? 28 : 17),
-          child: Container(
-            constraints: BoxConstraints(minHeight: largeMobile ? 114 : 64),
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              horizontal: largeMobile ? 30 : 18,
-              vertical: largeMobile ? 26 : 15,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  completed
-                      ? Icons.check_circle_rounded
-                      : Icons.radio_button_unchecked_rounded,
-                  size: largeMobile ? 56 : 27,
-                  color: foreground,
-                ),
-                SizedBox(width: largeMobile ? 18 : 10),
-                Flexible(
-                  child: Text(
-                    completed ? 'Completado' : 'Marcar como completado',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: foreground,
-                          fontSize: largeMobile ? 31 : 17.5,
-                          height: 1.2,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return Container(
+      color: accentSoft,
+      alignment: Alignment.center,
+      child: Icon(_iconFor(type), size: 62, color: accent),
     );
   }
 }
@@ -810,97 +622,17 @@ class _TagPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final largeMobile = _useLargeMobileResourcesLayout(context);
-
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: largeMobile ? 24 : 13,
-        vertical: largeMobile ? 17 : 9,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: colors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(largeMobile ? 18 : 14),
-        border: Border.all(
-          color: const Color(0xFFD8DDE8),
-          width: largeMobile ? 2 : 1,
-        ),
+        color: AppPalette.surfaceSoft,
+        borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: colors.onSurfaceVariant,
-              fontSize: largeMobile ? 26 : 15,
-              height: 1.15,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-      ),
-    );
-  }
-}
-
-class _ResourceTypeIcon extends StatelessWidget {
-  const _ResourceTypeIcon({required this.type});
-
-  final ResourceType type;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final largeMobile = _useLargeMobileResourcesLayout(context);
-
-    return Container(
-      width: largeMobile ? 136 : 76,
-      height: largeMobile ? 136 : 76,
-      decoration: BoxDecoration(
-        color: colors.primaryContainer,
-        borderRadius: BorderRadius.circular(largeMobile ? 34 : 22),
-      ),
-      child: Icon(
-        _iconFor(type),
-        size: largeMobile ? 76 : 42,
-        color: colors.primary,
-      ),
-    );
-  }
-}
-
-class _ResourceCover extends StatelessWidget {
-  const _ResourceCover({required this.type});
-
-  final ResourceType type;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final largeMobile = _useLargeMobileResourcesLayout(context);
-
-    return Container(
-      padding: EdgeInsets.all(largeMobile ? 52 : 22),
-      decoration: BoxDecoration(
-        color: colors.primaryContainer.withValues(alpha: 0.72),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: largeMobile ? 136 : 76,
-            height: largeMobile ? 136 : 76,
-            decoration: BoxDecoration(
-              color: colors.surface.withValues(alpha: 0.82),
-              borderRadius: BorderRadius.circular(largeMobile ? 34 : 22),
-            ),
-            child: Icon(
-              _iconFor(type),
-              size: largeMobile ? 76 : 42,
-              color: colors.primary,
-            ),
-          ),
-          const Spacer(),
-          Icon(
-            Icons.school_rounded,
-            size: largeMobile ? 116 : 66,
-            color: colors.primary.withValues(alpha: 0.22),
-          ),
-        ],
       ),
     );
   }
@@ -916,19 +648,15 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!completed && !viewed) return const SizedBox.shrink();
 
-    final largeMobile = _useLargeMobileResourcesLayout(context);
     final background = completed
-        ? const Color(0xFFE4F5E8)
+        ? AppPalette.successSoft
         : Theme.of(context).colorScheme.surfaceContainerHighest;
     final foreground = completed
-        ? const Color(0xFF18733C)
+        ? AppPalette.success
         : Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: largeMobile ? 18 : 10,
-        vertical: largeMobile ? 13 : 7,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(999),
@@ -938,16 +666,14 @@ class _StatusBadge extends StatelessWidget {
         children: [
           Icon(
             completed ? Icons.check_circle_rounded : Icons.visibility_outlined,
-            size: largeMobile ? 32 : 18,
+            size: 16,
             color: foreground,
           ),
-          SizedBox(width: largeMobile ? 10 : 6),
+          const SizedBox(width: 5),
           Text(
-            completed ? 'Completado' : 'Visto',
+            completed ? 'Listo' : 'Visto',
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: foreground,
-                  fontWeight: FontWeight.w800,
-                  fontSize: largeMobile ? 23 : null,
                 ),
           ),
         ],
@@ -956,20 +682,47 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-class _ResourceLoading extends StatelessWidget {
-  const _ResourceLoading({required this.large});
-
-  final bool large;
+class _EmptyResources extends StatelessWidget {
+  const _EmptyResources();
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: large ? 108 : 48,
-        height: large ? 108 : 48,
-        child: CircularProgressIndicator(strokeWidth: large ? 9 : 4),
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          children: [
+            const AppIconBadge(
+              icon: Icons.search_off_rounded,
+              size: 64,
+              iconSize: 34,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No encontramos recursos',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 7),
+            Text(
+              'Prueba con otra búsqueda o cambia los filtros.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+}
+
+class _ResourceLoading extends StatelessWidget {
+  const _ResourceLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: CircularProgressIndicator());
   }
 }
 
@@ -981,86 +734,43 @@ class _ResourceError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final largeMobile = _useLargeMobileResourcesLayout(context);
-
     return Center(
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(largeMobile ? 42 : 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: largeMobile ? 130 : 64,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            SizedBox(height: largeMobile ? 34 : 16),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontSize: largeMobile ? 38 : null,
-                    height: 1.4,
-                  ),
-            ),
-            SizedBox(height: largeMobile ? 50 : 20),
-            SizedBox(
-              width: double.infinity,
-              height: largeMobile ? 112 : null,
-              child: FilledButton(
-                onPressed: onRetry,
-                child: Text(
-                  'Reintentar',
-                  style: TextStyle(fontSize: largeMobile ? 32 : null),
+        padding: const EdgeInsets.all(16),
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const AppIconBadge(
+                  icon: Icons.cloud_off_rounded,
+                  foreground: AppPalette.coral,
+                  background: Color(0xFFFFE7E7),
+                  size: 66,
+                  iconSize: 36,
                 ),
-              ),
+                const SizedBox(height: 16),
+                Text(
+                  'No pudimos cargar los recursos',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 20),
+                FilledButton.icon(
+                  onPressed: onRetry,
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: const Text('Intentar de nuevo'),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyResources extends StatelessWidget {
-  const _EmptyResources();
-
-  @override
-  Widget build(BuildContext context) {
-    final largeMobile = _useLargeMobileResourcesLayout(context);
-
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: largeMobile ? 40 : 24,
-          vertical: largeMobile ? 96 : 40,
-        ),
-        child: Column(
-          children: [
-            Icon(
-              Icons.search_off_rounded,
-              size: largeMobile ? 130 : 64,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            SizedBox(height: largeMobile ? 34 : 16),
-            Text(
-              'No encontramos recursos',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: largeMobile ? 52 : null,
-                  ),
-            ),
-            SizedBox(height: largeMobile ? 22 : 8),
-            Text(
-              'Prueba con otra búsqueda o limpia los filtros.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontSize: largeMobile ? 38 : null,
-                    height: 1.4,
-                  ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -1071,14 +781,36 @@ IconData _iconFor(ResourceType type) {
   return switch (type) {
     ResourceType.video => Icons.play_circle_outline_rounded,
     ResourceType.pdf => Icons.picture_as_pdf_outlined,
-    ResourceType.form => Icons.list_alt_rounded,
-    ResourceType.simulator => Icons.quiz_rounded,
-    ResourceType.post => Icons.article_rounded,
-    ResourceType.announcement => Icons.campaign_rounded,
+    ResourceType.form => Icons.assignment_outlined,
+    ResourceType.simulator => Icons.quiz_outlined,
+    ResourceType.post => Icons.article_outlined,
+    ResourceType.announcement => Icons.campaign_outlined,
   };
 }
 
-String _openLabelFor(ResourceType type) {
+Color _accentFor(ResourceType type) {
+  return switch (type) {
+    ResourceType.video => AppPalette.primary,
+    ResourceType.pdf => const Color(0xFFE05252),
+    ResourceType.form => AppPalette.teal,
+    ResourceType.simulator => const Color(0xFF7A4CC7),
+    ResourceType.post => const Color(0xFF3977C3),
+    ResourceType.announcement => const Color(0xFFD17A18),
+  };
+}
+
+Color _softAccentFor(ResourceType type) {
+  return switch (type) {
+    ResourceType.video => AppPalette.primarySoft,
+    ResourceType.pdf => const Color(0xFFFFE8E8),
+    ResourceType.form => AppPalette.tealSoft,
+    ResourceType.simulator => const Color(0xFFF0E7FF),
+    ResourceType.post => const Color(0xFFE7F1FF),
+    ResourceType.announcement => AppPalette.amberSoft,
+  };
+}
+
+String _actionLabel(ResourceType type) {
   return switch (type) {
     ResourceType.video => 'Ver video',
     ResourceType.pdf => 'Abrir PDF',
@@ -1089,9 +821,8 @@ String _openLabelFor(ResourceType type) {
   };
 }
 
-String _readableTag(String tag) {
-  if (tag.isEmpty) return tag;
-  final words = tag.split('-');
-  final text = words.join(' ');
+String _readableTag(String value) {
+  if (value.isEmpty) return value;
+  final text = value.replaceAll('-', ' ').replaceAll('_', ' ');
   return '${text[0].toUpperCase()}${text.substring(1)}';
 }

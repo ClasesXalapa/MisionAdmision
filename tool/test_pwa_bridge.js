@@ -41,7 +41,7 @@ function activeRegistration(scope, scriptUrl) {
 
 function createContext({onRegister, onGetRegistration}) {
   const scope = 'https://example.test/mision-admision/';
-  const expectedScript = `${scope}app_service_worker.js?v=40`;
+  const expectedScript = `${scope}app_service_worker.js?v=41`;
   const serviceWorkerEvents = eventTarget();
   const media = {...eventTarget(), matches: false};
 
@@ -93,7 +93,7 @@ async function testUpdatesExistingRegistrationWithoutUnregistering() {
   let registerCount = 0;
   let unregisterCount = 0;
   const scope = 'https://example.test/mision-admision/';
-  const expectedScript = `${scope}app_service_worker.js?v=40`;
+  const expectedScript = `${scope}app_service_worker.js?v=41`;
   const old = activeRegistration(scope, `${scope}flutter_service_worker.js`);
   old.unregister = async () => {
     unregisterCount += 1;
@@ -127,7 +127,7 @@ async function testRepairsEmptyRegistrationLeftByPreviousVersion() {
   let registerCount = 0;
   let unregisterCount = 0;
   const scope = 'https://example.test/mision-admision/';
-  const expectedScript = `${scope}app_service_worker.js?v=40`;
+  const expectedScript = `${scope}app_service_worker.js?v=41`;
   let current;
   const ghost = {
     ...eventTarget(),

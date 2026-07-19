@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mision_admision/app/design_system.dart';
 import 'package:mision_admision/domain/models/answer_option.dart';
 import 'package:mision_admision/domain/models/exam.dart';
 import 'package:mision_admision/domain/models/exam_result.dart';
@@ -133,32 +134,36 @@ class ExamQuestionView extends StatelessWidget {
         ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.fromLTRB(
-            12,
-            12,
-            12,
-            isLast && !allAnswered ? 184 : 154,
+            16,
+            8,
+            16,
+            isLast && !allAnswered ? 154 : 124,
           ),
           children: [
             if (banner != null) ...[
               banner!,
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
             ],
             _ProgressHeader(
               currentIndex: currentIndex,
               total: exam.questions.length,
               answered: answers.length,
             ),
-            const SizedBox(height: 16),
-            _QuestionCard(question: question),
-            const SizedBox(height: 18),
+            const SizedBox(height: 14),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 220),
+              switchInCurve: Curves.easeOutCubic,
+              child: _QuestionCard(
+                key: ValueKey(question.id),
+                question: question,
+              ),
+            ),
+            const SizedBox(height: 20),
             Text(
               'Elige una respuesta',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: 25,
-                    fontWeight: FontWeight.w900,
-                  ),
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 11),
             for (final option in AnswerOption.values) ...[
               _AnswerTile(
                 option: option,
@@ -167,7 +172,7 @@ class ExamQuestionView extends StatelessWidget {
                 selected: selected == option,
                 onTap: () => onAnswer(option),
               ),
-              if (option != AnswerOption.d) const SizedBox(height: 14),
+              if (option != AnswerOption.d) const SizedBox(height: 10),
             ],
           ],
         ),
@@ -190,34 +195,38 @@ class ExamQuestionView extends StatelessWidget {
 }
 
 class _QuestionCard extends StatelessWidget {
-  const _QuestionCard({required this.question});
+  const _QuestionCard({required this.question, super.key});
 
   final Question question;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: AppPalette.surface,
+        borderRadius: BorderRadius.circular(AppRadii.large),
+        border: Border.all(color: AppPalette.outline),
+        boxShadow: AppShadows.soft,
+      ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
+        padding: const EdgeInsets.fromLTRB(19, 18, 19, 21),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _QuestionMetadata(question: question),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Text(
               question.statement,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w900,
-                    height: 1.28,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    height: 1.3,
                   ),
             ),
             if (question.imageUrl != null) ...[
-              const SizedBox(height: 22),
+              const SizedBox(height: 18),
               _QuestionImage(
                 url: question.imageUrl!,
                 semanticsLabel: 'Imagen de la pregunta',
-                maxHeight: 380,
+                maxHeight: 360,
               ),
             ],
           ],
@@ -242,51 +251,59 @@ class _ProgressHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 17, 18, 18),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE0E4EE)),
+        color: AppPalette.surface,
+        borderRadius: BorderRadius.circular(AppRadii.medium),
+        border: Border.all(color: AppPalette.outline),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: AppPalette.primarySoft,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
                 child: Text(
-                  'Pregunta ${currentIndex + 1} de $total',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontSize: 23,
-                        fontWeight: FontWeight.w900,
+                  '${currentIndex + 1}',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: colors.primary,
                       ),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 7,
+              const SizedBox(width: 11),
+              Expanded(
+                child: Text(
+                  'Pregunta ${currentIndex + 1} de $total',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: colors.primaryContainer.withValues(alpha: 0.7),
+                  color: AppPalette.surfaceSoft,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
                   '$answered respondidas',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: colors.primary,
-                        fontSize: 16,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: colors.onSurfaceVariant,
                       ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           LinearProgressIndicator(
             value: (currentIndex + 1) / total,
-            minHeight: 13,
-            borderRadius: BorderRadius.circular(13),
-            backgroundColor: colors.primaryContainer.withValues(alpha: 0.55),
+            minHeight: 8,
+            borderRadius: BorderRadius.circular(999),
+            backgroundColor: AppPalette.primarySoft,
           ),
         ],
       ),
@@ -315,83 +332,66 @@ class _QuestionActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Material(
-      elevation: 16,
+      elevation: 0,
       color: colors.surface,
       surfaceTintColor: Colors.transparent,
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 13, 12, 14),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final narrow = constraints.maxWidth < 430;
-                  final previousButton = narrow
-                      ? OutlinedButton(
-                          onPressed: isFirst ? null : onPrevious,
-                          child: const Text(
-                            'Atrás',
-                            style: TextStyle(fontSize: 19),
-                          ),
-                        )
-                      : OutlinedButton.icon(
-                          onPressed: isFirst ? null : onPrevious,
-                          icon: const Icon(Icons.arrow_back_rounded, size: 28),
-                          label: const Text(
-                            'Anterior',
-                            style: TextStyle(fontSize: 19),
-                          ),
-                        );
-                  final nextButton = isLast
-                      ? FilledButton.icon(
-                          onPressed: allAnswered ? onFinish : null,
-                          icon: const Icon(Icons.flag_rounded, size: 29),
-                          label: const Text(
-                            'Finalizar',
-                            style: TextStyle(fontSize: 19),
-                          ),
-                        )
-                      : FilledButton.icon(
-                          onPressed: onNext,
-                          icon: const Icon(
-                            Icons.arrow_forward_rounded,
-                            size: 29,
-                          ),
-                          label: const Text(
-                            'Siguiente',
-                            style: TextStyle(fontSize: 19),
-                          ),
-                        );
-
-                  return Row(
-                    children: [
-                      Expanded(
-                        flex: 4,
-                        child: SizedBox(height: 74, child: previousButton),
+      child: Container(
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: AppPalette.outline)),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x1017162B),
+              blurRadius: 18,
+              offset: Offset(0, -6),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 4,
+                      child: OutlinedButton.icon(
+                        onPressed: isFirst ? null : onPrevious,
+                        icon: const Icon(Icons.arrow_back_rounded),
+                        label: const Text('Anterior'),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 6,
-                        child: SizedBox(height: 74, child: nextButton),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 6,
+                      child: FilledButton.icon(
+                        onPressed: isLast
+                            ? (allAnswered ? onFinish : null)
+                            : onNext,
+                        icon: Icon(
+                          isLast
+                              ? Icons.flag_rounded
+                              : Icons.arrow_forward_rounded,
+                        ),
+                        label: Text(isLast ? 'Finalizar' : 'Siguiente'),
                       ),
-                    ],
-                  );
-                },
-              ),
-              if (isLast && !allAnswered) ...[
-                const SizedBox(height: 10),
-                Text(
-                  'Responde todas las preguntas para finalizar.',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: colors.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    ),
+                  ],
                 ),
+                if (isLast && !allAnswered) ...[
+                  const SizedBox(height: 7),
+                  Text(
+                    'Responde todas las preguntas para finalizar.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -426,127 +426,134 @@ class ExamResultView extends StatelessWidget {
     final percent = result.total == 0
         ? 0
         : ((result.correct / result.total) * 100).round();
-    final colors = Theme.of(context).colorScheme;
 
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 620),
-          child: SizedBox(
+          child: Container(
             width: double.infinity,
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(26),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 112,
-                      height: 112,
-                      decoration: BoxDecoration(
-                        color: colors.primaryContainer,
-                        shape: BoxShape.circle,
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        '$percent%',
-                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                              color: colors.primary,
-                              fontWeight: FontWeight.w900,
-                            ),
-                      ),
-                    ),
-                    const SizedBox(height: 22),
-                    Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineLarge,
-                    ),
-                    if (message != null) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        message!,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                    ],
-                    const SizedBox(height: 26),
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        const spacing = 10.0;
-                        final width = (constraints.maxWidth - spacing * 2) / 3;
-                        return Row(
-                          children: [
-                            SizedBox(
-                              width: width,
-                              child: _ResultMetric(
-                                label: 'Total',
-                                value: result.total,
-                                icon: Icons.format_list_numbered_rounded,
-                                background: colors.surfaceContainerHighest,
-                                foreground: colors.onSurface,
-                              ),
-                            ),
-                            const SizedBox(width: spacing),
-                            SizedBox(
-                              width: width,
-                              child: _ResultMetric(
-                                label: 'Correctas',
-                                value: result.correct,
-                                icon: Icons.check_circle_rounded,
-                                background: const Color(0xFFE4F5E8),
-                                foreground: const Color(0xFF18733C),
-                              ),
-                            ),
-                            const SizedBox(width: spacing),
-                            SizedBox(
-                              width: width,
-                              child: _ResultMetric(
-                                label: 'Incorrectas',
-                                value: result.incorrect,
-                                icon: Icons.cancel_rounded,
-                                background: const Color(0xFFFFE8E5),
-                                foreground: const Color(0xFFA72D20),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                    if (extraContent != null) ...[
-                      const SizedBox(height: 22),
-                      extraContent!,
-                    ],
-                    const SizedBox(height: 26),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 72,
-                      child: FilledButton(
-                        onPressed: onPrimary,
-                        child: Text(
-                          primaryLabel,
-                          style: const TextStyle(fontSize: 20),
-                        ),
-                      ),
-                    ),
-                    if (secondaryLabel != null && onSecondary != null) ...[
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 68,
-                        child: TextButton(
-                          onPressed: onSecondary,
-                          child: Text(
-                            secondaryLabel!,
-                            style: const TextStyle(fontSize: 19),
+            decoration: BoxDecoration(
+              color: AppPalette.surface,
+              borderRadius: BorderRadius.circular(AppRadii.hero),
+              border: Border.all(color: AppPalette.outline),
+              boxShadow: AppShadows.soft,
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 26),
+                  decoration: const BoxDecoration(
+                    gradient: AppPalette.heroGradient,
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 104,
+                        height: 104,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.45),
+                            width: 2,
                           ),
                         ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '$percent%',
+                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                color: Colors.white,
+                              ),
+                        ),
                       ),
+                      const SizedBox(height: 16),
+                      Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                              color: Colors.white,
+                            ),
+                      ),
+                      if (message != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          message!,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.82),
+                              ),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _ResultMetric(
+                              label: 'Total',
+                              value: result.total,
+                              icon: Icons.format_list_numbered_rounded,
+                              background: AppPalette.surfaceSoft,
+                              foreground: AppPalette.ink,
+                            ),
+                          ),
+                          const SizedBox(width: 9),
+                          Expanded(
+                            child: _ResultMetric(
+                              label: 'Correctas',
+                              value: result.correct,
+                              icon: Icons.check_circle_rounded,
+                              background: AppPalette.successSoft,
+                              foreground: AppPalette.success,
+                            ),
+                          ),
+                          const SizedBox(width: 9),
+                          Expanded(
+                            child: _ResultMetric(
+                              label: 'Incorrectas',
+                              value: result.incorrect,
+                              icon: Icons.cancel_rounded,
+                              background: const Color(0xFFFFE8E5),
+                              foreground: const Color(0xFFA72D20),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (extraContent != null) ...[
+                        const SizedBox(height: 18),
+                        extraContent!,
+                      ],
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: onPrimary,
+                          child: Text(primaryLabel),
+                        ),
+                      ),
+                      if (secondaryLabel != null && onSecondary != null) ...[
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: double.infinity,
+                          child: TextButton(
+                            onPressed: onSecondary,
+                            child: Text(secondaryLabel!),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -605,81 +612,71 @@ class _AnswerTile extends StatelessWidget {
       selected: selected,
       label: 'Opción ${option.label}: $semanticsContent',
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+        duration: const Duration(milliseconds: 170),
+        curve: Curves.easeOutCubic,
         decoration: BoxDecoration(
-          color: selected
-              ? colors.primaryContainer.withValues(alpha: 0.78)
-              : colors.surface,
-          borderRadius: BorderRadius.circular(22),
+          color: selected ? AppPalette.primarySoft : AppPalette.surface,
+          borderRadius: BorderRadius.circular(AppRadii.medium),
           border: Border.all(
-            color: selected ? colors.primary : const Color(0xFFD9DEE9),
-            width: selected ? 3 : 1.4,
+            color: selected ? colors.primary : AppPalette.outline,
+            width: selected ? 2 : 1,
           ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: colors.primary.withValues(alpha: 0.15),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
-                  ),
-                ]
-              : const [],
+          boxShadow: selected ? AppShadows.soft : const [],
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             onTap: onTap,
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(AppRadii.medium),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 108),
+              constraints: const BoxConstraints(minHeight: 78),
               child: Padding(
-                padding: const EdgeInsets.all(18),
+                padding: const EdgeInsets.all(14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        CircleAvatar(
-                          radius: 29,
-                          backgroundColor: selected
-                              ? colors.primary
-                              : colors.surfaceContainerHighest,
-                          foregroundColor: selected
-                              ? colors.onPrimary
-                              : colors.onSurface,
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: selected ? colors.primary : AppPalette.surfaceSoft,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          alignment: Alignment.center,
                           child: Text(
                             option.label,
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w900,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: selected
+                                      ? colors.onPrimary
+                                      : colors.onSurface,
+                                ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 13),
                         Expanded(
                           child: Text(
                             hasText ? text : 'Opción ${option.label}',
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontSize: 22,
                                   fontWeight: selected
-                                      ? FontWeight.w900
+                                      ? FontWeight.w800
                                       : FontWeight.w600,
-                                  height: 1.34,
                                 ),
                           ),
                         ),
                         if (selected) ...[
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 8),
                           Icon(
                             Icons.check_circle_rounded,
-                            size: 34,
+                            size: 26,
                             color: colors.primary,
                           ),
                         ],
                       ],
                     ),
                     if (imageUrl != null) ...[
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
                       _QuestionImage(
                         url: imageUrl!,
                         semanticsLabel: 'Imagen de la opción ${option.label}',

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.11.0+41 — 19 de julio de 2026
+
+- Rediseño visual integral mobile-first con una nueva identidad índigo, violeta y turquesa.
+- Inicio reconstruido con hero de misión, métricas compactas, reto destacado y accesos rápidos.
+- Recursos rediseñado con buscador compacto, filtros horizontales y cards de alta densidad.
+- Reto y Examen actualizados con progreso, preguntas, opciones y navegación más claros.
+- Navegación inferior reducida y unificada para aprovechar mejor la pantalla del teléfono.
+- Configuración y tarjetas técnicas compactadas sin modificar su funcionalidad.
+- Se conservan progreso local, contratos JSON, sincronización, PWA y notificaciones.
+
 ## 0.10.13+40 — 19 de julio de 2026
 
 - Hotfix de compilación en Recursos: se restaura la importación de `app/responsive.dart`.

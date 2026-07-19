@@ -49,24 +49,10 @@ void main() {
     expect(find.text('Explorar recursos'), findsNothing);
     expect(find.text('Iniciar examen'), findsNothing);
 
-    final scrollable = find.byType(Scrollable).first;
-    final scrollPosition = tester.state<ScrollableState>(scrollable).position;
-    expect(scrollPosition.maxScrollExtent, greaterThan(0));
-
-    // La pantalla está diseñada para desplazarse: el reto y las acciones
-    // inferiores pueden estar fuera del primer viewport sin dejar de existir.
-    await tester.scrollUntilVisible(
-      find.byKey(const Key('home_daily_challenge_action')),
-      500,
-      scrollable: scrollable,
-    );
+    // La composición puede caber completa en teléfonos altos o desplazarse en
+    // teléfonos compactos; las acciones deben existir en ambos casos.
     expect(find.byKey(const Key('home_daily_challenge_action')), findsOneWidget);
-
-    await tester.scrollUntilVisible(
-      find.byKey(const Key('home_exam_action')),
-      500,
-      scrollable: scrollable,
-    );
+    expect(find.byKey(const Key('home_exam_action')), findsOneWidget);
 
     final resourcesFinder = find.byKey(const Key('home_resources_action'));
     final examFinder = find.byKey(const Key('home_exam_action'));
@@ -74,8 +60,8 @@ void main() {
     expect(resourcesFinder, findsOneWidget);
     expect(examFinder, findsOneWidget);
 
-    // En Inicio ambas acciones deben ocupar una fila completa y estar
-    // apiladas, incluso cuando el navegador móvil reporta 720 px de ancho.
+    // En Inicio ambas acciones deben ser compactas, ocupar una fila completa y
+    // permanecer apiladas cuando el navegador móvil reporta 720 px de ancho.
     final resourcesTopLeft = tester.getTopLeft(resourcesFinder);
     final examTopLeft = tester.getTopLeft(examFinder);
     final resourcesSize = tester.getSize(resourcesFinder);
@@ -86,15 +72,15 @@ void main() {
     final scaffoldWidth = tester.getSize(find.byType(Scaffold).first).width;
     expect(resourcesSize.width, greaterThan(scaffoldWidth - 36));
     expect(examSize.width, greaterThan(scaffoldWidth - 36));
-    expect(resourcesSize.height, greaterThanOrEqualTo(500));
-    expect(examSize.height, greaterThanOrEqualTo(500));
+    expect(resourcesSize.height, inInclusiveRange(90, 260));
+    expect(examSize.height, inInclusiveRange(90, 260));
 
     // El escalado móvil no debe producir desbordamientos ni otras excepciones
     // de renderizado en la barra inferior o en las cards de Inicio.
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('recursos usa la composición móvil grande', (tester) async {
+  testWidgets('recursos usa la composición móvil compacta', (tester) async {
     tester.view
       ..physicalSize = const Size(720, 1600)
       ..devicePixelRatio = 1;
@@ -119,7 +105,7 @@ void main() {
 
     expect(find.text('Biblioteca de estudio'), findsOneWidget);
     final title = tester.widget<Text>(find.text('Biblioteca de estudio'));
-    expect(title.style?.fontSize, greaterThanOrEqualTo(80));
+    expect(title.style?.fontSize, lessThanOrEqualTo(32));
 
     final resourcesList = find.byKey(const Key('resources_list'));
     expect(resourcesList, findsOneWidget);
@@ -136,8 +122,8 @@ void main() {
     final allFilter = find.byKey(const Key('resource_type_filter_all'));
     final filterSize = tester.getSize(allFilter);
     final scaffoldWidth = tester.getSize(find.byType(Scaffold).first).width;
-    expect(filterSize.width, greaterThan(scaffoldWidth - 140));
-    expect(filterSize.height, greaterThanOrEqualTo(150));
+    expect(filterSize.width, lessThan(scaffoldWidth * 0.45));
+    expect(filterSize.height, inInclusiveRange(40, 64));
 
     await tester.scrollUntilVisible(
       find.byKey(const Key('resource_card_card_video_algebra_001')),
@@ -148,7 +134,7 @@ void main() {
       const Key('resource_card_card_video_algebra_001'),
     );
     expect(firstCard, findsOneWidget);
-    expect(tester.getSize(firstCard).height, greaterThanOrEqualTo(920));
+    expect(tester.getSize(firstCard).height, inInclusiveRange(220, 620));
     expect(tester.takeException(), isNull);
   });
 

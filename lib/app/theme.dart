@@ -1,10 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:mision_admision/app/design_system.dart';
 
 ThemeData buildLightTheme() {
-  final colorScheme = ColorScheme.fromSeed(
-    seedColor: const Color(0xFF3559B7),
-    brightness: Brightness.light,
-    surface: const Color(0xFFFFFFFF),
+  const colorScheme = ColorScheme.light(
+    primary: AppPalette.primary,
+    onPrimary: Colors.white,
+    primaryContainer: AppPalette.primarySoft,
+    onPrimaryContainer: AppPalette.primaryDark,
+    secondary: AppPalette.teal,
+    onSecondary: Colors.white,
+    secondaryContainer: AppPalette.tealSoft,
+    onSecondaryContainer: Color(0xFF075B54),
+    tertiary: AppPalette.amber,
+    onTertiary: AppPalette.ink,
+    tertiaryContainer: AppPalette.amberSoft,
+    onTertiaryContainer: Color(0xFF6A3D00),
+    error: Color(0xFFBA1A1A),
+    onError: Colors.white,
+    errorContainer: Color(0xFFFFDAD6),
+    onErrorContainer: Color(0xFF410002),
+    surface: AppPalette.surface,
+    onSurface: AppPalette.ink,
+    onSurfaceVariant: AppPalette.inkMuted,
+    outline: Color(0xFF85859A),
+    outlineVariant: AppPalette.outline,
+    shadow: Color(0xFF17162B),
+    scrim: Color(0xFF17162B),
+    inverseSurface: AppPalette.ink,
+    onInverseSurface: Colors.white,
+    inversePrimary: Color(0xFFC8C1FF),
+    surfaceTint: AppPalette.primary,
   );
 
   return _baseTheme(colorScheme);
@@ -12,14 +37,21 @@ ThemeData buildLightTheme() {
 
 ThemeData buildHighContrastLightTheme() {
   const colorScheme = ColorScheme.light(
-    primary: Color(0xFF003C9E),
+    primary: Color(0xFF251B94),
     onPrimary: Colors.white,
-    secondary: Color(0xFF004A77),
+    primaryContainer: Color(0xFFE4E0FF),
+    onPrimaryContainer: Color(0xFF120B54),
+    secondary: Color(0xFF006B61),
     onSecondary: Colors.white,
-    error: Color(0xFF9B0000),
+    secondaryContainer: Color(0xFFC8FFF5),
+    onSecondaryContainer: Color(0xFF00201C),
+    error: Color(0xFF93000A),
     onError: Colors.white,
     surface: Colors.white,
-    onSurface: Color(0xFF101010),
+    onSurface: Colors.black,
+    onSurfaceVariant: Color(0xFF292839),
+    outline: Color(0xFF3F3E4F),
+    outlineVariant: Color(0xFF797888),
   );
   return _baseTheme(colorScheme).copyWith(
     scaffoldBackgroundColor: Colors.white,
@@ -35,135 +67,114 @@ ThemeData _baseTheme(ColorScheme colorScheme) {
   final baseTextTheme = baseTheme.textTheme;
   final textTheme = baseTextTheme.copyWith(
     displaySmall: baseTextTheme.displaySmall?.copyWith(
-      fontSize: 39,
-      height: 1.08,
-      fontWeight: FontWeight.w800,
-      letterSpacing: -1,
+      fontSize: 36,
+      height: 1.04,
+      fontWeight: FontWeight.w900,
+      letterSpacing: -1.1,
     ),
     headlineLarge: baseTextTheme.headlineLarge?.copyWith(
-      fontSize: 32,
-      height: 1.12,
-      fontWeight: FontWeight.w800,
-      letterSpacing: -0.65,
+      fontSize: 31,
+      height: 1.08,
+      fontWeight: FontWeight.w900,
+      letterSpacing: -0.75,
     ),
     headlineMedium: baseTextTheme.headlineMedium?.copyWith(
-      fontSize: 29,
-      height: 1.16,
+      fontSize: 27,
+      height: 1.12,
       fontWeight: FontWeight.w800,
-      letterSpacing: -0.45,
+      letterSpacing: -0.5,
     ),
     headlineSmall: baseTextTheme.headlineSmall?.copyWith(
-      fontSize: 25,
-      height: 1.2,
+      fontSize: 23,
+      height: 1.18,
       fontWeight: FontWeight.w800,
       letterSpacing: -0.25,
     ),
     titleLarge: baseTextTheme.titleLarge?.copyWith(
-      fontSize: 23,
-      height: 1.24,
+      fontSize: 21,
+      height: 1.2,
       fontWeight: FontWeight.w800,
     ),
     titleMedium: baseTextTheme.titleMedium?.copyWith(
-      fontSize: 20,
-      height: 1.28,
+      fontSize: 18,
+      height: 1.25,
       fontWeight: FontWeight.w700,
     ),
     titleSmall: baseTextTheme.titleSmall?.copyWith(
-      fontSize: 18,
-      height: 1.3,
+      fontSize: 16,
+      height: 1.28,
       fontWeight: FontWeight.w700,
     ),
     bodyLarge: baseTextTheme.bodyLarge?.copyWith(
-      fontSize: 18,
-      height: 1.46,
+      fontSize: 17,
+      height: 1.45,
       fontWeight: FontWeight.w400,
     ),
     bodyMedium: baseTextTheme.bodyMedium?.copyWith(
-      fontSize: 16.5,
-      height: 1.44,
+      fontSize: 15.5,
+      height: 1.42,
+      fontWeight: FontWeight.w400,
     ),
     bodySmall: baseTextTheme.bodySmall?.copyWith(
-      fontSize: 15,
-      height: 1.4,
+      fontSize: 14,
+      height: 1.38,
+      fontWeight: FontWeight.w400,
     ),
     labelLarge: baseTextTheme.labelLarge?.copyWith(
-      fontSize: 17,
+      fontSize: 16,
       fontWeight: FontWeight.w800,
+      letterSpacing: 0,
     ),
     labelMedium: baseTextTheme.labelMedium?.copyWith(
-      fontSize: 15.5,
-      fontWeight: FontWeight.w700,
-    ),
-    labelSmall: baseTextTheme.labelSmall?.copyWith(
       fontSize: 14,
       fontWeight: FontWeight.w700,
+      letterSpacing: 0,
+    ),
+    labelSmall: baseTextTheme.labelSmall?.copyWith(
+      fontSize: 12.5,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 0.1,
     ),
   );
 
-  const minimumButtonSize = Size(0, 62);
-  const buttonPadding = EdgeInsets.symmetric(horizontal: 22, vertical: 17);
+  const minimumButtonSize = Size(0, 56);
+  const buttonPadding = EdgeInsets.symmetric(horizontal: 20, vertical: 15);
   const buttonTextStyle = TextStyle(
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: FontWeight.w800,
   );
 
   return baseTheme.copyWith(
     textTheme: textTheme,
-    scaffoldBackgroundColor: const Color(0xFFF7F8FC),
+    scaffoldBackgroundColor: AppPalette.background,
+    canvasColor: AppPalette.background,
     materialTapTargetSize: MaterialTapTargetSize.padded,
     visualDensity: VisualDensity.standard,
-    dividerColor: const Color(0xFFE3E6EF),
+    dividerColor: AppPalette.outline,
     appBarTheme: AppBarTheme(
       centerTitle: false,
       elevation: 0,
       scrolledUnderElevation: 0,
-      toolbarHeight: 70,
-      backgroundColor: const Color(0xFFF7F8FC),
-      foregroundColor: const Color(0xFF171A22),
+      toolbarHeight: 68,
+      backgroundColor: AppPalette.background,
+      foregroundColor: AppPalette.ink,
       surfaceTintColor: Colors.transparent,
-      titleTextStyle: textTheme.titleMedium?.copyWith(
-        color: const Color(0xFF171A22),
+      titleSpacing: 18,
+      titleTextStyle: textTheme.titleLarge?.copyWith(
+        color: AppPalette.ink,
         fontWeight: FontWeight.w800,
       ),
     ),
     cardTheme: CardThemeData(
-      elevation: 1,
-      shadowColor: const Color(0x1A1F2A44),
+      elevation: 0,
+      shadowColor: Colors.transparent,
       margin: EdgeInsets.zero,
       color: colorScheme.surface,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(22),
-        side: const BorderSide(color: Color(0xFFE3E6EF)),
+        borderRadius: BorderRadius.circular(AppRadii.large),
+        side: const BorderSide(color: AppPalette.outline),
       ),
-    ),
-    navigationBarTheme: NavigationBarThemeData(
-      height: 84,
-      elevation: 12,
-      backgroundColor: colorScheme.surface,
-      surfaceTintColor: Colors.transparent,
-      indicatorColor: colorScheme.primaryContainer,
-      indicatorShape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-      ),
-      iconTheme: WidgetStateProperty.resolveWith((states) {
-        return IconThemeData(
-          size: states.contains(WidgetState.selected) ? 31 : 29,
-          color: states.contains(WidgetState.selected)
-              ? colorScheme.primary
-              : colorScheme.onSurfaceVariant,
-        );
-      }),
-      labelTextStyle: WidgetStateProperty.resolveWith((states) {
-        return textTheme.labelMedium?.copyWith(
-          color: states.contains(WidgetState.selected)
-              ? colorScheme.primary
-              : colorScheme.onSurfaceVariant,
-          fontWeight: states.contains(WidgetState.selected)
-              ? FontWeight.w800
-              : FontWeight.w700,
-        );
-      }),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -172,7 +183,7 @@ ThemeData _baseTheme(ColorScheme colorScheme) {
         textStyle: buttonTextStyle,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadii.medium),
         ),
       ),
     ),
@@ -181,9 +192,9 @@ ThemeData _baseTheme(ColorScheme colorScheme) {
         minimumSize: minimumButtonSize,
         padding: buttonPadding,
         textStyle: buttonTextStyle,
-        side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.75)),
+        side: const BorderSide(color: AppPalette.outline, width: 1.2),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadii.medium),
         ),
       ),
     ),
@@ -193,67 +204,80 @@ ThemeData _baseTheme(ColorScheme colorScheme) {
         padding: buttonPadding,
         textStyle: buttonTextStyle,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadii.medium),
         ),
       ),
     ),
     iconButtonTheme: IconButtonThemeData(
       style: IconButton.styleFrom(
-        minimumSize: const Size(54, 54),
-        iconSize: 29,
+        minimumSize: const Size(48, 48),
+        iconSize: 25,
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: colorScheme.surface,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
       labelStyle: textTheme.bodyMedium,
       hintStyle: textTheme.bodyMedium?.copyWith(
         color: colorScheme.onSurfaceVariant,
       ),
       prefixIconColor: colorScheme.onSurfaceVariant,
+      suffixIconColor: colorScheme.onSurfaceVariant,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(17),
+        borderRadius: BorderRadius.circular(AppRadii.medium),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(17),
-        borderSide: const BorderSide(color: Color(0xFFDCE1EB)),
+        borderRadius: BorderRadius.circular(AppRadii.medium),
+        borderSide: const BorderSide(color: AppPalette.outline),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(17),
+        borderRadius: BorderRadius.circular(AppRadii.medium),
         borderSide: BorderSide(color: colorScheme.primary, width: 2),
       ),
     ),
     chipTheme: baseTheme.chipTheme.copyWith(
       labelStyle: textTheme.labelMedium,
-      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
-      side: const BorderSide(color: Color(0xFFD8DDE8)),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      side: const BorderSide(color: AppPalette.outline),
+      backgroundColor: colorScheme.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(999),
       ),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: AppPalette.ink,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadii.medium),
+      ),
       contentTextStyle: textTheme.bodyMedium?.copyWith(color: Colors.white),
     ),
     dialogTheme: DialogThemeData(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      titleTextStyle: textTheme.titleLarge?.copyWith(
-        color: colorScheme.onSurface,
+      backgroundColor: AppPalette.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadii.large),
       ),
+      titleTextStyle: textTheme.titleLarge?.copyWith(color: colorScheme.onSurface),
       contentTextStyle: textTheme.bodyLarge?.copyWith(
         color: colorScheme.onSurfaceVariant,
       ),
     ),
     bottomSheetTheme: const BottomSheetThemeData(
-      backgroundColor: Colors.white,
+      backgroundColor: AppPalette.surface,
       surfaceTintColor: Colors.transparent,
       showDragHandle: true,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
     ),
-    focusColor: colorScheme.primary.withValues(alpha: 0.18),
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: colorScheme.primary,
+      linearTrackColor: AppPalette.primarySoft,
+      linearMinHeight: 8,
+      borderRadius: BorderRadius.circular(999),
+    ),
+    focusColor: colorScheme.primary.withValues(alpha: 0.16),
   );
 }

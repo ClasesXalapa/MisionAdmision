@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mision_admision/app/dependencies.dart';
+import 'package:mision_admision/app/design_system.dart';
 import 'package:mision_admision/app/responsive.dart';
 import 'package:mision_admision/domain/models/exam_kind.dart';
 import 'package:mision_admision/domain/models/resolution_resource.dart';
@@ -118,17 +119,14 @@ class _DailyChallengeScreenState extends ConsumerState<DailyChallengeScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          toolbarHeight: 82,
-          leadingWidth: 68,
+          toolbarHeight: 68,
+          leadingWidth: 60,
           leading: IconButton(
             tooltip: 'Volver al inicio',
             onPressed: _requestExit,
-            icon: const Icon(Icons.arrow_back_rounded, size: 34),
+            icon: const Icon(Icons.arrow_back_rounded),
           ),
-          title: const Text(
-            'Reto de hoy',
-            style: TextStyle(fontSize: 25, fontWeight: FontWeight.w900),
-          ),
+          title: const Text('Reto de hoy'),
         ),
         body: SafeArea(
           child: fullWidthCentered(
@@ -203,47 +201,40 @@ class _ChallengeBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final automatic = kind == ExamKind.dailyAutomatic;
     final text = wasResumed
-        ? 'Retomaste tu avance guardado. Continúa donde te quedaste.'
+        ? 'Retomaste tu avance. Todo quedó guardado.'
         : automatic
             ? 'Preparamos 10 preguntas para tu práctica diaria.'
-            : 'Completa las 10 preguntas para proteger tu racha de hoy.';
+            : 'Completa las preguntas para proteger tu racha.';
 
-    final colors = Theme.of(context).colorScheme;
-    return Card(
-      color: colors.primaryContainer.withValues(alpha: 0.62),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 58,
-              height: 58,
-              decoration: BoxDecoration(
-                color: colors.primary,
-                borderRadius: BorderRadius.circular(17),
-              ),
-              child: Icon(
-                wasResumed
-                    ? Icons.restore_rounded
-                    : Icons.local_fire_department_rounded,
-                color: colors.onPrimary,
-                size: 34,
-              ),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: AppPalette.challengeGradient,
+        borderRadius: BorderRadius.circular(AppRadii.medium),
+      ),
+      padding: const EdgeInsets.all(15),
+      child: Row(
+        children: [
+          AppIconBadge(
+            icon: wasResumed
+                ? Icons.restore_rounded
+                : Icons.local_fire_department_rounded,
+            foreground: AppPalette.primaryDark,
+            background: Colors.white,
+            size: 44,
+            iconSize: 24,
+            radius: 13,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                text,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontSize: 21,
-                      fontWeight: FontWeight.w700,
-                      height: 1.4,
-                    ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

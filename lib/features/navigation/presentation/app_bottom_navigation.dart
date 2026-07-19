@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mision_admision/app/design_system.dart';
 
 class AppBottomNavigation extends StatelessWidget {
   const AppBottomNavigation({
@@ -24,14 +25,14 @@ class AppBottomNavigation extends StatelessWidget {
     ),
     _NavigationItemData(
       label: 'Recursos',
-      icon: Icons.library_books_outlined,
-      selectedIcon: Icons.library_books_rounded,
+      icon: Icons.auto_stories_outlined,
+      selectedIcon: Icons.auto_stories_rounded,
       route: '/resources',
     ),
     _NavigationItemData(
       label: 'Examen',
-      icon: Icons.quiz_outlined,
-      selectedIcon: Icons.quiz_rounded,
+      icon: Icons.fact_check_outlined,
+      selectedIcon: Icons.fact_check_rounded,
       route: '/exam',
     ),
   ];
@@ -43,74 +44,84 @@ class AppBottomNavigation extends StatelessWidget {
     return Material(
       key: const Key('app_bottom_navigation'),
       color: colors.surface,
-      elevation: 18,
-      shadowColor: const Color(0x33172135),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 186,
-          child: Row(
-            children: List.generate(_items.length, (index) {
-              final item = _items[index];
-              final selected = index == selectedIndex;
+      elevation: 0,
+      child: Container(
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: AppPalette.outline)),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x0F17162B),
+              blurRadius: 18,
+              offset: Offset(0, -6),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          top: false,
+          child: SizedBox(
+            height: 82,
+            child: Row(
+              children: List.generate(_items.length, (index) {
+                final item = _items[index];
+                final selected = index == selectedIndex;
 
-              return Expanded(
-                child: Semantics(
-                  button: true,
-                  selected: selected,
-                  label: item.label,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 12,
-                    ),
+                return Expanded(
+                  child: Semantics(
+                    button: true,
+                    selected: selected,
+                    label: item.label,
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(28),
                       onTap: selected ? null : () => context.go(item.route),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        decoration: BoxDecoration(
-                          color: selected
-                              ? colors.primaryContainer
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(26),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 8,
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              selected ? item.selectedIcon : item.icon,
-                              size: selected ? 70 : 64,
-                              color: selected
-                                  ? colors.primary
-                                  : colors.onSurfaceVariant,
-                            ),
-                            const SizedBox(height: 14),
-                            Text(
-                              item.label,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          curve: Curves.easeOutCubic,
+                          decoration: BoxDecoration(
+                            color: selected
+                                ? AppPalette.primarySoft
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                selected ? item.selectedIcon : item.icon,
+                                size: selected ? 27 : 25,
                                 color: selected
                                     ? colors.primary
                                     : colors.onSurfaceVariant,
-                                fontSize: 25,
-                                height: 1,
-                                fontWeight: selected
-                                    ? FontWeight.w900
-                                    : FontWeight.w800,
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 5),
+                              Text(
+                                item.label,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(
+                                      color: selected
+                                          ? colors.primary
+                                          : colors.onSurfaceVariant,
+                                      fontWeight: selected
+                                          ? FontWeight.w800
+                                          : FontWeight.w700,
+                                    ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              );
-            }),
+                );
+              }),
+            ),
           ),
         ),
       ),
