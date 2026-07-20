@@ -111,7 +111,14 @@ self.addEventListener('message', (event) => {
     return;
   }
   if (event.data?.type === 'DAILY_CHALLENGE_COMPLETED') {
-    event.waitUntil(closeDailyChallengeReminders());
+    event.waitUntil(Promise.all([
+      closeDailyChallengeReminders(),
+      missionAdmissionDailyStateStore?.clearFollowUps?.('completed_today'),
+    ]));
+    return;
+  }
+  if (event.data?.type === 'PROCESS_DAILY_FOLLOW_UP') {
+    event.waitUntil(processPendingDailyFollowUp('app_message'));
   }
 });
 
@@ -212,11 +219,16 @@ async function cacheFirst(request, cacheName) {
 
 // Firebase Cloud Messaging comparte este mismo service worker para no competir
 // con la caché offline de la PWA. IndexedDB conserva solo la fecha mínima
-// necesaria para comprobar si el reto diario sigue pendiente.
+// necesaria para comprobar si el reto diario sigue pendiente y una cola de
+// seguimientos. Cada señal Firebase puede producir un aviso inmediato y deja
+// un segundo aviso para la próxima oportunidad útil del navegador.
 let missionAdmissionMessaging = null;
 let missionAdmissionNotificationSettings = null;
 let missionAdmissionDailyStateStore = null;
 let missionAdmissionReminderSequence = 0;
+
+const DAILY_FOLLOW_UP_SYNC_TAG = 'mision-admision-daily-follow-up';
+const DAILY_FOLLOW_UP_PERIODIC_TAG = 'mision-admision-daily-follow-up-periodic';
 
 function safeNotificationDestination(value) {
   const fallback = missionAdmissionNotificationSettings?.defaultNotificationLink || '#/reto';
@@ -247,6 +259,133 @@ function missionAdmissionNotificationOptions(payload) {
       ),
     },
   };
+}
+
+function dailyChallengeReminderOptions(evaluation, {followUp = false} = {}) {
+  return {
+    body: followUp
+      ? 'El reto continúa pendiente. Complétalo para cuidar tu racha.'
+      : 'Completa las preguntas de hoy y protege tu racha.',
+    icon: scopedUrl('icons/Icon-192.png'),
+    badge: scopedUrl('icons/Icon-192.png'),
+    tag: `mision-admision-daily-${followUp ? 'follow-up' : 'firebase'}-${evaluation.todayDateKey}-${Date.now()}-${missionAdmissionReminderSequence += 1}`,
+    renotify: false,
+    data: {
+      missionAdmission: true,
+      kind: 'daily-challenge-reminder',
+      reminderStage: followUp ? 'follow-up' : 'immediate',
+      link: safeNotificationDestination('#/daily'),
+    },
+  };
+}
+
+async function showDailyChallengeReminder(evaluation, {followUp = false} = {}) {
+  await self.registration.showNotification(
+    followUp
+      ? 'Tu reto sigue esperando ⏳'
+      : 'Tu reto diario sigue pendiente 🔥',
+    dailyChallengeReminderOptions(evaluation, {followUp}),
+  );
+}
+
+async function registerDailyFollowUpWake() {
+  try {
+    if (typeof self.registration.sync?.register === 'function') {
+      await self.registration.sync.register(DAILY_FOLLOW_UP_SYNC_TAG);
+      return true;
+    }
+  } catch (error) {
+    console.debug('No se pudo registrar Background Sync para el seguimiento:', error);
+  }
+  return false;
+}
+
+async function recordDailyDecisionBestEffort(decision, options = {}) {
+  try {
+    await missionAdmissionDailyStateStore?.recordDecision?.(decision, options);
+  } catch (_) {
+    // El diagnóstico nunca debe alterar la entrega de una notificación.
+  }
+}
+
+async function processPendingDailyFollowUp(trigger = 'unknown') {
+  const store = missionAdmissionDailyStateStore;
+  if (!store || typeof store.claimFollowUp !== 'function') return false;
+
+  let claim = null;
+  try {
+    claim = await store.claimFollowUp(new Date());
+    if (!claim?.claimed) return false;
+
+    const progress = await store.readDailyProgress();
+    const evaluation = store.evaluateDailyProgress(progress, new Date());
+    if (!evaluation.shouldShow) {
+      await recordDailyDecisionBestEffort(`follow_up_${evaluation.decision}`);
+      if (['completed_today', 'challenge_unavailable'].includes(evaluation.decision)) {
+        try {
+          await store.clearFollowUps?.(evaluation.decision);
+        } catch (_) {
+          // La cola también se limpia cuando Flutter sincroniza el progreso.
+        }
+      }
+      return false;
+    }
+
+    await showDailyChallengeReminder(evaluation, {followUp: true});
+    await recordDailyDecisionBestEffort('follow_up_pending', {reminderShown: true});
+
+    if (Number(claim.remainingCount) > 0) {
+      await registerDailyFollowUpWake();
+    }
+    return true;
+  } catch (error) {
+    try {
+      if (claim?.claimed) {
+        await store.scheduleFollowUp?.(`retry_${trigger}`);
+        await registerDailyFollowUpWake();
+      }
+      await recordDailyDecisionBestEffort('follow_up_error', {
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
+    } catch (_) {
+      // El diagnóstico no debe impedir futuros eventos del service worker.
+    }
+    return false;
+  }
+}
+
+async function handleFirebaseDailyCheck(source = 'firebase_background') {
+  const store = missionAdmissionDailyStateStore;
+  if (!store) return false;
+
+  try {
+    try {
+      await store.recordFirebaseWake();
+    } catch (_) {
+      // Es solo diagnóstico; la comprobación del reto debe continuar.
+    }
+    const progress = await store.readDailyProgress();
+    const evaluation = store.evaluateDailyProgress(progress, new Date());
+    if (!evaluation.shouldShow) {
+      await recordDailyDecisionBestEffort(evaluation.decision);
+      return false;
+    }
+
+    await showDailyChallengeReminder(evaluation);
+    await store.scheduleFollowUp?.(source);
+    await recordDailyDecisionBestEffort('pending', {reminderShown: true});
+    await registerDailyFollowUpWake();
+    return true;
+  } catch (error) {
+    try {
+      await recordDailyDecisionBestEffort('storage_error', {
+        errorMessage: error instanceof Error ? error.message : String(error),
+      });
+    } catch (_) {
+      // El error de diagnóstico no debe afectar la recepción de Firebase.
+    }
+    return false;
+  }
 }
 
 // Debe registrarse antes de importar Firebase. De otro modo, FCM puede
@@ -293,6 +432,18 @@ try {
   console.warn('El estado inteligente no fue inicializado:', error);
 }
 
+self.addEventListener('sync', (event) => {
+  if (event.tag !== DAILY_FOLLOW_UP_SYNC_TAG) return;
+  event.waitUntil(processPendingDailyFollowUp('background_sync'));
+});
+
+// Algunos navegadores pueden ofrecer un despertar periódico. No se registra
+// como requisito, pero si el navegador ya entrega este evento se aprovecha.
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag !== DAILY_FOLLOW_UP_PERIODIC_TAG) return;
+  event.waitUntil(processPendingDailyFollowUp('periodic_sync'));
+});
+
 try {
   importScripts(new URL('firebase_config.js', self.location.href).toString());
   missionAdmissionNotificationSettings = self.MISSION_ADMISSION_FIREBASE;
@@ -305,45 +456,15 @@ try {
     firebase.initializeApp(missionAdmissionNotificationSettings.config);
     missionAdmissionMessaging = firebase.messaging();
     missionAdmissionMessaging.onBackgroundMessage(async (payload) => {
-      // Firebase muestra automáticamente su notificación original. Cada mensaje
-      // funciona además como señal para comprobar el reto local. No hay límite
-      // diario: cada campaña puede generar un nuevo recordatorio si sigue pendiente.
-      const store = missionAdmissionDailyStateStore;
-      if (store) {
-        try {
-          await store.recordFirebaseWake();
-          const progress = await store.readDailyProgress();
-          const evaluation = store.evaluateDailyProgress(progress, new Date());
-          if (!evaluation.shouldShow) {
-            await store.recordDecision(evaluation.decision);
-          } else {
-            await self.registration.showNotification(
-              'Tu reto diario sigue pendiente 🔥',
-              {
-                body: 'Completa las preguntas de hoy y protege tu racha.',
-                icon: scopedUrl('icons/Icon-192.png'),
-                badge: scopedUrl('icons/Icon-192.png'),
-                tag: `mision-admision-daily-${evaluation.todayDateKey}-${Date.now()}-${missionAdmissionReminderSequence += 1}`,
-                renotify: false,
-                data: {
-                  missionAdmission: true,
-                  kind: 'daily-challenge-reminder',
-                  link: safeNotificationDestination('#/daily'),
-                },
-              },
-            );
-            await store.recordDecision('pending', {reminderShown: true});
-          }
-        } catch (error) {
-          try {
-            await store.recordDecision('storage_error', {
-              errorMessage: error instanceof Error ? error.message : String(error),
-            });
-          } catch (_) {
-            // El error de diagnóstico no debe afectar la recepción de Firebase.
-          }
-        }
-      }
+      // Una señal posterior es una oportunidad válida para entregar un
+      // seguimiento anterior. Se procesa antes de crear el seguimiento del
+      // mensaje actual, evitando dos avisos locales en el mismo primer evento.
+      await processPendingDailyFollowUp('next_firebase_background');
+
+      // Firebase muestra automáticamente la notificación original cuando la
+      // campaña incluye notification. Cada mensaje comprueba además el reto y,
+      // si está pendiente, muestra un aviso inmediato y encola un seguimiento.
+      await handleFirebaseDailyCheck('firebase_background');
 
       // Los mensajes exclusivamente de datos todavía reciben una notificación
       // básica. Las campañas de Firebase Console ya incluyen notification y no
@@ -372,4 +493,3 @@ self.addEventListener('pushsubscriptionchange', (event) => {
     }
   })());
 });
-

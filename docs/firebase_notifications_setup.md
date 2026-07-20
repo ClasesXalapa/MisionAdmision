@@ -154,6 +154,18 @@ Para campañas normales puedes seleccionar segmentos predefinidos y enviar inmed
 
 Firebase Console no sustituye una tarea recurrente de servidor: para el MVP se enviará manualmente cada día o se crearán mensajes individuales programados.
 
+Desde `v0.11.4`, cada mensaje recibido ejecuta además la lógica local siguiente:
+
+1. consulta si el reto diario está pendiente;
+2. si está pendiente, muestra un recordatorio local inmediato;
+3. encola un segundo seguimiento;
+4. vuelve a comprobar el reto en una oportunidad posterior del navegador;
+5. cancela los seguimientos cuando el reto se completa.
+
+No se configura una espera exacta. El segundo seguimiento puede procesarse mediante Background Sync, otra señal Firebase, reapertura, reanudación o recuperación de conexión.
+
+Además, abrir o reanudar la PWA después de las 20:00 ejecuta una comprobación local de respaldo, incluso sin conexión. No existe una marca de “ya mostrado hoy”.
+
 ## 10. Datos personalizados recomendados
 
 Al crear una campaña, agrega opcionalmente:

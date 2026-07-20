@@ -9,7 +9,7 @@
   let reloadWhenControlled = false;
   let automaticControllerReloadDone = false;
 
-  const SERVICE_WORKER_RELEASE = '46';
+  const SERVICE_WORKER_RELEASE = '47';
 
   const standaloneQuery = window.matchMedia('(display-mode: standalone)');
   const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) ||

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.11.4+47 — 19 de julio de 2026
+
+- Cada mensaje de Firebase, tanto en primer plano como en segundo plano, consulta el estado local del reto diario.
+- Si el reto continúa pendiente, muestra un recordatorio local inmediato para proteger la racha.
+- Cada comprobación Firebase pendiente encola además un seguimiento independiente en IndexedDB.
+- El seguimiento se entrega en una oportunidad posterior del navegador mediante Background Sync, otra señal Firebase, recuperación de conexión, reapertura o reanudación de la PWA.
+- No se fija un intervalo exacto y no existe bloqueo por “recordatorio ya mostrado hoy”.
+- Al abrir o reanudar la PWA después de las 20:00, se ejecuta un plan B local y se avisa si el reto sigue pendiente, incluso sin conexión.
+- Cada mensaje Firebase puede producir un aviso inmediato y un segundo aviso posterior; varias campañas conservan sus seguimientos mediante un contador local.
+- Al completar el reto o dejar de estar disponible, se vacía la cola de seguimientos y se cierran los recordatorios visibles.
+- Amplía las pruebas JavaScript del estado IndexedDB, el puente en primer plano, el service worker, Background Sync y el plan B nocturno.
+- Actualiza app, build y revisión PWA a `0.11.4+47`.
+
 ## 0.11.3+46 — 19 de julio de 2026
 
 - Elimina la normalización del viewport a anchos simulados de 375, 390 o 430 px.

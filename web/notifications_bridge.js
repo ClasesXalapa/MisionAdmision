@@ -5,7 +5,8 @@
   const ENABLED_KEY = 'mision_admision.notifications_enabled.v1';
   const REGISTERED_AT_KEY = 'mision_admision.fcm_registered_at.v1';
   const REGISTRATION_KIND = 'fid';
-  const SERVICE_WORKER_RELEASE = '46';
+  const SERVICE_WORKER_RELEASE = '47';
+  const DAILY_FOLLOW_UP_SYNC_TAG = 'mision-admision-daily-follow-up';
 
   let firebaseApp = null;
   let messaging = null;
@@ -20,6 +21,8 @@
   let registrationObserversReady = false;
   let lastErrorCode = '';
   let lastErrorMessage = '';
+  let followUpProcessingPromise = null;
+  let documentWasHidden = document.visibilityState === 'hidden';
 
   function settings() {
     return globalThis.MISSION_ADMISSION_FIREBASE || {enabled: false};
@@ -213,6 +216,202 @@
       'service-worker-timeout',
       'El modo PWA continúa preparándose. Recarga la página y vuelve a intentarlo.',
     );
+  }
+
+
+  function localRemindersEnabled() {
+    return permissionValue() === 'granted' &&
+      localStorage.getItem(ENABLED_KEY) === 'true';
+  }
+
+  async function registerDailyFollowUpWake(registration) {
+    try {
+      if (typeof registration?.sync?.register === 'function') {
+        await registration.sync.register(DAILY_FOLLOW_UP_SYNC_TAG);
+        return true;
+      }
+    } catch (error) {
+      debug('follow-up-sync-registration-failed', error);
+    }
+    return false;
+  }
+
+  async function recordDailyDecisionBestEffort(decision, options = {}) {
+    try {
+      await dailyStateStore()?.recordDecision?.(decision, options);
+    } catch (_) {
+      // Los diagnósticos no deben cambiar el comportamiento de los avisos.
+    }
+  }
+
+  function dailyChallengeReminderOptions(evaluation, {followUp = false} = {}) {
+    return {
+      body: followUp
+        ? 'El reto continúa pendiente. Complétalo para cuidar tu racha.'
+        : 'Completa las preguntas de hoy y protege tu racha.',
+      icon: new URL('icons/Icon-192.png', document.baseURI).href,
+      badge: new URL('icons/Icon-192.png', document.baseURI).href,
+      tag: `mision-admision-daily-${followUp ? 'follow-up' : 'firebase'}-${evaluation.todayDateKey}-${Date.now()}`,
+      renotify: false,
+      data: {
+        missionAdmission: true,
+        kind: 'daily-challenge-reminder',
+        reminderStage: followUp ? 'follow-up' : 'immediate',
+        link: safeNotificationLink('#/daily'),
+      },
+    };
+  }
+
+  async function showDailyChallengeReminder(
+    registration,
+    evaluation,
+    {followUp = false} = {},
+  ) {
+    await registration.showNotification(
+      followUp
+        ? 'Tu reto sigue esperando ⏳'
+        : 'Tu reto diario sigue pendiente 🔥',
+      dailyChallengeReminderOptions(evaluation, {followUp}),
+    );
+  }
+
+  async function performPendingDailyFollowUp(trigger) {
+    if (!localRemindersEnabled()) return false;
+    const store = dailyStateStore();
+    if (typeof store?.claimFollowUp !== 'function') return false;
+
+    const registration = await serviceWorkerRegistration();
+    if (!registration) return false;
+
+    let claim = null;
+    try {
+      claim = await store.claimFollowUp(new Date());
+      if (!claim?.claimed) return false;
+
+      const progress = await store.readDailyProgress();
+      const evaluation = store.evaluateDailyProgress(progress, new Date());
+      if (!evaluation.shouldShow) {
+        await recordDailyDecisionBestEffort(`follow_up_${evaluation.decision}`);
+        if (['completed_today', 'challenge_unavailable'].includes(evaluation.decision)) {
+          try {
+            await store.clearFollowUps?.(evaluation.decision);
+          } catch (_) {
+            // Flutter vuelve a limpiar la cola al sincronizar el progreso.
+          }
+        }
+        return false;
+      }
+
+      await showDailyChallengeReminder(registration, evaluation, {followUp: true});
+      await recordDailyDecisionBestEffort('follow_up_pending', {reminderShown: true});
+      if (Number(claim.remainingCount) > 0) {
+        await registerDailyFollowUpWake(registration);
+      }
+      return true;
+    } catch (error) {
+      try {
+        if (claim?.claimed) {
+          await store.scheduleFollowUp?.(`retry_${trigger}`);
+          await registerDailyFollowUpWake(registration);
+        }
+        await recordDailyDecisionBestEffort('follow_up_error', {
+          errorMessage: error instanceof Error ? error.message : String(error),
+        });
+      } catch (_) {
+        // El seguimiento es de mejor esfuerzo y nunca bloquea la aplicación.
+      }
+      return false;
+    }
+  }
+
+  async function processPendingDailyFollowUp(trigger = 'app') {
+    if (followUpProcessingPromise) return followUpProcessingPromise;
+    followUpProcessingPromise = performPendingDailyFollowUp(trigger).finally(() => {
+      followUpProcessingPromise = null;
+    });
+    return followUpProcessingPromise;
+  }
+
+  function isEveningReminderTime(now = new Date()) {
+    return now.getHours() >= 20;
+  }
+
+  async function processEveningDailyCheck(trigger = 'app_evening') {
+    if (!localRemindersEnabled() || !isEveningReminderTime()) return false;
+    const store = dailyStateStore();
+    if (!store) return false;
+
+    try {
+      const registration = await serviceWorkerRegistration();
+      if (!registration) return false;
+      const progress = await store.readDailyProgress?.();
+      const evaluation = store.evaluateDailyProgress?.(progress, new Date());
+      if (!evaluation?.shouldShow) {
+        await recordDailyDecisionBestEffort(
+          `evening_${evaluation?.decision || 'state_not_initialized'}`,
+        );
+        return false;
+      }
+
+      const options = dailyChallengeReminderOptions(evaluation);
+      await registration.showNotification('Aún puedes proteger tu racha 🌙', {
+        ...options,
+        body: 'Ya son más de las 8 p. m. Completa el reto antes de terminar el día.',
+        tag: `mision-admision-evening-${evaluation.todayDateKey}-${Date.now()}`,
+        data: {
+          ...options.data,
+          reminderStage: 'evening',
+          trigger,
+        },
+      });
+      await recordDailyDecisionBestEffort('evening_pending', {reminderShown: true});
+      return true;
+    } catch (error) {
+      try {
+        await recordDailyDecisionBestEffort('evening_error', {
+          errorMessage: error instanceof Error ? error.message : String(error),
+        });
+      } catch (_) {
+        // La revisión nocturna es de mejor esfuerzo.
+      }
+      return false;
+    }
+  }
+
+  async function handleForegroundFirebaseDailyCheck(registration) {
+    const store = dailyStateStore();
+    if (!store) return false;
+
+    try {
+      try {
+        await store.recordFirebaseWake?.();
+      } catch (_) {
+        // Es solo diagnóstico; la comprobación debe continuar.
+      }
+      const progress = await store.readDailyProgress?.();
+      const evaluation = store.evaluateDailyProgress?.(progress, new Date());
+      if (!evaluation?.shouldShow) {
+        await recordDailyDecisionBestEffort(
+          evaluation?.decision || 'state_not_initialized',
+        );
+        return false;
+      }
+
+      await showDailyChallengeReminder(registration, evaluation);
+      await store.scheduleFollowUp?.('firebase_foreground');
+      await recordDailyDecisionBestEffort('pending', {reminderShown: true});
+      await registerDailyFollowUpWake(registration);
+      return true;
+    } catch (error) {
+      try {
+        await recordDailyDecisionBestEffort('storage_error', {
+          errorMessage: error instanceof Error ? error.message : String(error),
+        });
+      } catch (_) {
+        // El diagnóstico inteligente no debe bloquear Firebase.
+      }
+      return false;
+    }
   }
 
   async function loadModules() {
@@ -414,16 +613,15 @@
     foregroundUnsubscribe = initialized.messagingModule.onMessage(
       initialized.messaging,
       async (payload) => {
-        const store = dailyStateStore();
-        try {
-          await store?.recordFirebaseWake?.();
-          await store?.recordDecision?.('app_visible');
-        } catch (_) {
-          // El diagnóstico inteligente nunca debe bloquear el mensaje de Firebase.
-        }
+        // Un mensaje nuevo es una oportunidad posterior para entregar un
+        // seguimiento anterior. Primero se procesa la cola existente y luego
+        // se crea el seguimiento correspondiente al mensaje actual.
+        await processPendingDailyFollowUp('next_firebase_foreground');
 
         const registration = await serviceWorkerRegistration();
         if (!registration) return;
+        await handleForegroundFirebaseDailyCheck(registration);
+
         const title = payload.notification?.title ||
           payload.data?.title || 'Misión Admisión';
         const body = payload.notification?.body || payload.data?.body ||
@@ -576,6 +774,11 @@
     } catch (error) {
       rememberError(error, 'unregister-failed');
     } finally {
+      try {
+        await dailyStateStore()?.clearFollowUps?.('notifications_disabled');
+      } catch (_) {
+        // Desactivar notificaciones no debe fallar por IndexedDB.
+      }
       clearLocalRegistration();
       clearLocalEnabledState();
       if (foregroundUnsubscribe) {
@@ -666,9 +869,38 @@
     }
   });
 
-  window.addEventListener('load', () => {
-    getState().catch((error) => {
+  window.addEventListener('load', async () => {
+    try {
+      await getState();
+      const followUpShown = await processPendingDailyFollowUp('app_load');
+      if (!followUpShown) await processEveningDailyCheck('app_load');
+    } catch (error) {
       rememberError(error, 'startup-failed');
-    });
+    }
   }, {once: true});
+
+  document.addEventListener?.('visibilitychange', async () => {
+    const isHidden = document.visibilityState === 'hidden';
+    if (isHidden) {
+      documentWasHidden = true;
+      return;
+    }
+    if (documentWasHidden) {
+      documentWasHidden = false;
+      try {
+        const followUpShown = await processPendingDailyFollowUp('app_resumed');
+        if (!followUpShown) await processEveningDailyCheck('app_resumed');
+      } catch (error) {
+        debug('app-resume-follow-up-failed', error);
+      }
+    }
+  });
+
+  window.addEventListener('online', async () => {
+    try {
+      await processPendingDailyFollowUp('connection_restored');
+    } catch (error) {
+      debug('online-follow-up-failed', error);
+    }
+  });
 })();

@@ -16,6 +16,11 @@ async function main() {
 
   const store = context.missionAdmissionNotificationStateStore;
   assert.equal(typeof store.evaluateDailyProgress, 'function');
+  assert.equal(typeof store.scheduleFollowUp, 'function');
+  assert.equal(typeof store.claimFollowUp, 'function');
+  assert.equal(typeof store.clearFollowUps, 'function');
+  assert.equal(store.normalizePendingCount(3), 3);
+  assert.equal(store.normalizePendingCount(-1), 0);
   assert.equal(store.isSupported(), false);
   assert.equal(store.normalizeDateKey('2026-07-16'), '2026-07-16');
   assert.equal(store.normalizeDateKey('2026-02-30'), '');
@@ -50,12 +55,20 @@ async function main() {
   assert.equal(pending.shouldShow, true);
   assert.equal(pending.todayDateKey, '2026-07-16');
 
+  assert.equal(await store.scheduleFollowUp('firebase'), false);
+  const unsupportedClaim = await store.claimFollowUp(now);
+  assert.equal(unsupportedClaim.claimed, false);
+  assert.equal(unsupportedClaim.dateKey, '2026-07-16');
+  assert.equal(unsupportedClaim.remainingCount, 0);
+  assert.equal(unsupportedClaim.source, '');
+  assert.equal(await store.clearFollowUps(), false);
+
   const snapshot = await store.readSnapshot();
   assert.equal(snapshot.supported, false);
   assert.equal(snapshot.lastDecision, 'unsupported');
 
   console.log(
-    'Estado inteligente validado: fechas locales, reto pendiente y degradación sin IndexedDB.',
+    'Estado inteligente validado: reto pendiente, cola de seguimiento y degradación sin IndexedDB.',
   );
 }
 

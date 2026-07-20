@@ -78,4 +78,4 @@ Diagnóstico técnico:
 ```
 ## Recordatorio inteligente del reto
 
-Desde v0.9.8 el reporte incluye si IndexedDB está disponible, si el estado compartido fue inicializado, la última recepción Firebase, la última decisión del motor y el número de recordatorios locales registrados para su fecha. Estos campos no contienen respuestas ni el identificador FCM.
+Desde v0.9.8 el reporte incluye si IndexedDB está disponible, si el estado compartido fue inicializado, la última recepción Firebase, la última decisión del motor y el número de recordatorios locales registrados para su fecha. Desde v0.11.4 las decisiones también distinguen avisos inmediatos, seguimientos posteriores y el plan B nocturno. Estos campos no contienen respuestas ni el identificador FCM.

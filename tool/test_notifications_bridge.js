@@ -19,12 +19,16 @@ function createContext({
   ios = false,
   analyticsSupported = true,
   analyticsThrows = false,
+  nowHour = 12,
 } = {}) {
   const registrationCallbacks = [];
   const unregistrationCallbacks = [];
   const foregroundCallbacks = [];
   const shownNotifications = [];
   const serviceWorkerListeners = new Map();
+  const windowListeners = new Map();
+  const documentListeners = new Map();
+  const syncRegistrations = [];
   let registerCount = 0;
   let unregisterCount = 0;
   let analyticsCount = 0;
@@ -32,10 +36,15 @@ function createContext({
   const dailyDecisions = [];
   let firebaseWakeCount = 0;
   const postedWorkerMessages = [];
+  let pendingFollowUps = 0;
+  let clearFollowUpsCount = 0;
 
   const registration = {
     active: {
       postMessage(message) { postedWorkerMessages.push(message); },
+    },
+    sync: {
+      async register(tag) { syncRegistrations.push(tag); },
     },
     async getNotifications() { return []; },
     async showNotification(title, options) {
@@ -89,6 +98,20 @@ function createContext({
     },
   };
 
+  class FixedDate extends Date {
+    constructor(...args) {
+      if (args.length > 0) {
+        super(...args);
+      } else {
+        super(2026, 6, 16, nowHour, 0, 0);
+      }
+    }
+
+    static now() {
+      return new FixedDate().getTime();
+    }
+  }
+
   const notification = {
     permission: 'default',
     async requestPermission() {
@@ -97,10 +120,117 @@ function createContext({
     },
   };
   let pwaEnsureCount = 0;
+
+  function currentProgress() {
+    const latest = dailySyncCalls.at(-1);
+    if (!latest) return null;
+    return {
+      initialized: true,
+      lastCompletedDateKey: latest.lastCompletedDateKey || null,
+      challengeAvailable: latest.challengeAvailable === true,
+    };
+  }
+
+  const stateStore = {
+    async readSnapshot() {
+      const progress = currentProgress();
+      return {
+        supported: true,
+        stateInitialized: progress?.initialized === true,
+        lastCompletedDateKey: progress?.lastCompletedDateKey || '',
+        challengeAvailable: progress?.challengeAvailable === true,
+        stateUpdatedAt: '',
+        lastFirebaseReceivedAt: '',
+        lastLocalReminderAt: '',
+        reminderCountDateKey: '',
+        reminderCountForDate: 0,
+        followUpDateKey: pendingFollowUps > 0 ? '2026-07-16' : '',
+        pendingFollowUpCount: pendingFollowUps,
+        followUpLastCreatedAt: '',
+        followUpLastClaimedAt: '',
+        lastDecision: dailyDecisions.at(-1)?.decision || '',
+        lastDecisionAt: '',
+        errorMessage: '',
+      };
+    },
+    async syncDailyProgress(lastCompletedDateKey, challengeAvailable) {
+      dailySyncCalls.push({lastCompletedDateKey, challengeAvailable});
+      if (lastCompletedDateKey === '2026-07-16' || challengeAvailable !== true) {
+        pendingFollowUps = 0;
+      }
+      return true;
+    },
+    async readDailyProgress() { return currentProgress(); },
+    evaluateDailyProgress(progress) {
+      if (!progress?.initialized) {
+        return {
+          shouldShow: false,
+          decision: 'state_not_initialized',
+          todayDateKey: '2026-07-16',
+        };
+      }
+      if (!progress.challengeAvailable) {
+        return {
+          shouldShow: false,
+          decision: 'challenge_unavailable',
+          todayDateKey: '2026-07-16',
+        };
+      }
+      if (progress.lastCompletedDateKey === '2026-07-16') {
+        return {
+          shouldShow: false,
+          decision: 'completed_today',
+          todayDateKey: '2026-07-16',
+        };
+      }
+      return {
+        shouldShow: true,
+        decision: 'pending',
+        todayDateKey: '2026-07-16',
+      };
+    },
+    async scheduleFollowUp() {
+      pendingFollowUps += 1;
+      return true;
+    },
+    async claimFollowUp() {
+      if (pendingFollowUps <= 0) {
+        return {
+          claimed: false,
+          dateKey: '2026-07-16',
+          remainingCount: 0,
+          source: '',
+        };
+      }
+      pendingFollowUps -= 1;
+      return {
+        claimed: true,
+        dateKey: '2026-07-16',
+        remainingCount: pendingFollowUps,
+        source: 'firebase_foreground',
+      };
+    },
+    async clearFollowUps() {
+      clearFollowUpsCount += 1;
+      pendingFollowUps = 0;
+      return true;
+    },
+    localDateKey() { return '2026-07-16'; },
+    async recordFirebaseWake() { firebaseWakeCount += 1; },
+    async recordDecision(decision, options = {}) {
+      dailyDecisions.push({decision, options});
+    },
+  };
+
+  const document = {
+    baseURI: 'https://example.test/mision-admision/',
+    visibilityState: 'visible',
+    addEventListener(type, callback) { documentListeners.set(type, callback); },
+  };
   const context = {
     console,
     URL,
-    Date,
+    Date: FixedDate,
     Promise,
     setTimeout,
     clearTimeout,
@@ -111,7 +241,7 @@ function createContext({
       hostname: 'example.test',
       origin: 'https://example.test',
     },
-    document: {baseURI: 'https://example.test/mision-admision/'},
+    document,
     navigator: {
       userAgent: ios ? 'Mozilla/5.0 (iPhone)' : 'Mozilla/5.0 (Android)',
       platform: ios ? 'iPhone' : 'Linux armv8l',
@@ -127,7 +257,7 @@ function createContext({
     },
     isSecureContext: true,
     matchMedia() { return {matches: false}; },
-    addEventListener() {},
+    addEventListener(type, callback) { windowListeners.set(type, callback); },
     missionAdmissionPwa: {
       async ensureServiceWorker(options) {
         pwaEnsureCount += 1;
@@ -137,31 +267,7 @@ function createContext({
       },
     },
     __MISSION_ADMISSION_FIREBASE_MODULES__: {appModule, messagingModule, analyticsModule},
-    __MISSION_ADMISSION_NOTIFICATION_STATE_STORE__: {
-      async readSnapshot() {
-        return {
-          supported: true,
-          stateInitialized: dailySyncCalls.length > 0,
-          lastCompletedDateKey: dailySyncCalls.at(-1)?.lastCompletedDateKey || '',
-          challengeAvailable: dailySyncCalls.at(-1)?.challengeAvailable === true,
-          stateUpdatedAt: '',
-          lastFirebaseReceivedAt: '',
-          lastLocalReminderAt: '',
-          reminderCountDateKey: '',
-          reminderCountForDate: 0,
-          lastDecision: dailyDecisions.at(-1) || '',
-          lastDecisionAt: '',
-          errorMessage: '',
-        };
-      },
-      async syncDailyProgress(lastCompletedDateKey, challengeAvailable) {
-        dailySyncCalls.push({lastCompletedDateKey, challengeAvailable});
-        return true;
-      },
-      localDateKey() { return '2026-07-16'; },
-      async recordFirebaseWake() { firebaseWakeCount += 1; },
-      async recordDecision(decision) { dailyDecisions.push(decision); },
-    },
+    __MISSION_ADMISSION_NOTIFICATION_STATE_STORE__: stateStore,
   };
   context.window = context;
   context.globalThis = context;
@@ -197,12 +303,17 @@ function createContext({
     shownNotifications,
     foregroundCallbacks,
     serviceWorkerListeners,
+    windowListeners,
+    documentListeners,
+    syncRegistrations,
     get registerCount() { return registerCount; },
     get unregisterCount() { return unregisterCount; },
     get analyticsCount() { return analyticsCount; },
     dailySyncCalls,
     dailyDecisions,
     postedWorkerMessages,
+    get pendingFollowUps() { return pendingFollowUps; },
+    get clearFollowUpsCount() { return clearFollowUpsCount; },
     get firebaseWakeCount() { return firebaseWakeCount; },
     get pwaEnsureCount() { return pwaEnsureCount; },
   };
@@ -221,7 +332,7 @@ async function testDisabledConfiguration() {
 }
 
 async function testRegistrationLifecycle() {
-  const fixture = createContext({configured: true});
+  const fixture = createContext({configured: true, nowHour: 21});
   const initial = await fixture.context.missionAdmissionNotifications.getState();
   assert.equal(initial.configured, true);
   assert.equal(initial.supported, true);
@@ -248,13 +359,9 @@ async function testRegistrationLifecycle() {
     .getTestingInstallationId();
   assert.equal(testingId, 'fid-test-123');
 
-  const synced = await fixture.context.missionAdmissionNotifications
+  const completedSync = await fixture.context.missionAdmissionNotifications
     .syncDailyChallengeState('2026-07-16', true);
-  assert.equal(synced, true);
-  assert.deepEqual(fixture.dailySyncCalls, [{
-    lastCompletedDateKey: '2026-07-16',
-    challengeAvailable: true,
-  }]);
+  assert.equal(completedSync, true);
   assert.equal(fixture.postedWorkerMessages.length, 1);
   assert.equal(
     fixture.postedWorkerMessages[0].type,
@@ -269,12 +376,54 @@ async function testRegistrationLifecycle() {
     'https://example.test/mision-admision/#/reto',
   );
 
+  // El reto vuelve a estar pendiente para probar la recepción en primer plano.
+  await fixture.context.missionAdmissionNotifications
+    .syncDailyChallengeState('2026-07-15', true);
+
   await fixture.foregroundCallbacks[0]({
     notification: {title: 'Motivación', body: 'Sigue avanzando.'},
   });
   assert.equal(fixture.firebaseWakeCount, 1);
-  assert.equal(fixture.dailyDecisions.at(-1), 'app_visible');
-  assert.equal(fixture.shownNotifications.length, 2);
+  assert.equal(fixture.shownNotifications.length, 3);
+  assert.equal(
+    fixture.shownNotifications[1].title,
+    'Tu reto diario sigue pendiente 🔥',
+  );
+  assert.equal(fixture.shownNotifications[2].title, 'Motivación');
+  assert.equal(fixture.pendingFollowUps, 1);
+  assert.equal(fixture.dailyDecisions.at(-1).decision, 'pending');
+  assert.equal(
+    fixture.syncRegistrations.includes('mision-admision-daily-follow-up'),
+    true,
+  );
+
+  // La siguiente oportunidad útil, en este caso recuperar conexión, entrega el
+  // segundo aviso sin depender de un intervalo exacto.
+  await fixture.windowListeners.get('online')();
+  assert.equal(fixture.shownNotifications.length, 4);
+  assert.equal(fixture.shownNotifications[3].title, 'Tu reto sigue esperando ⏳');
+  assert.equal(fixture.pendingFollowUps, 0);
+  assert.equal(fixture.dailyDecisions.at(-1).decision, 'follow_up_pending');
+
+  // Sin una cola pendiente, abrir la app después de las 8 p. m. ejecuta el
+  // plan B local. No hay bloqueo por "ya mostrado hoy".
+  await fixture.windowListeners.get('load')();
+  assert.equal(fixture.shownNotifications.length, 5);
+  assert.equal(
+    fixture.shownNotifications[4].title,
+    'Aún puedes proteger tu racha 🌙',
+  );
+  assert.equal(
+    fixture.shownNotifications[4].options.data.reminderStage,
+    'evening',
+  );
+
+  fixture.context.document.visibilityState = 'hidden';
+  await fixture.documentListeners.get('visibilitychange')();
+  fixture.context.document.visibilityState = 'visible';
+  await fixture.documentListeners.get('visibilitychange')();
+  assert.equal(fixture.shownNotifications.length, 6);
+  assert.equal(fixture.dailyDecisions.at(-1).decision, 'evening_pending');
 
   await fixture.context.missionAdmissionNotifications.refreshRegistration();
   assert.equal(fixture.registerCount >= 2, true);
@@ -283,6 +432,7 @@ async function testRegistrationLifecycle() {
   assert.equal(disabled.enabled, false);
   assert.equal(disabled.registrationAvailable, false);
   assert.equal(fixture.unregisterCount, 1);
+  assert.equal(fixture.clearFollowUpsCount >= 1, true);
 }
 
 async function testAnalyticsFailureDoesNotBreakMessaging() {
@@ -314,7 +464,7 @@ async function main() {
   await testAnalyticsFailureDoesNotBreakMessaging();
   await testIosRequiresInstalledPwa();
   console.log(
-    'Puente Firebase validado: Analytics opcional, FID, renovación, baja e iPhone.',
+    'Puente Firebase validado: cada mensaje comprueba el reto y encola un seguimiento posterior.',
   );
 }
 

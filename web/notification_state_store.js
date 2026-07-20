@@ -6,6 +6,7 @@
   const STORE_NAME = 'state';
   const DAILY_PROGRESS_KEY = 'daily_progress';
   const DAILY_DIAGNOSTICS_KEY = 'daily_diagnostics';
+  const DAILY_FOLLOW_UP_KEY = 'daily_follow_up';
 
   let databasePromise = null;
 
@@ -33,6 +34,10 @@
       return '';
     }
     return trimmed;
+  }
+
+  function normalizePendingCount(value) {
+    return Number.isInteger(value) && value > 0 ? value : 0;
   }
 
   function evaluateDailyProgress(progress, now = new Date()) {
@@ -128,21 +133,138 @@
     return updated;
   }
 
+  async function clearFollowUps(reason = 'cleared') {
+    if (!isSupported()) return false;
+    const now = new Date();
+    await writeRecord({
+      key: DAILY_FOLLOW_UP_KEY,
+      dateKey: localDateKey(now),
+      pendingCount: 0,
+      lastCreatedAt: '',
+      lastClaimedAt: '',
+      lastSource: '',
+      clearedAt: now.toISOString(),
+      clearReason: typeof reason === 'string' ? reason : 'cleared',
+    });
+    return true;
+  }
+
   async function syncDailyProgress(lastCompletedDateKey, challengeAvailable) {
     if (!isSupported()) return false;
     const normalizedDateKey = normalizeDateKey(lastCompletedDateKey);
+    const now = new Date();
     await writeRecord({
       key: DAILY_PROGRESS_KEY,
       initialized: true,
       lastCompletedDateKey: normalizedDateKey || null,
       challengeAvailable: challengeAvailable === true,
-      updatedAt: new Date().toISOString(),
+      updatedAt: now.toISOString(),
     });
+
+    const completedToday = normalizedDateKey === localDateKey(now);
+    if (completedToday || challengeAvailable !== true) {
+      await clearFollowUps(completedToday ? 'completed_today' : 'challenge_unavailable');
+    }
     return true;
   }
 
   async function readDailyProgress() {
     return readRecord(DAILY_PROGRESS_KEY);
+  }
+
+  async function scheduleFollowUp(source = 'firebase', now = new Date()) {
+    if (!isSupported()) return false;
+    const todayDateKey = localDateKey(now);
+    await updateRecord(DAILY_FOLLOW_UP_KEY, (current) => {
+      const currentDateKey = normalizeDateKey(current.dateKey);
+      const currentCount = currentDateKey === todayDateKey
+        ? normalizePendingCount(current.pendingCount)
+        : 0;
+      return {
+        ...current,
+        dateKey: todayDateKey,
+        pendingCount: currentCount + 1,
+        lastCreatedAt: now.toISOString(),
+        lastSource: typeof source === 'string' ? source : 'firebase',
+        clearedAt: '',
+        clearReason: '',
+      };
+    });
+    return true;
+  }
+
+  async function claimFollowUp(now = new Date()) {
+    if (!isSupported()) {
+      return {
+        claimed: false,
+        dateKey: localDateKey(now),
+        remainingCount: 0,
+        source: '',
+      };
+    }
+
+    let result = {
+      claimed: false,
+      dateKey: localDateKey(now),
+      remainingCount: 0,
+      source: '',
+    };
+    const todayDateKey = localDateKey(now);
+    await updateRecord(DAILY_FOLLOW_UP_KEY, (current) => {
+      const currentDateKey = normalizeDateKey(current.dateKey);
+      const currentCount = currentDateKey === todayDateKey
+        ? normalizePendingCount(current.pendingCount)
+        : 0;
+
+      if (currentCount <= 0) {
+        return {
+          ...current,
+          dateKey: todayDateKey,
+          pendingCount: 0,
+          clearedAt: currentDateKey && currentDateKey !== todayDateKey
+            ? now.toISOString()
+            : current.clearedAt || '',
+          clearReason: currentDateKey && currentDateKey !== todayDateKey
+            ? 'expired_date'
+            : current.clearReason || '',
+        };
+      }
+
+      result = {
+        claimed: true,
+        dateKey: todayDateKey,
+        remainingCount: currentCount - 1,
+        source: typeof current.lastSource === 'string' ? current.lastSource : '',
+      };
+      return {
+        ...current,
+        dateKey: todayDateKey,
+        pendingCount: currentCount - 1,
+        lastClaimedAt: now.toISOString(),
+      };
+    });
+    return result;
+  }
+
+  async function readFollowUpState() {
+    const followUp = await readRecord(DAILY_FOLLOW_UP_KEY);
+    const todayDateKey = localDateKey(new Date());
+    const dateKey = normalizeDateKey(followUp?.dateKey);
+    return {
+      dateKey,
+      pendingCount: dateKey === todayDateKey
+        ? normalizePendingCount(followUp?.pendingCount)
+        : 0,
+      lastCreatedAt: typeof followUp?.lastCreatedAt === 'string'
+        ? followUp.lastCreatedAt
+        : '',
+      lastClaimedAt: typeof followUp?.lastClaimedAt === 'string'
+        ? followUp.lastClaimedAt
+        : '',
+      lastSource: typeof followUp?.lastSource === 'string'
+        ? followUp.lastSource
+        : '',
+    };
   }
 
   async function recordFirebaseWake() {
@@ -187,28 +309,35 @@
     return true;
   }
 
+  function unsupportedSnapshot() {
+    return {
+      supported: false,
+      stateInitialized: false,
+      lastCompletedDateKey: '',
+      challengeAvailable: false,
+      stateUpdatedAt: '',
+      lastFirebaseReceivedAt: '',
+      lastLocalReminderAt: '',
+      reminderCountDateKey: '',
+      reminderCountForDate: 0,
+      followUpDateKey: '',
+      pendingFollowUpCount: 0,
+      followUpLastCreatedAt: '',
+      followUpLastClaimedAt: '',
+      lastDecision: 'unsupported',
+      lastDecisionAt: '',
+      errorMessage: '',
+    };
+  }
+
   async function readSnapshot() {
-    if (!isSupported()) {
-      return {
-        supported: false,
-        stateInitialized: false,
-        lastCompletedDateKey: '',
-        challengeAvailable: false,
-        stateUpdatedAt: '',
-        lastFirebaseReceivedAt: '',
-        lastLocalReminderAt: '',
-        reminderCountDateKey: '',
-        reminderCountForDate: 0,
-        lastDecision: 'unsupported',
-        lastDecisionAt: '',
-        errorMessage: '',
-      };
-    }
+    if (!isSupported()) return unsupportedSnapshot();
 
     try {
-      const [progress, diagnostics] = await Promise.all([
+      const [progress, diagnostics, followUp] = await Promise.all([
         readRecord(DAILY_PROGRESS_KEY),
         readRecord(DAILY_DIAGNOSTICS_KEY),
+        readFollowUpState(),
       ]);
       return {
         supported: true,
@@ -233,6 +362,10 @@
           Number.isInteger(diagnostics?.reminderCountForDate)
             ? diagnostics.reminderCountForDate
             : 0,
+        followUpDateKey: followUp.dateKey,
+        pendingFollowUpCount: followUp.pendingCount,
+        followUpLastCreatedAt: followUp.lastCreatedAt,
+        followUpLastClaimedAt: followUp.lastClaimedAt,
         lastDecision: typeof diagnostics?.lastDecision === 'string'
           ? diagnostics.lastDecision
           : '',
@@ -245,15 +378,8 @@
       };
     } catch (error) {
       return {
+        ...unsupportedSnapshot(),
         supported: true,
-        stateInitialized: false,
-        lastCompletedDateKey: '',
-        challengeAvailable: false,
-        stateUpdatedAt: '',
-        lastFirebaseReceivedAt: '',
-        lastLocalReminderAt: '',
-        reminderCountDateKey: '',
-        reminderCountForDate: 0,
         lastDecision: 'storage_error',
         lastDecisionAt: new Date().toISOString(),
         errorMessage: error instanceof Error ? error.message : String(error),
@@ -265,9 +391,14 @@
     isSupported,
     localDateKey,
     normalizeDateKey,
+    normalizePendingCount,
     evaluateDailyProgress,
     syncDailyProgress,
     readDailyProgress,
+    scheduleFollowUp,
+    claimFollowUp,
+    clearFollowUps,
+    readFollowUpState,
     recordFirebaseWake,
     recordDecision,
     readSnapshot,
